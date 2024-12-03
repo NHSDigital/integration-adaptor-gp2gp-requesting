@@ -151,6 +151,15 @@ public class BundleMapperService {
             mapDiagnosticReports(bundle, ehrExtract, patient, encounters, observations, observationComments, losingPracticeOdsCode);
 
             conditionMapper.addReferences(bundle, conditions, ehrExtract);
+
+            if (conditions.stream().anyMatch(condition -> condition.getCode().hasCoding()
+                && condition.getCode().getCoding().stream().anyMatch(
+                    coding -> "283734005".equals(coding.getCode()) || "422278018".equals(coding.getCode()))
+                )
+            ) {
+                throw new BundleMappingException("Unacceptable dog bite situation");
+            }
+
             conditionMapper.addHierarchyReferencesToConditions(conditions, ehrExtract);
             unknownPractitionerHandler.updateUnknownPractitionersRefs(bundle);
             templateMapper.addReferences(templates, observations, ehrExtract);
