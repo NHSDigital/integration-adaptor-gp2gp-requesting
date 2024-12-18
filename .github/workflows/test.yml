@@ -121,7 +121,7 @@ jobs:
 
   integration_tests:
     name: ${{ inputs.name }} Integration Tests
-    needs: [ unit-tests ]
+    needs: [ checkstyle, spotbugs ]
     permissions:
       id-token: write
       contents: read

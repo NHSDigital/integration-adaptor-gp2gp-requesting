@@ -1,1 +1,2 @@
-FROM apache/activemq-classic:6.1.4
+ARG ACTIVEMQ_VERSION=6.1.4
+FROM apache/activemq-classic:${ACTIVEMQ_VERSION}
