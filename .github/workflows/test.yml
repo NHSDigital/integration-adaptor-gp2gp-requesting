@@ -32,6 +32,7 @@ jobs:
         run: |
           ./gradlew checkStyleMain --parallel
           ./gradlew checkstyleTest --parallel
+          /gradlew checkstyleIntegrationTest --parallel
         working-directory: ${{ inputs.path }}
 
       - name: Collect Artifacts
