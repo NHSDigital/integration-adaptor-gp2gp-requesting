@@ -186,7 +186,7 @@ public class InboundMessageMergingServiceTests {
 
     @Test
     public void When_UpdateInboundMessageWithSkeletonThrowsSAXException_Expect_SendNack() throws JAXBException,
-        JsonProcessingException, SAXException, TransformerException, AttachmentNotFoundException, InlineAttachmentProcessingException {
+        JsonProcessingException, SAXException, TransformerException, InlineAttachmentProcessingException {
 
         var inboundMessage = new InboundMessage();
         var attachments = createPatientAttachmentList(true, true);
@@ -301,7 +301,7 @@ public class InboundMessageMergingServiceTests {
     @Test
     public void When_UpdateInboundMessageWithSkeletonThrowsTransformerException_Expect_SendNack()
         throws JAXBException, JsonProcessingException,
-        SAXException, TransformerException, AttachmentNotFoundException, InlineAttachmentProcessingException {
+        SAXException, TransformerException, InlineAttachmentProcessingException {
 
         var inboundMessage = new InboundMessage();
 
@@ -448,8 +448,8 @@ public class InboundMessageMergingServiceTests {
 
     @Test
     public void When_AttachmentsPresent_Expect_AttachmentReferenceUpdated()
-        throws AttachmentNotFoundException, JAXBException, InlineAttachmentProcessingException, JsonProcessingException,
-        TransformerException, SAXException {
+        throws AttachmentNotFoundException, JAXBException, InlineAttachmentProcessingException, JsonProcessingException {
+
         var inboundMessage = new InboundMessage();
         var attachments = createPatientAttachmentList(true, false);
 

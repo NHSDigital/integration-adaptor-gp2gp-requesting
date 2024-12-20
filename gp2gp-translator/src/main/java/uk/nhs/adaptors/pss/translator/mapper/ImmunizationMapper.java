@@ -124,28 +124,6 @@ public class ImmunizationMapper extends AbstractMapper<Immunization> {
             .addPractitioner(asserter);
     }
 
-    private void setPractitioners(Immunization immunization, RCMRMT030101UKObservationStatement observationStatement,
-                                  RCMRMT030101UKEhrComposition ehrComposition) {
-
-        var recorderAndAsserter = ParticipantReferenceUtil.fetchRecorderAndAsserter(ehrComposition);
-
-        var practitioner = Optional.ofNullable(getParticipantReference(
-            observationStatement.getParticipant(),
-            ehrComposition));
-
-        practitioner.ifPresent(participant -> {
-            var asserter = getImmunizationPractitioner(participant, "");
-            immunization.addPractitioner(asserter);
-
-            recorderAndAsserter.get(RECORDER).ifPresent(recorderRef -> {
-                if (!recorderRef.getReference().equals(participant.getReference())) {
-                    var recorder = getImmunizationPractitioner(recorderRef, "EP");
-                    immunization.addPractitioner(recorder);
-                }
-            });
-        });
-    }
-
     private Immunization initializeImmunization(RCMRMT030101UKObservationStatement observationStatement,
                                                 RCMRMT030101UKEhrComposition ehrComposition,
                                                 List<Encounter> encounterList,

@@ -66,7 +66,7 @@ public class CompoundStatementUtilTest {
                 RCMRMT030101UKComponent02::hasMedicationStatement,
                 RCMRMT030101UKComponent02::getMedicationStatement);
 
-        assertThat(mappedValues.size()).isEqualTo(EXPECTED_MEDICATION_STATEMENT_COUNT);
+        assertThat(mappedValues).hasSize(EXPECTED_MEDICATION_STATEMENT_COUNT);
         mappedValues.forEach(
             value -> assertTrue(value instanceof RCMRMT030101UKMedicationStatement)
         );
@@ -80,7 +80,7 @@ public class CompoundStatementUtilTest {
                 RCMRMT030101UKComponent02::hasObservationStatement,
                 RCMRMT030101UKComponent02::getObservationStatement);
 
-        assertThat(mappedValues.size()).isEqualTo(EXPECTED_OBSERVATION_STATEMENT_COUNT);
+        assertThat(mappedValues).hasSize(EXPECTED_OBSERVATION_STATEMENT_COUNT);
         mappedValues.forEach(
             value -> assertTrue(value instanceof RCMRMT030101UKObservationStatement)
         );
@@ -94,7 +94,7 @@ public class CompoundStatementUtilTest {
                 RCMRMT030101UKComponent02::hasLinkSet,
                 RCMRMT030101UKComponent02::getLinkSet);
 
-        assertThat(mappedValues.size()).isEqualTo(EXPECTED_LINKSET_COUNT);
+        assertThat(mappedValues).hasSize(EXPECTED_LINKSET_COUNT);
         mappedValues.forEach(
             value -> assertTrue(value instanceof RCMRMT030101UKLinkSet)
         );

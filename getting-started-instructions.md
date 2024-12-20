@@ -16,6 +16,23 @@ This is a __required__ prerequisite for both requesting and sending adaptors.
 1. ITOC will provide a certificate once this has been done, copy this into the `MHS_SECRET_CLIENT_CERT` environment variable for Inbound/Outbound adaptors.
 1. Request from ITOC that new GP2GP product be registered in SDS to your test GP Surgery using the same endpoint FQDN you used above.
 1. ITOC will provide a Party Key once this has been done, copy this into the `MHS_SECRET_PARTY_KEY` environment variable for Inbound/Outbound adaptors.
+1. Populate the `MHS_SECRET_CA_CERTS` environment variable for Inbound/Outbound adaptors using both [Root and Sub CA certificates for INT][spine-certificates].
+   When a certificate rotation is announced, you can provide the two older certificates and two newer certificates to tell the adaptor that all are trusted.
+   The ordering of certificates within this environment variable is unimportant.
+   Each certificate should be concatenated back to back within the environment variable, looking like the following:
+   ```
+   -----BEGIN CERTIFICATE-----
+   MIIFtDC...
+   -----END CERTIFICATE-----
+   -----BEGIN CERTIFICATE-----
+   MIIFhzCC...
+   -----END CERTIFICATE-----
+   ```
+1. Specify the `MHS_FORWARD_RELIABLE_ENDPOINT_URL` environment variable for Inbound/Outbound adaptors set to the value
+   specified by the [Integration Environment - Messaging URLs][messaging-urls] "Used for all domain reliable messaging".
+
+[messaging-urls]: https://digital.nhs.uk/services/path-to-live-environments/integration-environment#messaging-urls
+[spine-certificates]: https://digital.nhs.uk/services/path-to-live-environments/integration-environment#rootca-and-subca-certificates
 
 ### Requesting adaptor
 

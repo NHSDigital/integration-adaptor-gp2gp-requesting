@@ -23,7 +23,6 @@ import lombok.SneakyThrows;
 public class ObservationUtilTest {
     private static final String XML_RESOURCES_BASE = "xml/Observation/";
     private static final String ISSUED_EHR_COMPOSITION_EXAMPLE = "2020-01-01T01:01:01.000+00:00";
-    private static final String ISSUED_EHR_EXTRACT_EXAMPLE = "2020-02-01T01:01:01.000+00:00";
     private static final String INTERPRETATION_SYSTEM = "http://hl7.org/fhir/v2/0078";
     private static final String EFFECTIVE_START_DATE_1 = "2010-05-21";
     private static final String EFFECTIVE_START_DATE_2 = "2010-05-20";

@@ -2073,6 +2073,11 @@
         } ],
         "text": "Referral to private doctor"
       } ],
+      "supportingInfo": [ {
+        "reference": "DocumentReference/BFBF038A-F142-4C67-B05B-D155E2C89990"
+      }, {
+        "reference": "DocumentReference/6DC83A17-4DFD-4C1C-A452-45F8F8A8FBA1"
+      } ],
       "note": [ {
         "text": "Priority: Routine"
       }, {
@@ -2622,61 +2627,6 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       } ],
       "comment": "This is a dry eyes problem {Episodicity : code=255217005, displayName=First}"
-    }
-  }, {
-    "resource": {
-      "resourceType": "Condition",
-      "id": "E0EF416A-A513-4668-B454-1F3002573B80",
-      "meta": {
-        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1" ]
-      },
-      "extension": [ {
-        "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-ProblemSignificance-1",
-        "valueCode": "minor"
-      }, {
-        "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-ActualProblem-1",
-        "valueReference": {
-          "reference": "ReferralRequest/E63AF323-919F-4D5F-9A1D-BA933BC230BC"
-        }
-      }, {
-        "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-RelatedClinicalContent-1",
-        "valueReference": {
-          "reference": "DocumentReference/BFBF038A-F142-4C67-B05B-D155E2C89990"
-        }
-      }, {
-        "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-RelatedClinicalContent-1",
-        "valueReference": {
-          "reference": "DocumentReference/6DC83A17-4DFD-4C1C-A452-45F8F8A8FBA1"
-        }
-      } ],
-      "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
-        "value": "E0EF416A-A513-4668-B454-1F3002573B80"
-      } ],
-      "clinicalStatus": "active",
-      "category": [ {
-        "coding": [ {
-          "system": "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-ConditionCategory-1",
-          "code": "problem-list-item",
-          "display": "Problem List Item"
-        } ]
-      } ],
-      "subject": {
-        "reference": "Patient/00000000-0000-0000-0000-000000000012"
-      },
-      "context": {
-        "reference": "Encounter/7626FAAD-8562-478D-B79C-598520953E86"
-      },
-      "onsetDateTime": "2010-01-19T11:32:00+00:00",
-      "assertedDate": "2010-01-19T11:32:30+00:00",
-      "asserter": {
-        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
-      },
-      "note": [ {
-        "text": "Defaulted status to active : Unknown status at source"
-      }, {
-        "text": "Unspecified Significance: Defaulted to Minor"
-      } ]
     }
   }, {
     "resource": {

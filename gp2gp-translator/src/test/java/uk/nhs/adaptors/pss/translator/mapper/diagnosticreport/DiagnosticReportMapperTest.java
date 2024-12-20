@@ -28,7 +28,6 @@ import org.hl7.fhir.dstu3.model.InstantType;
 import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKCompoundStatement;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
@@ -42,7 +41,6 @@ import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import uk.nhs.adaptors.pss.translator.util.MetaUtil;
-import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
@@ -65,10 +63,6 @@ public class DiagnosticReportMapperTest {
     private static final String CONCLUSION_FIELD_TEXT = "TEXT_OF_DIRECT_COMPOUND_STATEMENT_CHILD_NARRATIVE_STATEMENT_1\n"
         + "TEXT_OF_DIRECT_COMPOUND_STATEMENT_CHILD_NARRATIVE_STATEMENT_2";
     private static final Meta META = MetaUtil.getMetaFor(META_WITH_SECURITY, DIAGNOSTIC_REPORT_META_SUFFIX);
-    private static final CV NOPAT_CV = TestUtility.createCv(
-        "NOPAT",
-        "http://hl7.org/fhir/v3/ActCode",
-        "no disclosure to patient, family or caregivers without attending provider's authorization");
 
     private static final String NARRATIVE_STATEMENT_COMMENT_BLOCK = """
         CommentType:LABORATORY RESULT COMMENT(E141)

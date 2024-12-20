@@ -96,8 +96,7 @@ services:
 
   activemq:
     build:
-      context: ../
-      dockerfile: ./docker/activemq/Dockerfile
+      context: ./activemq/
     ports:
       - "5672:5672"
       - "8161:8161"

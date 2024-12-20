@@ -20,7 +20,6 @@ import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFi
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Meta;
@@ -28,7 +27,6 @@ import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKCompoundStatement;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
@@ -44,7 +42,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import lombok.SneakyThrows;
 import org.mockito.stubbing.Answer1;
 import uk.nhs.adaptors.pss.translator.util.MetaUtil;
-import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,10 +61,6 @@ public class SpecimenCompoundsMapperTest {
     private static final String TEST_COMMENT_LINE_1 = "Test Comment";
     private static final String META_PROFILE = "Observation-1";
     private static final Meta META = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-    private static final CV NOPAT_CV = TestUtility.createCv(
-        "NOPAT",
-        "http://hl7.org/fhir/v3/ActCode",
-        "no disclosure to patient, family or caregivers without attending provider's authorization");
 
     private static final Patient PATIENT = (Patient) new Patient().setId("TEST_PATIENT_ID");
 

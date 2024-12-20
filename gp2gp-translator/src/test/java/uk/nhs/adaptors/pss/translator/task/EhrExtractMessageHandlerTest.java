@@ -547,7 +547,7 @@ public class EhrExtractMessageHandlerTest {
     public void When_HandleLargeMessageWithValidDataIsCalled_Expect_ItShouldNotTranslate()
         throws JAXBException, BundleMappingException, AttachmentNotFoundException,
                ParseException, JsonProcessingException, InlineAttachmentProcessingException,
-               SAXException, TransformerException, InstantiationException, IllegalAccessException {
+               SAXException, TransformerException {
 
         Bundle bundle = new Bundle();
         bundle.setId("Test");

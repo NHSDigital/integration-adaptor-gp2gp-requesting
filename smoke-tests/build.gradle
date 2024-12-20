@@ -20,7 +20,7 @@ dependencies {
     }
 
     constraints {
-        implementation('io.netty:netty-common:4.1.114.Final') {
+        implementation('io.netty:netty-common:4.1.115.Final') {
             because 'to fix CVE-2022-24823'
         }
     }

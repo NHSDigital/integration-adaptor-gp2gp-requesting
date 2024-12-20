@@ -58,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
+import uk.nhs.adaptors.pss.translator.util.ResourceFilterUtil;
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
 
 @Service
@@ -96,6 +97,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
                 extractAllLinkSets(component)
                     .filter(Objects::nonNull)
+                    .filter(linkSet -> !ResourceFilterUtil.isReferralRequestToExternalDocumentLinkSet(ehrExtract, linkSet))
                     .map(linkSet -> getCondition(
                         patient,
                         encounters,

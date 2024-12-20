@@ -1,0 +1,194 @@
+<EhrExtract xmlns="urn:hl7-org:v3" classCode="EXTRACT" moodCode="EVN">
+    <availabilityTime value="20101209114846"/>
+    <component typeCode="COMP">
+        <ehrFolder classCode="FOLDER" moodCode="EVN">
+            <component typeCode="COMP">
+                <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                    <id root="B9727462-9F98-462A-BCC0-045181186927"/>
+                    <code code="24591000000103" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Other report">
+                        <originalText>Outbound Referral</originalText>
+                    </code>
+                    <statusCode code="COMPLETE"/>
+                    <effectiveTime>
+                        <center nullFlavor="NI"/>
+                    </effectiveTime>
+                    <availabilityTime value="202105251602"/>
+                    <author contextControlCode="OP" typeCode="AUT">
+                        <time value="20230913121921"/>
+                        <agentRef classCode="AGNT">
+                            <id root="2A964470-EE5A-D1DB-04D2-B08AA137DA1D"/>
+                        </agentRef>
+                    </author>
+                    <Participant2 contextControlCode="OP" typeCode="RESP">
+                        <agentRef classCode="AGNT">
+                            <id root="6B78D0BB-8E52-FEEC-4CFC-A15C50378396"/>
+                        </agentRef>
+                    </Participant2>
+                    <component typeCode="COMP">
+                        <CompoundStatement classCode="TOPIC" moodCode="EVN">
+                            <id root="F1ED066B-3BB5-4E8F-83DB-D58C0FB69BD7"/>
+                            <code code="Z....00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="UnspecifiedCondtions"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center nullFlavor="NI"/>
+                            </effectiveTime>
+                            <availabilityTime value="202105251602"/>
+                            <component contextConductionInd="true" typeCode="COMP">
+                                <CompoundStatement classCode="CATEGORY" moodCode="EVN">
+                                    <id root="F35A022F-8B2B-404C-9596-562672BCF718"/>
+                                    <code code="3457005" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Referral"/>
+                                    <statusCode code="COMPLETE"/>
+                                    <effectiveTime>
+                                        <center nullFlavor="NI"/>
+                                    </effectiveTime>
+                                    <availabilityTime value="202105251602"/>
+                                    <component contextConductionInd="true" typeCode="COMP">
+                                        <RequestStatement classCode="OBS" moodCode="RQO">
+                                            <id root="request-statement-1"/>
+                                            <code code="8H54.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Orthopaedic referral">
+                                                <qualifier codeSystem="2.16.840.1.113883.2.1.6.3" inverted="false">
+                                                    <name code="RequestType" displayName="RequestType"/>
+                                                    <value code="Unknown" displayName="Unknown"/>
+                                                </qualifier>
+                                                <translation code="183545006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                            </code>
+                                            <text>NHS e-Referral Service, Purpose: Unknown</text>
+                                            <statusCode code="COMPLETE"/>
+                                            <effectiveTime>
+                                                <center nullFlavor="NI"/>
+                                            </effectiveTime>
+                                            <availabilityTime value="20210525"/>
+                                            <priorityCode code="394848005" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Normal">
+                                                <originalText>Routine</originalText>
+                                            </priorityCode>
+                                        </RequestStatement>
+                                    </component>
+                                </CompoundStatement>
+                            </component>
+                            <component contextConductionInd="true" typeCode="COMP">
+                                <CompoundStatement classCode="CATEGORY" moodCode="EVN">
+                                    <id root="249D0BEC-B479-439F-AB85-1632FEFC3E11"/>
+                                    <code code="1712901000006107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Document"/>
+                                    <statusCode code="COMPLETE"/>
+                                    <effectiveTime>
+                                        <center nullFlavor="NI"/>
+                                    </effectiveTime>
+                                    <availabilityTime value="202105251602"/>
+                                    <component contextConductionInd="true" typeCode="COMP">
+                                        <NarrativeStatement classCode="OBS" moodCode="EVN">
+                                            <id root="narrative-statement-1"/>
+                                            <text>NHS e-Referral UBRN [redacted] for Orthopaedic referral, NHS e-RS UBRN [redacted] for Orthopaedic referral</text>
+                                            <statusCode code="COMPLETE"/>
+                                            <availabilityTime value="20210525"/>
+                                            <reference typeCode="REFR">
+                                                <referredToExternalDocument classCode="DOC" moodCode="EVN">
+                                                    <id root="74E407FF-8C96-4B8F-873A-566B3AC921BE"/>
+                                                    <code code="25821000000100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Original text document">
+                                                        <originalText>e-RS Letter (25-May-2021)</originalText>
+                                                    </code>
+                                                    <text mediaType="text/rtf">
+                                                        <reference value="https://[url redacted]"/>
+                                                    </text>
+                                                </referredToExternalDocument>
+                                            </reference>
+                                        </NarrativeStatement>
+                                    </component>
+                                    <component contextConductionInd="true" typeCode="COMP">
+                                        <NarrativeStatement classCode="OBS" moodCode="EVN">
+                                            <id root="narrative-statement-2"/>
+                                            <text>NHS e-Referral UBRN [redacted] for Orthopaedic referral, NHS e-RS UBRN [redacted] for Orthopaedic referral</text>
+                                            <statusCode code="COMPLETE"/>
+                                            <availabilityTime value="20210525"/>
+                                            <reference typeCode="REFR">
+                                                <referredToExternalDocument classCode="DOC" moodCode="EVN">
+                                                    <id root="74E407FF-8C96-4B8F-873A-566B3AC921BE"/>
+                                                    <code code="25821000000100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Original text document">
+                                                        <originalText>e-RS Letter (25-May-2021)</originalText>
+                                                    </code>
+                                                    <text mediaType="text/rtf">
+                                                        <reference value="https://[url redacted]"/>
+                                                    </text>
+                                                </referredToExternalDocument>
+                                            </reference>
+                                        </NarrativeStatement>
+                                    </component>
+                                    <component contextConductionInd="true" typeCode="COMP">
+                                        <NarrativeStatement classCode="OBS" moodCode="EVN">
+                                            <id root="narrative-statement-3"/>
+                                            <text>NHS e-Referral UBRN [redacted] for Orthopaedic referral, NHS e-RS UBRN [redacted] for Orthopaedic referral</text>
+                                            <statusCode code="COMPLETE"/>
+                                            <availabilityTime value="20210525"/>
+                                            <reference typeCode="REFR">
+                                                <referredToExternalDocument classCode="DOC" moodCode="EVN">
+                                                    <id root="74E407FF-8C96-4B8F-873A-566B3AC921BE"/>
+                                                    <code code="25821000000100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Original text document">
+                                                        <originalText>e-RS Letter (25-May-2021)</originalText>
+                                                    </code>
+                                                    <text mediaType="text/rtf">
+                                                        <reference value="https://[url redacted]"/>
+                                                    </text>
+                                                </referredToExternalDocument>
+                                            </reference>
+                                        </NarrativeStatement>
+                                    </component>
+                                </CompoundStatement>
+                            </component>
+                        </CompoundStatement>
+                    </component>
+                    <component typeCode="COMP">
+                        <LinkSet classCode="OBS" moodCode="EVN">
+                            <id root="linkset-1"/>
+                            <code code="394776006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Unspecified problem"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center value="202309131219"/>
+                            </effectiveTime>
+                            <availabilityTime value="20230913121921"/>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="narrative-statement-1"/>
+                                </statementRef>
+                            </component>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="narrative-statement-2"/>
+                                </statementRef>
+                            </component>
+                            <conditionNamed inversionInd="true" typeCode="NAME">
+                                <namedStatementRef classCode="OBS" moodCode="EVN">
+                                    <id root="request-statement-1"/>
+                                </namedStatementRef>
+                            </conditionNamed>
+                        </LinkSet>
+                    </component>
+                    <component typeCode="COMP">
+                        <LinkSet classCode="OBS" moodCode="EVN">
+                            <id root="linkset-2"/>
+                            <code code="394776006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Unspecified problem"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center value="202309131219"/>
+                            </effectiveTime>
+                            <availabilityTime value="20230913121921"/>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="narrative-statement-1"/>
+                                </statementRef>
+                            </component>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="narrative-statement-3"/>
+                                </statementRef>
+                            </component>
+                            <conditionNamed inversionInd="true" typeCode="NAME">
+                                <namedStatementRef classCode="OBS" moodCode="EVN">
+                                    <id root="request-statement-1"/>
+                                </namedStatementRef>
+                            </conditionNamed>
+                        </LinkSet>
+                    </component>
+                </ehrComposition>
+            </component>
+        </ehrFolder>
+    </component>
+</EhrExtract>

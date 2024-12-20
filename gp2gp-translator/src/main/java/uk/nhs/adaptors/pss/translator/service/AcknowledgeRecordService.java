@@ -49,7 +49,7 @@ public class AcknowledgeRecordService {
         try {
             message = parseOriginalMessage(acknowledgeRecordMessage);
         } catch (Exception exception) {
-            LOGGER.error("Original message was not parsed due to an exception.", exception.getMessage());
+            LOGGER.error("Original message was not parsed due to an exception: {}", exception.getMessage());
             return false;
         }
 

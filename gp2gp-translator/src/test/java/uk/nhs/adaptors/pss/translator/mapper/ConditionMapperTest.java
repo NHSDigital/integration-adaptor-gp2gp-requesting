@@ -363,6 +363,18 @@ class ConditionMapperTest {
         );
     }
 
+    @Test
+    void When_MappingLinksetWhichIsAReferralRequestToExternalDocumentLinkSet_Expect_ConditionNotToBeMapped() {
+        final var ehrExtract = unmarshallEhrExtract(
+            "ResourceFilter",
+            "ehr_extract_with_referral_request_to_external_document_linkset.xml"
+        );
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+
+        assertThat(conditions).hasSize(0);
+    }
+
     private void addMedicationRequestsToBundle(Bundle bundle) {
         var planMedicationRequest = new MedicationRequest().setId(AUTHORISE_ID);
         var orderMedicationRequest = new MedicationRequest().setId(PRESCRIBE_ID);
@@ -448,9 +460,14 @@ class ConditionMapperTest {
     }
 
     @SneakyThrows
-    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String filename) {
-        final File file = FileFactory.getXmlFileFor(TEST_FILES_DIRECTORY, filename);
+    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String testFilesDirectory, String filename) {
+        final File file = FileFactory.getXmlFileFor(testFilesDirectory, filename);
         return unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+    }
+
+    @SneakyThrows
+    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String filename) {
+        return unmarshallEhrExtract(TEST_FILES_DIRECTORY, filename);
     }
 
     private void configureCommonStubs() {

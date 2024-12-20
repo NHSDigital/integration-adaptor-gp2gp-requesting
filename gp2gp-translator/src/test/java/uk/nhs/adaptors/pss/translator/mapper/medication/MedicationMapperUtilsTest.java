@@ -29,7 +29,6 @@ public class MedicationMapperUtilsTest {
     private static final String EXPECTED_CODE_DISPLAY = "NHS prescription";
 
     private static final String AUTHORISE_ID = "8866381C-E5B8-4A6E-ADBC-964F9A77D407";
-    private static final String MEDICATION_REQUEST_ID = "a9edfd5e-bd52-461f-8b96-9c5b181af5bf";
 
     @Test
     public void When_CreatingPrescriptionTypeExtension_Expect_AcuteValues() {

@@ -1011,8 +1011,7 @@ class COPCMessageHandlerTest {
 
     @Test
     public void When_HandleMessage_WithMhsServerErrorException_Expect_ExceptionIsBubbledUpSoMessageIsRetriedByJMS()
-        throws SAXException, AttachmentNotFoundException, JAXBException, BundleMappingException, JsonProcessingException,
-               InlineAttachmentProcessingException, AttachmentLogException {
+        throws SAXException, InlineAttachmentProcessingException {
 
         MockedStatic<XmlUnmarshallUtil> mockedXmlUnmarshall = Mockito.mockStatic(XmlUnmarshallUtil.class);
 

@@ -1,0 +1,58 @@
+name: Publish Workflow
+on:
+  workflow_call:
+    inputs:
+      directory:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+      build-context:
+        required: true
+        type: string
+      build-id:
+        required: true
+        type: string
+
+jobs:
+  build-and-publish-docker-images:
+    name: Build & Publish Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: gp2gp_github_action_build_workflow
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Docker Image
+        run: |
+          DOCKER_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          DOCKER_TAG="$DOCKER_REGISTRY/${{ inputs.repository }}:${{ inputs.build-id }}"
+          echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+
+          # Build Image
+          docker build -f ./docker/${{ inputs.directory }}/Dockerfile -t $DOCKER_TAG ${{ inputs.build-context }}
+
+      - name: Login to AWS ECR
+        run: |
+          DOCKER_REGISTRY="https://${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+
+      - name: Publish image to ECR
+        run: docker push $DOCKER_TAG
+
+      - name: Logout of AWS ECR (Clean up Credentials)
+        if: always()
+        run: |
+          DOCKER_REGISTRY="https://${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          docker logout $DOCKER_REGISTRY

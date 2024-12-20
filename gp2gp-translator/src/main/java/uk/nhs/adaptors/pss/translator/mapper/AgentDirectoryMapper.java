@@ -114,11 +114,15 @@ public class AgentDirectoryMapper {
 
     private List<HumanName> getPractitionerName(PN name) {
         var nameList = new ArrayList<HumanName>();
-        var humanName = new HumanName();
+        var humanName = new HumanName().setUse(NameUse.OFFICIAL);
+        nameList.add(humanName);
 
-        humanName
-            .setUse(NameUse.OFFICIAL)
-            .setFamily(getPractitionerFamily(name.getFamily()));
+        if (name == null) {
+            humanName.setFamily(UNKNOWN);
+            return nameList;
+        }
+
+        humanName.setFamily(getPractitionerFamily(name.getFamily()));
 
         var given = getPractitionerGiven(name.getGiven());
         if (given != null) {
@@ -129,8 +133,6 @@ public class AgentDirectoryMapper {
         if (prefix != null) {
             humanName.getPrefix().add(prefix);
         }
-
-        nameList.add(humanName);
 
         return nameList;
     }

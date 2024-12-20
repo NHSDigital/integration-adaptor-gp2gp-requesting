@@ -1,13 +1,15 @@
-# nia-patient-switching-standard-adaptor
-National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk/developer/api-catalogue/gp2gp/patient-switching---integration-adaptor)
+# GP2GP FHIR Request Adaptor
+National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk/developer/api-catalogue/gp2gp/gp2gp-requesting-adaptor)
 
-Incumbent providers (e.g. TPP, EMIS, SystemOne) in order to deploy GP2GP Adaptor in their infrastructure
-to support losing practice scenario - i.e. whereby a different practice transfers patient data from the incumbent
-would have to make changes to their GP Connect interface implementations.
-In particular, they would need to implement 1.6.0 version that is required by the GPC Consumer and GP2GP adaptors.
-This business case is not always easy to be accepted by the incumbent providers, as they would have to invest time to make those changes.
+Incumbent providers (e.g. TPP, EMIS, SystemOne) would have to make changes to their GP Connect interface implementations
+in order to deploy GP2GP Adaptor in their infrastructure to support the losing practice scenario - i.e. whereby a 
+different practice transfers patient data from the incumbent. In particular, they would need to implement 1.6.0 version
+that is required by the GPC Consumer and GP2GP adaptors.
 
-The motivation for the Switching Standard Adaptor is to remove the dependency from incumbent providers to do that work.
+This business case is not always easy to be accepted by the incumbent providers, as they would have to invest time to
+make those changes.
+
+The motivation for the GP2GP FHIR Request   Adaptor is to remove the dependency from incumbent providers to do that work.
 The idea is to build an adaptor that could be installed and configured in a New Market Entrant (NME) infrastructure,
 and could work with the incumbent’s GPC < 1.6.0.
 
@@ -28,7 +30,7 @@ Both are Java Spring Boot applications, released as separate docker images.
 
 ## Endpoints
 
-The Patient Switching Adaptor's facade provides two main endpoints for interacting with patient records.
+The Adaptor's facade provides two main endpoints for interacting with patient records.
 
 ### POST /Patient/$gpc.migratestructuredrecord
 
@@ -171,16 +173,16 @@ The contents of this repository are protected by Crown Copyright (C).
 
 Case 1: Performance Testing with JMeter
 
-We conducted a performance test of the PS Adaptor using the JMeter tool. 
+We conducted a performance test of the Adaptor using the JMeter tool. 
 The use case focused on simulating a patient transfer request, 
-where Electronic Health Record (EHR) requests were sent to the PS Adaptor, expecting a bundle in return. 
+where Electronic Health Record (EHR) requests were sent to the Adaptor, expecting a bundle in return. 
 This test involved two text attachments with sizes of 2.44 MB and 0.7 MB, respectively. 
-The primary goal was to evaluate how the PS Adaptor manages a heavy workload and to monitor CPU and memory usage 
+The primary goal was to evaluate how the Adaptor manages a heavy workload and to monitor CPU and memory usage 
 during the process.
 
 Test Setup and Parameters:
 
- - PS Adaptor: Deployed in an ECS AWS environment with 4 CPUs and 16 GB of memory (shared between the PS Translator and Facade).
+ - GP2GP FHIR Request Adaptor: Deployed in an ECS AWS environment with 4 CPUs and 16 GB of memory (shared between the PS Translator and Facade).
  - MHS Adaptor: Deployed in an ECS AWS environment with 4 CPUs and 16 GB of memory (shared between inbound and outbound).
  - Message Queue: Utilized the mq.m5.xlarge instance type.
  - RDS Database: Hosted on a db.t3.xlarge instance.
@@ -205,7 +207,7 @@ These tests were conducted with TPP/EMIS as the sending systems and Medicus as t
 
 Resource Allocation:
 
-PS Adaptor:
+GP2GP FHIR Request Adaptor:
     Facade: 2 vCPUs, 4 GB RAM
     Translator: 2 vCPUs, 4 GB RAM
 MHS Adaptor:

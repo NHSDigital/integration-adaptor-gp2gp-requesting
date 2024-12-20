@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.assertj.core.groups.Tuple;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -29,6 +30,7 @@ import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
@@ -69,8 +71,6 @@ class ReferralRequestMapperTest {
     private static final String UNEXPECTED_PRIORITY_DISPLAY = "Delayed priority";
     private static final String PRIORITY_NOTE_PREPENDAGE = "Priority: ";
     private static final String NOPAT = "NOPAT";
-
-    private static final String NOSCRUB = "NOSCRUB";
 
     private static final String TEST_DIRECTORY_NAME = "RequestStatement";
 
@@ -554,6 +554,51 @@ class ReferralRequestMapperTest {
         );
     }
 
+    @Test
+    void When_MappingReferralRequestReferencedByReferralRequestToExternalDocumentLinkSet_Expect_SupportingInfoReferencesLinksetDocuments() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtractElement(
+            "ResourceFilter",
+            "ehr_extract_with_referral_request_to_external_document_linkset.xml"
+        );
+
+        final var referralRequests = referralRequestMapper.mapResources(
+            ehrExtract,
+            (Patient) new Patient().setId(PATIENT_ID),
+            List.of(),
+            PRACTISE_CODE
+        );
+        final var referralRequest = referralRequests.getFirst();
+
+        assertThat(referralRequest.getSupportingInfo())
+            .extracting("referenceElement.resourceType", "referenceElement.idPart")
+            .containsExactly(
+                Tuple.tuple(ResourceType.DocumentReference.name(), "narrative-statement-1"),
+                Tuple.tuple(ResourceType.DocumentReference.name(), "narrative-statement-2")
+            );
+    }
+
+    @Test
+    void When_ReferralRequestReferencedByMultipleLinkSets_Expect_AllRelatedDocumentReferencesAddedAsSupportingInfo() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtractElement(
+            "ehr_extract_with_multiple_request_statement_to_external_document_linksets.xml"
+        );
+
+        final var referralRequests = referralRequestMapper.mapResources(
+            ehrExtract,
+            (Patient) new Patient().setId(PATIENT_ID),
+            List.of(),
+            PRACTISE_CODE
+        );
+
+        assertThat(referralRequests.getFirst().getSupportingInfo())
+            .extracting("referenceElement.resourceType", "referenceElement.idPart")
+            .containsExactly(
+                Tuple.tuple(ResourceType.DocumentReference.name(), "narrative-statement-1"),
+                Tuple.tuple(ResourceType.DocumentReference.name(), "narrative-statement-2"),
+                Tuple.tuple(ResourceType.DocumentReference.name(), "narrative-statement-3")
+            );
+    }
+
     private RCMRMT030101UKRequestStatement getNestedRequestStatement(RCMRMT030101UKEhrComposition ehrComposition) {
         return ehrComposition.getComponent()
             .getFirst()
@@ -597,6 +642,7 @@ class ReferralRequestMapperTest {
                 requestStatement,
                 patient,
                 List.of(encounter),
+                List.of(),
                 PRACTISE_CODE);
     }
 
@@ -620,9 +666,16 @@ class ReferralRequestMapperTest {
 
     @SneakyThrows
     private RCMRMT030101UKEhrExtract unmarshallEhrExtractElement(String fileName) {
-        final File file = FileFactory.getXmlFileFor(TEST_DIRECTORY_NAME, fileName);
+        return unmarshallEhrExtractElement(TEST_DIRECTORY_NAME, fileName);
+    }
+
+    @SneakyThrows
+    private RCMRMT030101UKEhrExtract unmarshallEhrExtractElement(String testDirectory, String fileName) {
+        final File file = FileFactory.getXmlFileFor(testDirectory, fileName);
         return unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
     }
+
+
 
     @SneakyThrows
     private RCMRMT030101UKEhrExtract unmarshallStringToEhrExtractElement(String inputXml) {

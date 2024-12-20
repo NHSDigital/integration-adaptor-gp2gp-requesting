@@ -1,0 +1,235 @@
+name: "Test Workflow"
+on:
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      path:
+        required: true
+        type: string
+
+jobs:
+  checkstyle:
+    name: ${{ inputs.name }} Checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 LTS
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Execute Checkstyle
+        run: ./gradlew checkStyleMain checkstyleTest checkstyleIntegrationTest
+        working-directory: ${{ inputs.path }}
+
+      - name: Collect Artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp -r ./${{ inputs.path }}/build/reports ./artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: '${{ inputs.name }} Checkstyle Report'
+          path: ./artifacts/**
+          compression-level: 9
+
+      - name: Temporary Artifacts Cleanup
+        run: rm -rf ./artifacts
+
+  spotbugs:
+    name: ${{ inputs.name }} Spotbugs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 LTS
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Execute Spotbugs
+        run: ./gradlew spotbugsMain spotbugsTest spotbugsIntegrationTest
+        working-directory: ${{ inputs.path }}
+
+      - name: Collect Artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp -r ./${{ inputs.path }}/build/reports ./artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: '${{ inputs.name }} Spotbugs Report'
+          path: ./artifacts/**
+          compression-level: 9
+
+      - name: Temporary Artifacts Cleanup
+        run: rm -rf ./artifacts
+
+  unit-tests:
+    name: ${{ inputs.name }} Unit Tests
+    needs: [ checkstyle, spotbugs ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 LTS
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Execute Unit Tests
+        run: ./gradlew test --parallel --build-cache
+        working-directory: ${{ inputs.path }}
+
+      - name: Collect Artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp -r ./${{ inputs.path }}/build/reports ./artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: '${{ inputs.name }} Unit Test Report'
+          path: ./artifacts/**
+          compression-level: 9
+
+      - name: Test Job Summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: "${{ inputs.path }}/build/test-results/test/TEST-*.xml"
+
+      - name: Temporary Artifacts Cleanup
+        run: rm -rf ./artifacts
+
+  integration_tests:
+    name: ${{ inputs.name }} Integration Tests
+    needs: [ checkstyle, spotbugs ]
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    env:
+      PS_DB_OWNER_NAME: "postgres"
+      POSTGRES_PASSWORD: "pass_test"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: gp2gp_github_action_build_workflow
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Retrieve Snomed CT Image
+        run: |
+          aws s3 cp s3://snomed-schema/${{ vars.SNOMED_CT_TERMINOLOGY_FILE }} \
+            ./snomed-database-loader/${{ vars.SNOMED_CT_TERMINOLOGY_FILE }}
+
+      - name: Setup Required Docker Images
+        working-directory: ./docker
+        run: |
+          source vars.local.tests.sh
+          docker network create ps-network || true
+          docker compose -f ./docker-compose.yml up -d ps_db mhs-adaptor-mock activemq gp2gp_translator gpc_facade
+
+      - name: Run Migrations
+        working-directory: ./docker
+        env:
+          PS_DB_URL: "jdbc:postgresql://ps_db:5432"
+          PS_DB_OWNER_NAME: "postgres"
+          GP2GP_TRANSLATOR_USER_DB_PASSWORD: "pass_test"
+          GPC_FACADE_USER_DB_PASSWORD: "pass_test"
+        run: docker compose -f ./docker-compose.yml up db_migration
+
+      - name: Populate Database
+        continue-on-error: true
+        working-directory: ./snomed-database-loader
+        env:
+          PS_DB_HOST: "localhost"
+          PS_DB_PORT: "5436"
+        run: ./load_release-postgresql.sh ${{ vars.SNOMED_CT_TERMINOLOGY_FILE }}
+
+      - name: Check Immunizations Loaded
+        working-directory: ./snomed-database-loader
+        env:
+          PS_DB_HOST: "localhost"
+          PS_DB_PORT: "5436"
+        run: ./test-load-immunization-codes.sh
+
+      - name: Execute Integration Tests
+        working-directory: ${{ inputs.path }}
+        env:
+          GPC_FACADE_SERVER_PORT: "8081"
+          GPC_FACADE_USER_DB_PASSWORD: "pass_test"
+          GP2GP_TRANSLATOR_USER_DB_PASSWORD: "pass_test"
+        run: ./gradlew integrationTest
+
+      - name: Dump Docker Logs
+        if: always()
+        run: |
+          mkdir -p ./logs
+          container_names=$(docker ps -a --format '{{.Names}}')
+          for container in $container_names; do
+              docker logs "$container" > ./logs/"$container".log
+              echo "Logs saved for container: $container"
+          done
+        working-directory: ./scripts
+        shell: bash
+
+      - name: Collect Artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp -r ./${{ inputs.path }}/build/reports ./artifacts
+          cp -r ./scripts/logs ./artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: '${{ inputs.name }} Integration Test Report & Docker Logs'
+          path: ./artifacts/**
+          compression-level: 9
+
+      - name: Test Job Summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: "./${{ inputs.path }}/build/test-results/integrationTest/TEST-*.xml"
+
+      - name: Stop Docker Dependencies
+        if: always()
+        run: |
+          docker compose down --rmi=local --remove-orphans
+          docker compose rm
+          docker network rm ps-network
+        working-directory: ./docker
+
+      - name: Temporary Artifacts Cleanup
+        run: rm -rf ./artifacts

@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '3.3.3'
+    id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'java'
     id 'checkstyle'
@@ -29,9 +29,9 @@ repositories {
 dependencies {
     implementation project(':common')
     implementation 'org.postgresql:postgresql:42.7.4'
-    implementation 'org.jdbi:jdbi3-core:3.45.4'
-    implementation 'org.jdbi:jdbi3-sqlobject:3.45.4'
-    implementation 'org.jdbi:jdbi3-postgres:3.45.4'
+    implementation 'org.jdbi:jdbi3-core:3.47.0'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.47.0'
+    implementation 'org.jdbi:jdbi3-postgres:3.47.0'
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.29.2'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.3'

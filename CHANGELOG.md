@@ -5,8 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.0.8] - 2024-11-22
+
 ### Fixed
-* Removed 20 MB data processing limit to enable the Adaptor to handle larger pieces of data.
+
+* When a `LinkSet` which is a linkage between a `ReferralRequest` and one or more `DocumentReferences` is mapped then a
+  `Condition` will no longer be mapped for this `Linkset`.
+  Instead, the `statementRef`s will be added to the `supportingInfo` when mapping the `ReferralRequest`
+  as `DocumentReferences`
+
+## [3.0.7] - 2024-11-19
+
+### Fixed
+
+* When provided an `agentPerson` without a `name` element, the adaptor will no longer throw an exception, but will
+  instead map the `Practitioner` with a `familyName` of `"unknown"`.
+
+## [3.0.6] - 2024-11-11
+
+### Fixed
+* Remove 20 MB data processing limit to enable the Adaptor to handle larger pieces of data.
 
 ## [3.0.5] - 2024-11-05
 
@@ -31,7 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 > [!NOTE]
 > **Upgrade information** This release includes an update to the SNOMED database
-> Users will need to perform an [update of their patient switching SNOMED database](OPERATING.md#updating-the-snomed-database).
+> Users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
 > This will need to be performed first, followed by deploying the updated version of the translator image.
 
 ## Added
@@ -61,9 +79,9 @@ corresponding FHIR resource will now be [appropriately populated][nopat-docs].
   `ehrComposition /author / time` instead.
 * Filing Comments were creating with an incorrect `performer`, this now references the
   `ehrComposition / author / agentRef` instead.
-* Addressed a bug in the PS adaptor where immunizations were incorrectly mapped to observations when
-  the Snomed CT code being sent was a Description ID. The adaptor previously only checked against
-  known vaccination Concept IDs.
+* Addressed a bug where immunizations were incorrectly mapped to observations when the Snomed CT code being sent was a
+  Description ID.
+  The adaptor previously only checked against known vaccination Concept IDs.
 
 ## [3.0.2] - 2024-07-18
 
@@ -302,7 +320,7 @@ corresponding FHIR resource will now be [appropriately populated][nopat-docs].
 
 > [!NOTE]
 > **Upgrade information** This release includes an update to the SNOMED database
-> Users will need to perform an [update of their patient switching SNOMED database](OPERATING.md#updating-the-snomed-database).
+> Users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
 > This will need to be performed first, followed by deploying the updated version of the translator image.
 
 ## [1.4.2] - 2024-01-31
@@ -382,7 +400,7 @@ corresponding FHIR resource will now be [appropriately populated][nopat-docs].
 > [!NOTE]
 > **Upgrade information** This release includes a [database migration](OPERATING.md#updating-the-application-schema).
 > This database migration will need to be performed first, followed by deploying the updated version of the facade and translator images.
-> Finally users will need to perform an [update of their patient switching SNOMED database](OPERATING.md#updating-the-snomed-database).
+> Finally users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
 
 ## [1.0.1] - 2023-11-21
 

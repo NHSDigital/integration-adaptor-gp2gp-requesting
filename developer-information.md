@@ -77,18 +77,22 @@ Deploy this commit to the AWS Path to Live environment.
 
 [jenkins-terraform]: http://ec2-35-177-12-25.eu-west-2.compute.amazonaws.com/job/Terraform/build?delay=0sec
 
-Perform an end to end smoke test of the adaptor by transferring the patient 9729962871 from C88046 to P83007 using the
-[instructions on Confluence][e2e-ptl-test-instructions].
+Perform an end to end smoke test of the adaptor by transferring the patient 9732596910 from C88046 to P83007 using the
+[instructions on Confluence][e2e-ptl-test-instructions] by setting the `to-ods: C88046` and `to-asid: 858000001001`.
 This patient record has:
 
 1. An allergy to penicillin
-1. A picture of the Colosseum as a document
+1. A picture of some marbles as a document
 
 Request the patient using the adaptor and check that the allergy is mapped into the Bundle,
-and that the document has been transferred to S3.
+and that the document has been transferred to S3 and the image is downloadable via a browser.
+
+If you get a 404 response with an `OperationOutcome` coding of "PATIENT_NOT_FOUND" you may need to [regenerate the patient]
+and then request that patient instead.
 
 Reject the transfer by sending a FAILED_TO_INTEGRATE response, that way we can reuse the same patient.
 
+[regenerate the patient]: https://nhse-dsic.atlassian.net/wiki/spaces/NIA/pages/12540018795/Testing+an+NME+winning+scenario+PS+Adaptor#Recreating-the-Smoke-Test-Patient
 [e2e-ptl-test-instructions]: https://gpitbjss.atlassian.net/wiki/spaces/NIA/pages/12540018795/Testing+an+NME+winning+scenario+PS+Adaptor
 
 ### Performing the release
