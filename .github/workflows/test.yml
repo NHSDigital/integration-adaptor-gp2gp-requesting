@@ -23,16 +23,8 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          add-job-summary: "on-failure"
-
       - name: Execute Checkstyle
-        run: |
-          ./gradlew checkStyleMain --parallel
-          ./gradlew checkstyleTest --parallel
-          ./gradlew checkstyleIntegrationTest --parallel
+        run: ./gradlew checkStyleMain checkstyleTest checkstyleIntegrationTest
         working-directory: ${{ inputs.path }}
 
       - name: Collect Artifacts
@@ -65,16 +57,8 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          add-job-summary: "on-failure"
-
       - name: Execute Spotbugs
-        run: |
-          ./gradlew spotbugsMain --parallel
-          ./gradlew spotbugsTest --parallel
-          ./gradlew spotbugsIntegrationTest --parallel
+        run: ./gradlew spotbugsMain spotbugsTest spotbugsIntegrationTest
         working-directory: ${{ inputs.path }}
 
       - name: Collect Artifacts
@@ -107,11 +91,6 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          add-job-summary: "on-failure"
 
       - name: Execute Unit Tests
         run: ./gradlew test --parallel --build-cache
@@ -202,11 +181,6 @@ jobs:
           PS_DB_HOST: "localhost"
           PS_DB_PORT: "5436"
         run: ./test-load-immunization-codes.sh
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          add-job-summary: "on-failure"
 
       - name: Execute Integration Tests
         working-directory: ${{ inputs.path }}
