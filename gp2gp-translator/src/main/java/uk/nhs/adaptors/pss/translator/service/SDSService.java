@@ -124,7 +124,7 @@ public class SDSService {
             throw new SdsRetrievalException("sds response doesn't contain any results");
         }
 
-        Resource resource = entries.get(0).getResource();
+        Resource resource = entries.getFirst().getResource();
         return resource.getChildByName(resourceSubelement);
     }
 }

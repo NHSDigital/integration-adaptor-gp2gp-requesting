@@ -198,7 +198,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
 
         requests.sort(Comparator.comparing(Request::getLoggedDate).reversed());
 
-        var mostRecentRequest = requests.get(0);
+        var mostRecentRequest = requests.getFirst();
 
         return mostRecentRequest.getHeaders().getInteractionId().equals(ACK_INTERACTION_ID)
             && mostRecentRequest.getBody()

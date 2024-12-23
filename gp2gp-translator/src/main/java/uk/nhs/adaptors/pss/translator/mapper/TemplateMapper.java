@@ -50,14 +50,14 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
 
     @Override
     public List<DomainResource> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient,
-                                             List<Encounter> encounters, String practiseCode) {
+                                             List<Encounter> encounters, String practiceCode) {
 
         return  mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllCompoundStatements(component)
                 .filter(Objects::nonNull)
                 .filter(ResourceFilterUtil::isTemplate)
                 .filter(compoundStatement -> !hasDiagnosticReportParent(ehrExtract, compoundStatement))
-                .map(compoundStatement -> mapTemplate(composition, compoundStatement, patient, encounters, practiseCode))
+                .map(compoundStatement -> mapTemplate(composition, compoundStatement, patient, encounters, practiceCode))
                 .flatMap(List::stream)
         ).toList();
 
@@ -79,7 +79,7 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
 
             if (isObservationStatementTemplateParent(parentCompoundStatement)) {
                 Observation parentObservation = parentObservations.stream()
-                    .filter(observation -> observation.getId().equals(parentCompoundStatement.getId().get(0).getRoot()))
+                    .filter(observation -> observation.getId().equals(parentCompoundStatement.getId().getFirst().getRoot()))
                     .findFirst()
                     .orElseThrow();
 
@@ -115,11 +115,11 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
                                              RCMRMT030101UKCompoundStatement compoundStatement,
                                              Patient patient,
                                              List<Encounter> encounters,
-                                             String practiseCode) {
+                                             String practiceCode) {
         var encounter = getEncounter(encounters, ehrComposition);
 
         return List.of(
-            createParentObservation(compoundStatement, practiseCode, patient, encounter, ehrComposition)
+            createParentObservation(compoundStatement, practiceCode, patient, encounter, ehrComposition)
         );
     }
 
@@ -131,11 +131,11 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
             .findFirst();
     }
 
-    private Observation createParentObservation(RCMRMT030101UKCompoundStatement compoundStatement, String practiseCode, Patient patient,
+    private Observation createParentObservation(RCMRMT030101UKCompoundStatement compoundStatement, String practiceCode, Patient patient,
         Optional<Reference> encounter, RCMRMT030101UKEhrComposition ehrComposition) {
 
         var parentObservation = new Observation();
-        var id = compoundStatement.getId().get(0).getRoot();
+        var id = compoundStatement.getId().getFirst().getRoot();
 
         var codeableConcept = codeableConceptMapper.mapToCodeableConcept(compoundStatement.getCode());
         DegradedCodeableConcepts.addDegradedEntryIfRequired(codeableConcept, DegradedCodeableConcepts.DEGRADED_OTHER);
@@ -146,7 +146,7 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
             .addPerformer(getParticipantReference(compoundStatement.getParticipant(), ehrComposition))
             .setCode(codeableConcept)
             .setStatus(FINAL)
-            .addIdentifier(buildIdentifier(id, practiseCode))
+            .addIdentifier(buildIdentifier(id, practiceCode))
             .setMeta(generateMeta(OBSERVATION_META_PROFILE))
             .setId(id);
 
@@ -175,12 +175,12 @@ public class TemplateMapper extends AbstractMapper<DomainResource> {
 
     private List<RCMRMT030101UKCompoundStatement> getCompoundStatementsByIds(RCMRMT030101UKEhrExtract ehrExtract, List<String> ids) {
 
-        return ehrExtract.getComponent().get(0).getEhrFolder().getComponent()
+        return ehrExtract.getComponent().getFirst().getEhrFolder().getComponent()
             .stream()
             .flatMap(component3 -> component3.getEhrComposition().getComponent().stream())
             .flatMap(CompoundStatementResourceExtractors::extractAllCompoundStatements)
             .filter(Objects::nonNull)
-            .filter(compoundStatement -> ids.contains(compoundStatement.getId().get(0).getRoot()))
+            .filter(compoundStatement -> ids.contains(compoundStatement.getId().getFirst().getRoot()))
             .toList();
     }
 

@@ -26,9 +26,9 @@ public class LocationMapper {
 
     private final IdGeneratorService idGeneratorService;
 
-    public Location mapToLocation(RCMRMT030101UKLocation location, String practiseCode) {
+    public Location mapToLocation(RCMRMT030101UKLocation location, String practiceCode) {
         var id = idGeneratorService.generateUuid().toUpperCase();
-        var identifier = buildIdentifier(id, practiseCode);
+        var identifier = buildIdentifier(id, practiceCode);
 
         if (location.getLocatedEntity() != null && location.getLocatedEntity().getLocatedPlace() != null) {
             var locatedPlace = location.getLocatedEntity().getLocatedPlace();

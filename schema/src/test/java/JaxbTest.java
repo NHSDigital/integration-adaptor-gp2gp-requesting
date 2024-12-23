@@ -32,11 +32,11 @@ class JaxbTest {
             .getSubject()
             .getEhrExtract()
             .getComponent()
-            .get(0)
+            .getFirst()
             .getEhrFolder();
 
         var person = ehrFolder.getResponsibleParty().getAgentDirectory().getPart().get(2).getAgent().getAgentPerson();
-        var place = ehrFolder.getComponent().get(0).getEhrComposition().getLocation().getLocatedEntity().getLocatedPlace();
+        var place = ehrFolder.getComponent().getFirst().getEhrComposition().getLocation().getLocatedEntity().getLocatedPlace();
 
         // then
         assertThat(person.getName().getFamily()).isEqualTo("Whitcombe");
@@ -62,15 +62,15 @@ class JaxbTest {
             .getSubject()
             .getEhrExtract()
             .getComponent()
-            .get(0)
+            .getFirst()
             .getEhrFolder();
 
         final CV observationStatementConfidentialityCode = ehrFolder
             .getComponent()
-            .get(0)
+            .getFirst()
             .getEhrComposition()
             .getComponent()
-            .get(0)
+            .getFirst()
             .getObservationStatement()
             .getConfidentialityCode()
             .orElseThrow();

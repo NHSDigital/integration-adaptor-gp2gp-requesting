@@ -39,7 +39,7 @@ public class MhsQueueConsumer {
                 message.acknowledge();
                 LOGGER.debug("Acknowledged MHSQueue message_id=[{}]", messageId);
             } else {
-                LOGGER.debug("Sending message_id=[{}] to the dead letter queue", messageId);
+                LOGGER.info("Sending message_id=[{}] to the dead letter queue", messageId);
                 mhsDlqPublisher.sendToMhsDlq(message);
             }
         } catch (ConversationIdNotFoundException e) {

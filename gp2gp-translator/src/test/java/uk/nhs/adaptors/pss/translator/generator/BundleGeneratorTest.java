@@ -38,6 +38,6 @@ public class BundleGeneratorTest {
         assertThat(bundle.getResourceType().toString()).isEqualTo(ResourceType.Bundle.name());
         assertThat(bundle.getId()).isEqualTo(BUNDLE_ID);
         assertThat(bundle.getType()).isEqualTo(Bundle.BundleType.COLLECTION);
-        assertThat(bundle.getMeta().getProfile().get(0).getValue()).isEqualTo(META_PROFILE);
+        assertThat(bundle.getMeta().getProfile().getFirst().getValue()).isEqualTo(META_PROFILE);
     }
 }

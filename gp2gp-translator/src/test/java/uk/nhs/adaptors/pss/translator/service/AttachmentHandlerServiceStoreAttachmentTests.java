@@ -226,7 +226,7 @@ public class AttachmentHandlerServiceStoreAttachmentTests {
 
         List<String> dataStringList = dataWrapperCaptor.getAllValues().stream().map(dw -> new String(dw.getData(), UTF_8)).toList();
 
-        assertEquals(readFileAsString("InlineAttachments/text_attachment.txt"), dataStringList.get(0));
+        assertEquals(readFileAsString("InlineAttachments/text_attachment.txt"), dataStringList.getFirst());
     }
 
     @Test
@@ -239,7 +239,7 @@ public class AttachmentHandlerServiceStoreAttachmentTests {
 
         List<String> dataStringList = dataWrapperCaptor.getAllValues().stream().map(dw -> new String(dw.getData(), UTF_8)).toList();
 
-        assertEquals("Hello World from Scott Alexander", dataStringList.get(0));
+        assertEquals("Hello World from Scott Alexander", dataStringList.getFirst());
         assertEquals(readFileAsString("InlineAttachments/text_attachment.txt"), dataStringList.get(1));
     }
 
@@ -253,7 +253,7 @@ public class AttachmentHandlerServiceStoreAttachmentTests {
 
         List<String> captorValues = filenameCaptor.getAllValues();
 
-        assertEquals("277F29F1-FEAB-4D38-8266-FEB7A1E6227D_LICENSE.txt", captorValues.get(0));
+        assertEquals("277F29F1-FEAB-4D38-8266-FEB7A1E6227D_LICENSE.txt", captorValues.getFirst());
         assertEquals("text_attachment_encoded.txt", captorValues.get(1));
     }
 

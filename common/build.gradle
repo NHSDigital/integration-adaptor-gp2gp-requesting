@@ -1,11 +1,11 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.2'
+    id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'java'
     id 'java-library'
     id 'checkstyle'
-    id 'io.freefair.lombok' version '8.6'
-    id 'com.github.spotbugs' version '6.0.19'
+    id 'io.freefair.lombok' version '8.11'
+    id 'com.github.spotbugs' version '6.0.27'
 }
 
 apply plugin: 'java'
@@ -18,17 +18,16 @@ repositories {
 }
 
 dependencies {
-    api 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:7.2.2'
+    api 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:7.6.1'
     api 'org.springframework.boot:spring-boot-starter-jdbc'
     api 'org.springframework.boot:spring-boot-starter-actuator'
     api 'org.springframework.boot:spring-boot-starter-web'
     api 'org.springframework.boot:spring-boot-starter-webflux'
     api 'org.springframework:spring-jms'
-    api 'org.apache.commons:commons-lang3:3.15.0'
-    api 'org.apache.qpid:qpid-jms-client:2.5.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
-
+    api 'org.apache.commons:commons-lang3:3.17.0'
+    api 'org.apache.qpid:qpid-jms-client:2.6.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter:5.11.4'
 }
 
 test {

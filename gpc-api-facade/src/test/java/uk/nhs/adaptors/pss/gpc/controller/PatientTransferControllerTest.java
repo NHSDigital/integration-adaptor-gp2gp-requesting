@@ -53,7 +53,6 @@ public class PatientTransferControllerTest {
         TO_ODS, TO_ODS_VALUE,
         FROM_ODS, FROM_ODS_VALUE
     );
-    private static final String ISSUE_SYSTEM = "https://fhir.nhs.uk/STU3/ValueSet/Spine-ErrorOrWarningCode-1";
 
     @Mock
     private PatientTransferService patientTransferService;

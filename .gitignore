@@ -34,4 +34,6 @@ docker/vars.sh
 /.run/
 /gp2gp-translator/src/nonFunctionalTest/apache-jmeter-5.5/
 /gp2gp-translator/src/nonFunctionalTest/Results/
+/gp2gp-translator/src/transformXmlToJson/resources/input/*.xml
+/gp2gp-translator/src/transformXmlToJson/resources/output/*.json
 /env.yaml

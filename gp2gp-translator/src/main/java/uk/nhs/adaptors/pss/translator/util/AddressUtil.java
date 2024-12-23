@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.v3.AD;
 
-import io.micrometer.core.instrument.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AddressUtil {

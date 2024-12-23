@@ -92,8 +92,8 @@ public class ConsultationListMapperTest {
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_CONSULTATION_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113151332", "test-text");
@@ -105,8 +105,8 @@ public class ConsultationListMapperTest {
                 FULL_VALID_CONSULTATION_NOAUTHOR_NOAVAILABILITY_EFFECTCENTER_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113155000", "test-text");
@@ -118,8 +118,8 @@ public class ConsultationListMapperTest {
                 FULL_VALID_CONSULTATION_NOAUTHOR_NOAVAILABILITY_EFFECTCENTER_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113155000", "test-text");
@@ -131,8 +131,8 @@ public class ConsultationListMapperTest {
                 FULL_VALID_CONSULTATION_NOAUTHOR_NOAVAILABILITY_EFFECTLOW_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113152000", "test-text");
@@ -143,8 +143,8 @@ public class ConsultationListMapperTest {
                 FULL_VALID_CONSULTATION_NOAUTHOR_NOAVAILABILITY_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113153000", "test-text");
@@ -156,8 +156,8 @@ public class ConsultationListMapperTest {
                 FULL_VALID_CONSULTATION_NOAUTHORTIME_NOAVAILABILITY_EFFECTLOW_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113152000", "test-text");
@@ -167,8 +167,8 @@ public class ConsultationListMapperTest {
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_CONSULTATION_LIST_NOAUTHOR_TIME_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113152000", "test-text");
@@ -179,8 +179,8 @@ public class ConsultationListMapperTest {
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_CONSULTATION_NOAUTHOR_LIST_XML);
         setUpEncounter("20100113152000", "20150213152000", "test-display", "test-text");
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
         assertConsultation(consultation, "20100113152000", "test-text");
@@ -191,8 +191,8 @@ public class ConsultationListMapperTest {
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_CONSULTATION_LIST_XML);
         setUpEncounter(null, null, "test-display", null);
 
-        var comp = ehrExtract.getComponent().get(0).getEhrFolder().
-                getComponent().get(0).getEhrComposition();
+        var comp = ehrExtract.getComponent().getFirst().getEhrFolder().
+                getComponent().getFirst().getEhrComposition();
 
         var consultation = listMapper.mapToConsultation(comp, encounter);
 
@@ -209,7 +209,7 @@ public class ConsultationListMapperTest {
 
         var topic = listMapper.mapToTopic(consultation, compoundStatement);
 
-        assertTopic(topic, compoundStatement.getId().get(0).getRoot(), "20150213152000", "test-text");
+        assertTopic(topic, compoundStatement.getId().getFirst().getRoot(), "20150213152000", "test-text");
     }
 
     @Test
@@ -222,7 +222,7 @@ public class ConsultationListMapperTest {
 
         var topic = listMapper.mapToTopic(consultation, compoundStatement);
 
-        assertTopic(topic, compoundStatement.getId().get(0).getRoot(), "20130213152000", null);
+        assertTopic(topic, compoundStatement.getId().getFirst().getRoot(), "20130213152000", null);
     }
 
     @Test
@@ -264,7 +264,7 @@ public class ConsultationListMapperTest {
 
     private void assertCategory(ListResource category, String date, String title) {
         assertThat(category.getId()).isEqualTo(COMPOUND_STATEMENT_ID);
-        assertThat(category.getMeta().getProfile().get(0).getValue()).isEqualTo(LIST_META_PROFILE);
+        assertThat(category.getMeta().getProfile().getFirst().getValue()).isEqualTo(LIST_META_PROFILE);
         assertThat(category.getMode()).isEqualTo(ListMode.SNAPSHOT);
         assertThat(category.getStatus()).isEqualTo(ListStatus.CURRENT);
         assertThat(category.getSubject().getResource().getIdElement().getValue()).isEqualTo(PATIENT_ID);
@@ -279,7 +279,7 @@ public class ConsultationListMapperTest {
 
     private void assertTopic(ListResource topic, String id, String date, String title) {
         assertThat(topic.getId()).isEqualTo(id);
-        assertThat(topic.getMeta().getProfile().get(0).getValue()).isEqualTo(LIST_META_PROFILE);
+        assertThat(topic.getMeta().getProfile().getFirst().getValue()).isEqualTo(LIST_META_PROFILE);
         assertThat(topic.getMode()).isEqualTo(ListMode.SNAPSHOT);
         assertThat(topic.getStatus()).isEqualTo(ListStatus.CURRENT);
         assertThat(topic.getSubject().getResource().getIdElement().getValue()).isEqualTo(PATIENT_ID);
@@ -294,7 +294,7 @@ public class ConsultationListMapperTest {
 
     private void assertConsultation(ListResource consultation, String date, String title) {
         assertThat(consultation.getId()).isEqualTo(encounter.getId() + CONSULTATION_ID_SUFFIX);
-        assertThat(consultation.getMeta().getProfile().get(0).getValue()).isEqualTo(LIST_META_PROFILE);
+        assertThat(consultation.getMeta().getProfile().getFirst().getValue()).isEqualTo(LIST_META_PROFILE);
         assertThat(consultation.getMode()).isEqualTo(ListMode.SNAPSHOT);
         assertThat(consultation.getStatus()).isEqualTo(ListStatus.CURRENT);
         assertThat(consultation.getSubject().getResource().getIdElement().getValue()).isEqualTo(PATIENT_ID);

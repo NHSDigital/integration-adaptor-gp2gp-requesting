@@ -46,7 +46,7 @@ public class AttachmentHandlerServiceTests {
         List<InboundMessage.Attachment> attachmentsList = attachmentHandlerService
             .buildInboundAttachmentsFromAttachmentLogs(patientAttachmentLogs, payloads, conversationId);
 
-        assertThat(attachmentsList.get(0).getIsBase64()).isEqualTo("true");
+        assertThat(attachmentsList.getFirst().getIsBase64()).isEqualTo("true");
         assertThat(attachmentsList.get(1).getIsBase64()).isEqualTo("false");
 
     }

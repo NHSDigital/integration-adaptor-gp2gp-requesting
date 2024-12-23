@@ -17,7 +17,7 @@ docker-compose up -d ps_db mhs-adaptor-mock activemq;
 cd ../db-connector
 ./gradlew update
 
-##### comment out if there is no uk_sct2mo_38.2.0_20240605000001Z.zip file
+##### comment out if there is no uk_sct2mo_*.zip file
 cd ../snomed-database-loader
 ./load_release-postgresql.sh "$SNOMED_CT_TERMINOLOGY_FILE"
 

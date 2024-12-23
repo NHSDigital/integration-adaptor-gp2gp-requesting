@@ -16,8 +16,8 @@ import static org.springframework.util.ResourceUtils.getFile;
 
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
 
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITHOUT_SECURITY;
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import java.util.List;
@@ -54,7 +54,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
 
-import uk.nhs.adaptors.pss.translator.MetaFactory;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
@@ -92,13 +92,13 @@ class AllergyIntoleranceMapperTest {
 
     public static final Function<RCMRMT030101UKEhrExtract, RCMRMT030101UKObservationStatement> GET_OBSERVATION_STATEMENT =
         extract -> extract
-            .getComponent().get(0)
+            .getComponent().getFirst()
             .getEhrFolder()
-            .getComponent().get(0)
+            .getComponent().getFirst()
             .getEhrComposition()
-            .getComponent().get(0)
+            .getComponent().getFirst()
             .getCompoundStatement()
-            .getComponent().get(0)
+            .getComponent().getFirst()
             .getObservationStatement();
 
     @Mock
@@ -118,7 +118,7 @@ class AllergyIntoleranceMapperTest {
         Mockito.lenient()
             .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 any(String.class), any(Optional.class), any(Optional.class)
-            )).thenReturn(MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 
     @Test
@@ -133,18 +133,18 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
         assertExtension(allergyIntolerance);
 
-        assertThat(allergyIntolerance.getCategory().get(0).getValue()).isEqualTo(MEDICATION);
+        assertThat(allergyIntolerance.getCategory().getFirst().getValue()).isEqualTo(MEDICATION);
         assertThat(allergyIntolerance.getAssertedDateElement().asStringValue()).isEqualTo("1978-12-31");
         assertThat(allergyIntolerance.getRecorder().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
         assertThat(allergyIntolerance.getOnsetDateTimeType().asStringValue())
             .isEqualTo(DateFormatUtil.parseToDateTimeType("19781231").asStringValue());
         assertThat(allergyIntolerance.getAsserter().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
-        assertThat(allergyIntolerance.getNote().get(0).getText()).isEqualTo(EPISODICITY_WITH_ORIGINAL_TEXT_NOTE_TEXT);
+        assertThat(allergyIntolerance.getNote().getFirst().getText()).isEqualTo(EPISODICITY_WITH_ORIGINAL_TEXT_NOTE_TEXT);
         assertThat(allergyIntolerance.getNote().get(1).getText()).isEqualTo(PERTINENT_NOTE_TEXT);
         assertThat(allergyIntolerance.getNote().get(2).getText()).isEqualTo(ALLERGY_NOTE_TEXT);
         assertThat(allergyIntolerance.getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_DRUG_ALLERGY);
@@ -164,7 +164,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertEquals(1, allergyIntolerances.size());
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertAll(
             () -> assertExtension(allergyIntolerance),
@@ -190,7 +190,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertEquals(1, allergyIntolerances.size());
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertAll(
             () -> assertExtension(allergyIntolerance),
@@ -216,7 +216,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertEquals(1, allergyIntolerances.size());
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertAll(
             () -> assertExtension(allergyIntolerance),
@@ -238,18 +238,18 @@ class AllergyIntoleranceMapperTest {
             = allergyIntoleranceMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
         assertEquals(1, allergyIntolerances.size());
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
         assertExtension(allergyIntolerance);
-        assertEquals(ENVIRONMENT, allergyIntolerance.getCategory().get(0).getValue());
+        assertEquals(ENVIRONMENT, allergyIntolerance.getCategory().getFirst().getValue());
         assertEquals("1978-12-31", allergyIntolerance.getAssertedDateElement().asStringValue());
         assertEquals("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D", allergyIntolerance.getRecorder().getReference());
         assertEquals(DateFormatUtil.parseToDateTimeType("19781231").asStringValue(),
                                                     allergyIntolerance.getOnsetDateTimeType().asStringValue());
         assertEquals("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D", allergyIntolerance.getAsserter().getReference());
-        assertEquals(PERTINENT_NOTE_TEXT, allergyIntolerance.getNote().get(0).getText());
+        assertEquals(PERTINENT_NOTE_TEXT, allergyIntolerance.getNote().getFirst().getText());
         assertEquals(DegradedCodeableConcepts.DEGRADED_NON_DRUG_ALLERGY, allergyIntolerance.getCode().getCodingFirstRep());
         assertEquals(CODING_DISPLAY_1, allergyIntolerance.getCode().getCoding().get(1).getDisplay());
         verifyConfidentialityServiceCalled(1, Optional.empty(), Optional.empty());
@@ -266,7 +266,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertThat(allergyIntolerance.getCode().getCodingFirstRep())
             .isEqualTo(DegradedCodeableConcepts.DEGRADED_NON_DRUG_ALLERGY);
@@ -283,7 +283,7 @@ class AllergyIntoleranceMapperTest {
                 getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertThat(allergyIntolerance.getCode().getCodingFirstRep())
             .isEqualTo(DegradedCodeableConcepts.DEGRADED_DRUG_ALLERGY);
@@ -303,7 +303,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
@@ -322,7 +322,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
         assertFixedValues(allergyIntolerance);
         assertThat(allergyIntolerance.getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_DRUG_ALLERGY);
         assertThat(allergyIntolerance.getCode().getCoding().get(1).getDisplay()).isEqualTo(CODING_DISPLAY_1);
@@ -345,7 +345,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
@@ -370,7 +370,7 @@ class AllergyIntoleranceMapperTest {
 
     @Test
     void testGivenAllergyIntoleranceWithNopatConfidentialityCodePresentWithinEhrCompositionExpectMetaSecurityAdded() {
-        final Meta stubbedMeta = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtract("allergy-structure-with-ehr-composition-nopat-confidentiality-code.xml");
 
@@ -384,7 +384,7 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerance = allergyIntoleranceMapper
             .mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        final Meta meta = allergyIntolerance.get(0).getMeta();
+        final Meta meta = allergyIntolerance.getFirst().getMeta();
 
         assertMetaSecurityPresent(meta);
         verifyConfidentialityServiceCalled(1, ehrComposition.getConfidentialityCode(), Optional.empty());
@@ -392,7 +392,7 @@ class AllergyIntoleranceMapperTest {
 
     @Test
     void testGivenAllergyIntoleranceWithNopatConfidentialityCodePresentWithinObservationStatementExpectMetaSecurityAdded() {
-        final Meta stubbedMeta = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtract("allergy-structure-with-observation-statement-nopat-confidentiality-code.xml");
 
@@ -406,7 +406,7 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerance = allergyIntoleranceMapper
             .mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        final Meta meta = allergyIntolerance.get(0).getMeta();
+        final Meta meta = allergyIntolerance.getFirst().getMeta();
 
         assertMetaSecurityPresent(meta);
         verifyConfidentialityServiceCalled(1, Optional.empty(), observationStatement.getConfidentialityCode());
@@ -421,7 +421,7 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerance = allergyIntoleranceMapper
             .mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        assertThat(allergyIntolerance.get(0).getMeta().getSecurity()).isEmpty();
+        assertThat(allergyIntolerance.getFirst().getMeta().getSecurity()).isEmpty();
         verifyConfidentialityServiceCalled(1, Optional.empty(), observationStatement.getConfidentialityCode());
     }
 
@@ -435,7 +435,7 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerances = allergyIntoleranceMapper.mapResources(ehrExtract, getPatient(),
             getEncounterList(), PRACTISE_CODE);
 
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
         assertThat(allergyIntolerance.getExtension()).isEmpty();
         verifyConfidentialityServiceCalled(1, Optional.empty(), Optional.empty());
     }
@@ -451,18 +451,18 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
         assertExtension(allergyIntolerance);
-        assertThat(allergyIntolerance.getCategory().get(0).getValue()).isEqualTo(MEDICATION);
+        assertThat(allergyIntolerance.getCategory().getFirst().getValue()).isEqualTo(MEDICATION);
         assertThat(allergyIntolerance.getAssertedDateElement().asStringValue()).isEqualTo("1978-12-31");
         assertThat(allergyIntolerance.getRecorder().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
         assertThat(allergyIntolerance.getOnsetDateTimeType().asStringValue())
             .isEqualTo(DateFormatUtil.parseToDateTimeType("19781231").asStringValue());
         assertThat(allergyIntolerance.getAsserter().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
-        assertThat(allergyIntolerance.getNote().get(0).getText()).isEqualTo(PERTINENT_NOTE_TEXT);
+        assertThat(allergyIntolerance.getNote().getFirst().getText()).isEqualTo(PERTINENT_NOTE_TEXT);
         assertThat(allergyIntolerance.getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_DRUG_ALLERGY);
         assertThat(allergyIntolerance.getCode().getCoding().get(1).getDisplay()).isEqualTo(CODING_DISPLAY_1);
         assertThat(allergyIntolerance.getNote().size()).isOne();
@@ -481,18 +481,18 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
         assertExtension(allergyIntolerance);
-        assertThat(allergyIntolerance.getCategory().get(0).getValue()).isEqualTo(MEDICATION);
+        assertThat(allergyIntolerance.getCategory().getFirst().getValue()).isEqualTo(MEDICATION);
         assertThat(allergyIntolerance.getAssertedDateElement().asStringValue()).isEqualTo("1978-12-31");
         assertThat(allergyIntolerance.getRecorder().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
         assertThat(allergyIntolerance.getOnsetDateTimeType().asStringValue())
             .isEqualTo(DateFormatUtil.parseToDateTimeType("19781231").asStringValue());
         assertThat(allergyIntolerance.getAsserter().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
-        assertThat(allergyIntolerance.getNote().get(0).getText()).isEqualTo(PERTINENT_NOTE_TEXT);
+        assertThat(allergyIntolerance.getNote().getFirst().getText()).isEqualTo(PERTINENT_NOTE_TEXT);
         assertThat(allergyIntolerance.getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_DRUG_ALLERGY);
         assertThat(allergyIntolerance.getCode().getCoding().get(1).getDisplay()).isEqualTo(CODING_DISPLAY_3);
         assertThat(allergyIntolerance.getNote().size()).isOne();
@@ -511,7 +511,7 @@ class AllergyIntoleranceMapperTest {
             getEncounterList(), PRACTISE_CODE);
 
         assertThat(allergyIntolerances).hasSize(1);
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
         assertFixedValues(allergyIntolerance);
 
@@ -531,9 +531,9 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerances = allergyIntoleranceMapper.mapResources(ehrExtract, getPatient(),
             getEncounterList(), PRACTISE_CODE);
 
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
-        assertThat(allergyIntolerance.getNote().get(0).getText()).isEqualTo(EPISODICITY_WITH_ORIGINAL_TEXT_NOTE_TEXT);
+        assertThat(allergyIntolerance.getNote().getFirst().getText()).isEqualTo(EPISODICITY_WITH_ORIGINAL_TEXT_NOTE_TEXT);
         verifyConfidentialityServiceCalled(1, Optional.empty(), Optional.empty());
     }
 
@@ -547,9 +547,9 @@ class AllergyIntoleranceMapperTest {
         final List<AllergyIntolerance> allergyIntolerances = allergyIntoleranceMapper.mapResources(ehrExtract, getPatient(),
             getEncounterList(), PRACTISE_CODE);
 
-        final AllergyIntolerance allergyIntolerance = allergyIntolerances.get(0);
+        final AllergyIntolerance allergyIntolerance = allergyIntolerances.getFirst();
 
-        assertThat(allergyIntolerance.getNote().get(0).getText()).isEqualTo(EPISODICITY_WITHOUT_ORIGINAL_TEXT_NOTE_TEXT);
+        assertThat(allergyIntolerance.getNote().getFirst().getText()).isEqualTo(EPISODICITY_WITHOUT_ORIGINAL_TEXT_NOTE_TEXT);
         verifyConfidentialityServiceCalled(1, Optional.empty(), Optional.empty());
     }
 
@@ -572,7 +572,7 @@ class AllergyIntoleranceMapperTest {
         assertThat(cd.getDisplayName()).isEqualTo(CODING_DISPLAY_4);
         assertThat(cd.getTranslation().size()).isOne();
 
-        final CD translation = cd.getTranslation().get(0);
+        final CD translation = cd.getTranslation().getFirst();
 
         assertThat(translation.getCodeSystem()).isEqualTo(SNOMED_CODE_SYSTEM);
         assertThat(translation.getCode()).isEqualTo(SNOMED_COCONUT_OIL);
@@ -589,7 +589,7 @@ class AllergyIntoleranceMapperTest {
 
     private void assertFixedValues(AllergyIntolerance allergyIntolerance) {
         assertThat(allergyIntolerance.getId()).isEqualTo(COMPOUND_STATEMENT_ROOT_ID);
-        assertThat(allergyIntolerance.getMeta().getProfile().get(0).getValue()).isEqualTo(META_PROFILE);
+        assertThat(allergyIntolerance.getMeta().getProfile().getFirst().getValue()).isEqualTo(META_PROFILE);
         assertIdentifier(allergyIntolerance.getIdentifierFirstRep(), allergyIntolerance.getId());
         assertThat(allergyIntolerance.getClinicalStatus()).isEqualTo(ACTIVE);
         assertThat(allergyIntolerance.getVerificationStatus()).isEqualTo(UNCONFIRMED);
@@ -611,11 +611,11 @@ class AllergyIntoleranceMapperTest {
     private void assertMetaSecurityPresent(Meta meta) {
         assertAll(
             () -> assertThat(meta.getSecurity()).hasSize(1),
-            () -> assertThat(meta.getSecurity().get(0).getCode())
+            () -> assertThat(meta.getSecurity().getFirst().getCode())
                 .isEqualTo("NOPAT"),
-            () -> assertThat(meta.getSecurity().get(0).getSystem())
+            () -> assertThat(meta.getSecurity().getFirst().getSystem())
                 .isEqualTo("http://hl7.org/fhir/v3/ActCode"),
-            () -> assertThat(meta.getSecurity().get(0).getDisplay())
+            () -> assertThat(meta.getSecurity().getFirst().getDisplay())
                 .isEqualTo("no disclosure to patient, family or caregivers without attending provider's authorization")
         );
     }

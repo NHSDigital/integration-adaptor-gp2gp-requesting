@@ -21,7 +21,7 @@ public class ParticipantReferenceUtilTest {
     }
 
     private List<RCMRMT030101UKParticipant> getParticipants(RCMRMT030101UKEhrComposition ehrComposition) {
-        return ehrComposition.getComponent().get(0).getPlanStatement().getParticipant();
+        return ehrComposition.getComponent().getFirst().getPlanStatement().getParticipant();
     }
 
     @Test

@@ -176,7 +176,7 @@ class COPCMessageHandlerTest {
         // ASSERT
         verify(patientAttachmentLogService).addAttachmentLog(patientLogCaptor.capture());
 
-        PatientAttachmentLog actual = patientLogCaptor.getAllValues().get(0);
+        PatientAttachmentLog actual = patientLogCaptor.getAllValues().getFirst();
 
         assertThat(actual.getUploaded()).isTrue();
         assertEquals("047C22B4-613F-47D3-9A72-44A1758464FB", actual.getMid());
@@ -329,7 +329,7 @@ class COPCMessageHandlerTest {
                                               "ABC Not Required", CONVERSATION_ID, "text/plain");
         verify(patientAttachmentLogService, times(2)).addAttachmentLog(patientLogCaptor.capture());
 
-        PatientAttachmentLog actualCidAttachmentLog = patientLogCaptor.getAllValues().get(0);
+        PatientAttachmentLog actualCidAttachmentLog = patientLogCaptor.getAllValues().getFirst();
         PatientAttachmentLog actualMidAttachmentLog = patientLogCaptor.getAllValues().get(1);
 
         assertEquals(generatedCid, actualCidAttachmentLog.getMid());
@@ -373,7 +373,7 @@ class COPCMessageHandlerTest {
 
         verify(patientAttachmentLogService).updateAttachmentLog(patientLogCaptor.capture(), conversationIdCaptor.capture());
 
-        PatientAttachmentLog actual = patientLogCaptor.getAllValues().get(0);
+        PatientAttachmentLog actual = patientLogCaptor.getAllValues().getFirst();
         assertThat(actual.getUploaded()).isTrue();
         assertEquals(CONVERSATION_ID, conversationIdCaptor.getValue());
     }
@@ -1011,8 +1011,7 @@ class COPCMessageHandlerTest {
 
     @Test
     public void When_HandleMessage_WithMhsServerErrorException_Expect_ExceptionIsBubbledUpSoMessageIsRetriedByJMS()
-        throws SAXException, AttachmentNotFoundException, JAXBException, BundleMappingException, JsonProcessingException,
-               InlineAttachmentProcessingException, AttachmentLogException {
+        throws SAXException, InlineAttachmentProcessingException {
 
         MockedStatic<XmlUnmarshallUtil> mockedXmlUnmarshall = Mockito.mockStatic(XmlUnmarshallUtil.class);
 
@@ -1305,7 +1304,7 @@ class COPCMessageHandlerTest {
         message.setAttachments(Arrays.asList(new InboundMessage.Attachment("xml/text", "Yes", "Filename=E39E79A2-FA96-48FF-9373"
             + "-7BBCB9D036E7_1.messageattachment ContentType=text/plain Compressed=No LargeAttachment=No OriginalBase64=Yes", "this is a "
             + "payload")));
-        message.getAttachments().get(0).setPayload("This is a payload");
+        message.getAttachments().getFirst().setPayload("This is a payload");
 
         when(xPathService.parseDocumentFromXml(message.getEbXML())).thenReturn(ebXmlDocument);
         when(xPathService.getNodeValue(ebXmlDocument, "/Envelope/Header/MessageHeader/MessageData/MessageId"))
@@ -1374,7 +1373,7 @@ class COPCMessageHandlerTest {
         inboundMessage.setEbXML(readXmlFile("inbound_message_ebxml_fragment_index.xml"));
         inboundMessage.setAttachments(Arrays.asList(new InboundMessage.Attachment("xml/text", "Yes", "Filename=\"E39E79A2-FA96-48FF-9373"
             + "-7BBCB9D036E7_1.messageattachment\" ContentType=text/plain Compressed=No LargeAttachment=No OriginalBase64=Yes", "")));
-        inboundMessage.getAttachments().get(0).setPayload("This is a payload");
+        inboundMessage.getAttachments().getFirst().setPayload("This is a payload");
 
         when(xPathService.parseDocumentFromXml(inboundMessage.getEbXML())).thenReturn(ebXmlDocument);
         when(xPathService.getNodeValue(ebXmlDocument, "/Envelope/Header/MessageHeader/MessageData/MessageId")).thenReturn("CBBAE92D-C7E8"

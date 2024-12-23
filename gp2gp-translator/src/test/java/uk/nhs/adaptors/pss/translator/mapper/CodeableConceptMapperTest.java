@@ -3,6 +3,8 @@ package uk.nhs.adaptors.pss.translator.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -65,13 +67,13 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_PREFERRED.getId()));
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -91,19 +93,18 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo("22298006");
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 2)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 2);
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_DESCRIPTION.getId()));
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getValue()
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getValue()
             .toString()).isEqualTo(SNOMED_DESCRIPTION.getTerm());
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -123,15 +124,14 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1);
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue().toString())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue().toString())
             .isEqualTo((SNOMED_PREFERRED.getTerm()));
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -149,15 +149,14 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1);
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue().toString())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue().toString())
             .isEqualTo((SNOMED_PREFERRED.getTerm()));
         assertThat(codeableConcept.getText())
             .isEqualTo(DISPLAY_NAME_1);
@@ -176,15 +175,14 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1);
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_DESCRIPTION.getId()));
     }
 
@@ -206,11 +204,10 @@ public class CodeableConceptMapperTest {
             .isEqualTo(CONCEPT_ID);
         assertThat(codeableConcept.getCoding().get(1).getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().size() == 1)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().size() == 1);
+        assertThat(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().get(0).getValue().toString())
+        assertThat(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().getFirst().getValue().toString())
             .isEqualTo((SNOMED_DESCRIPTION.getTerm()));
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -233,11 +230,10 @@ public class CodeableConceptMapperTest {
             .isEqualTo(CONCEPT_ID);
         assertThat(codeableConcept.getCoding().get(1).getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().size() == 1)
-            .isTrue();
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().get(0).getUrl())
+        assertTrue(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().size() == 1);
+        assertThat(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(1).getExtension().get(0).getExtension().get(0).getValue().toString())
+        assertThat(codeableConcept.getCoding().get(1).getExtension().getFirst().getExtension().getFirst().getValue().toString())
             .isEqualTo((SNOMED_DESCRIPTION.getTerm()));
         assertThat(codeableConcept.getText())
             .isEqualTo(DISPLAY_NAME_2);
@@ -257,11 +253,11 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(0).getExtension())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension())
             .isNullOrEmpty();
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -279,14 +275,13 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(DISPLAY_NAME_1);
-        assertThat(codeableConcept.getCoding().get(0).getExtension())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension())
             .isNullOrEmpty();
-        assertThat(codeableConcept.getText())
-            .isNull();
+        assertNull(codeableConcept.getText());
     }
 
     @Test
@@ -324,15 +319,15 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(SNOMED_PREFERRED.getConceptid());
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_PREFERRED.getId()));
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -350,15 +345,15 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(SNOMED_PREFERRED.getConceptid());
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_PREFERRED.getId()));
         assertThat(codeableConcept.getText()).isNull();
     }
@@ -376,13 +371,13 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertEquals(SNOMED_PREFERRED.getConceptid(), codeableConcept.getCoding().get(0).getCode());
-        assertEquals(SNOMED_PREFERRED.getTerm(), codeableConcept.getCoding().get(0).getDisplay());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 1)
+        assertEquals(SNOMED_PREFERRED.getConceptid(), codeableConcept.getCoding().getFirst().getCode());
+        assertEquals(SNOMED_PREFERRED.getTerm(), codeableConcept.getCoding().getFirst().getDisplay());
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 1)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_PREFERRED.getId()));
         assertThat(codeableConcept.getText())
             .isEqualTo(DISPLAY_NAME_3);
@@ -402,19 +397,19 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(SNOMED_DESCRIPTION.getConceptid());
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 2)
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 2)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_DESCRIPTION.getId()));
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getValue().toString())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getValue().toString())
             .isEqualTo(SNOMED_DESCRIPTION.getTerm());
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -432,19 +427,19 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(SNOMED_DESCRIPTION.getConceptid());
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 2)
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 2)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_DESCRIPTION.getId()));
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getValue().toString())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getValue().toString())
             .isEqualTo(SNOMED_DESCRIPTION.getTerm());
         assertThat(codeableConcept.getText()).isNull();
     }
@@ -461,19 +456,19 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(SNOMED_DESCRIPTION.getConceptid());
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().size() == 2)
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().size() == 2)
             .isTrue();
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getUrl())
             .isEqualTo(DESCRIPTION_ID);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(0).getValue())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_DESCRIPTION.getId()));
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getUrl())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getUrl())
             .isEqualTo(DESCRIPTION_DISPLAY);
-        assertThat(codeableConcept.getCoding().get(0).getExtension().get(0).getExtension().get(1).getValue().toString())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getValue().toString())
             .isEqualTo(SNOMED_DESCRIPTION.getTerm());
         assertThat(codeableConcept.getText())
             .isEqualTo(DISPLAY_NAME_3);
@@ -548,11 +543,11 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConceptForMedication(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo(CONCEPT_ID);
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension())
             .isNullOrEmpty();
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -573,11 +568,11 @@ public class CodeableConceptMapperTest {
 
         CodeableConcept codeableConcept = codeableConceptMapper.mapToCodeableConceptForMedication(codedData);
 
-        assertThat(codeableConcept.getCoding().get(0).getCode())
+        assertThat(codeableConcept.getCoding().getFirst().getCode())
             .isEqualTo("22298006");
-        assertThat(codeableConcept.getCoding().get(0).getDisplay())
+        assertThat(codeableConcept.getCoding().getFirst().getDisplay())
             .isEqualTo(SNOMED_PREFERRED.getTerm());
-        assertThat(codeableConcept.getCoding().get(0).getExtension())
+        assertThat(codeableConcept.getCoding().getFirst().getExtension())
             .isNullOrEmpty();
         assertThat(codeableConcept.getText())
             .isEqualTo(ORIGINAL_TEXT);
@@ -1014,7 +1009,7 @@ public class CodeableConceptMapperTest {
         var codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
         assertAll(
-                () -> assertThat(codeableConcept.getCoding().get(0).getCode()).isEqualTo("22K.."),
+                () -> assertThat(codeableConcept.getCoding().getFirst().getCode()).isEqualTo("22K.."),
                 () -> assertThat(codeableConcept.getCoding().get(1).getCode()).isEqualTo("60621009"),
                 () -> assertThat(codeableConcept.getCoding().get(2).getCode()).isEqualTo("22K..00")
         );

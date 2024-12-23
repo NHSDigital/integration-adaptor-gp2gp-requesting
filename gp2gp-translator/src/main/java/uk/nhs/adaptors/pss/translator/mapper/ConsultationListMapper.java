@@ -65,7 +65,7 @@ public class ConsultationListMapper {
 
     private String getConsultationTitle(List<CodeableConcept> codeableConceptList) {
         if (!CollectionUtils.isEmpty(codeableConceptList)) {
-            var codeableConcept = codeableConceptList.get(0);
+            var codeableConcept = codeableConceptList.getFirst();
             if (codeableConcept.hasText()) {
                 return codeableConcept.getText();
             } else if (codeableConcept.getCodingFirstRep().hasDisplay()) {
@@ -110,7 +110,7 @@ public class ConsultationListMapper {
     }
 
     private String getTopicId(RCMRMT030101UKCompoundStatement compoundStatement) {
-        return compoundStatement != null ? compoundStatement.getId().get(0).getRoot() : idGenerator.generateUuid();
+        return compoundStatement != null ? compoundStatement.getId().getFirst().getRoot() : idGenerator.generateUuid();
     }
 
     public ListResource mapToCategory(ListResource topic, RCMRMT030101UKCompoundStatement compoundStatement) {
@@ -127,7 +127,7 @@ public class ConsultationListMapper {
             .setOrderedBy(CodeableConceptUtils.createCodeableConcept(LIST_ORDERED_BY_CODE, LIST_ORDERED_BY_SYSTEM,
                 LIST_ORDERED_BY_DISPLAY, null))
             .setMeta(generateMeta(LIST_META_PROFILE))
-            .setId(compoundStatement.getId().get(0).getRoot());
+            .setId(compoundStatement.getId().getFirst().getRoot());
 
         return category;
     }

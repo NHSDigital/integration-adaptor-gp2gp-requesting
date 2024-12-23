@@ -73,7 +73,7 @@ public class ParticipantReferenceUtil {
 
         var participant2Reference = ehrComposition.getParticipant2().stream()
             .filter(participant2 -> participant2.getNullFlavor() == null)
-            .filter(participant2 -> typeCode.equals(participant2.getTypeCode().get(0)))
+            .filter(participant2 -> typeCode.equals(participant2.getTypeCode().getFirst()))
             .map(RCMRMT030101UKParticipant2::getAgentRef)
             .map(RCMRMT030101UKAgentRef::getId)
             .filter(II::hasRoot)
@@ -102,7 +102,7 @@ public class ParticipantReferenceUtil {
     }
 
     private static boolean hasTypeCode(RCMRMT030101UKParticipant participant, String typeCode) {
-        return !participant.getTypeCode().isEmpty() && participant.getTypeCode().get(0).equals(typeCode);
+        return !participant.getTypeCode().isEmpty() && participant.getTypeCode().getFirst().equals(typeCode);
     }
 
     private static boolean isNotNullFlavour(RCMRMT030101UKParticipant participant) {

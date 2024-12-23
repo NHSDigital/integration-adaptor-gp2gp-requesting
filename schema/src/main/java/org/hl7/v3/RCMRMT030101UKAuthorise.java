@@ -342,7 +342,7 @@ public class RCMRMT030101UKAuthorise {
 
     public RCMRMT030101UKPredecessor getPredecessorFirstRep() {
         if (!predecessor.isEmpty()) {
-            return predecessor.get(0);
+            return predecessor.getFirst();
         }
         return null;
     }

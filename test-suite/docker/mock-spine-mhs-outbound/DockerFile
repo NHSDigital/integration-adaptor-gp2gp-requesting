@@ -1,4 +1,4 @@
-FROM gradle:7.2.0-jdk21 AS build
+FROM gradle:8.8-jdk21 AS build
 
 COPY --chown=gradle:gradle ../mock-spine-mhs-outbound /home/gradle/mock-spine-mhs-outbound
 

@@ -42,4 +42,4 @@ export SDS_BASE_URL="https://int.api.service.nhs.uk/spine-directory/FHIR/R4/"
 
 export SKIP_DECODE="false"
 #change path for snomedFile fath
-#export SNOMED_CT_TERMINOLOGY_FILE="/mnt/c/Users/yourUserName/yourPath/uk_sct2mo_38.2.0_20240605000001Z.zip";
+#export SNOMED_CT_TERMINOLOGY_FILE="/mnt/c/Users/yourUserName/yourPath/uk_sct2mo_39.0.0_20240925000001Z.zip";

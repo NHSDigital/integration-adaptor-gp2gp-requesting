@@ -204,7 +204,7 @@ public class PatientTransferServiceTest {
     @ParameterizedTest
     @MethodSource("generateInProgressStatuses")
     public void checkExistingPatientMigrationRequestInProgressWhenExistingMigrationInProcess(MigrationStatus status) {
-        final String newConversationId = UUID.randomUUID().toString();
+        final String newConversationId = "00000000-0000-4001-0000-000000000000";
         final PatientMigrationRequest patientMigrationRequest = createPatientMigrationRequest();
         final MigrationStatusLog migrationStatusLog = createMigrationStatusLog(status);
 

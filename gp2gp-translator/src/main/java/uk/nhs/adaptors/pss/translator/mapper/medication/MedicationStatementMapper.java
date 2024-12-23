@@ -24,7 +24,6 @@ import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
-import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
@@ -69,34 +68,18 @@ public class MedicationStatementMapper {
                                                         RCMRMT030101UKEhrComposition ehrComposition,
                                                         RCMRMT030101UKMedicationStatement medicationStatement,
                                                         RCMRMT030101UKAuthorise supplyAuthorise,
-                                                        String practiseCode,
+                                                        String practiceCode,
                                                         DateTimeType authoredOn) {
 
         var ehrSupplyAuthoriseIdExtract = extractEhrSupplyAuthoriseId(supplyAuthorise);
+
         if (ehrSupplyAuthoriseIdExtract.isPresent()) {
-            var discontinue =
-                extractMatchingDiscontinue(ehrSupplyAuthoriseIdExtract.orElseThrow(), ehrExtract);
+            var discontinue = extractMatchingDiscontinue(ehrSupplyAuthoriseIdExtract.orElseThrow(), ehrExtract);
 
             String ehrSupplyAuthoriseId = ehrSupplyAuthoriseIdExtract.get();
-            MedicationStatement mappedMedicationStatement = new MedicationStatement();
 
-            final Meta meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-                MEDICATION_STATEMENT_URL,
-                medicationStatement.getConfidentialityCode(),
-                ehrComposition.getConfidentialityCode()
-            );
-
-            mappedMedicationStatement.setId(ehrSupplyAuthoriseId + MS_SUFFIX);
-            mappedMedicationStatement.setMeta(meta);
-            mappedMedicationStatement.addIdentifier(buildIdentifier(ehrSupplyAuthoriseId + MS_SUFFIX, practiseCode));
-            mappedMedicationStatement.setTaken(UNK);
-
-            mappedMedicationStatement.addBasedOn(new Reference(
-                new IdType(ResourceType.MedicationRequest.name(), ehrSupplyAuthoriseId)
-            ));
-            mappedMedicationStatement.addExtension(generatePrescribingAgencyExtension());
-
-            mappedMedicationStatement.addDosage(buildDosage(medicationStatement.getPertinentInformation()));
+            var mappedMedicationStatement = initializeMedicationStatement(
+                ehrSupplyAuthoriseId, ehrComposition, medicationStatement, practiceCode);
 
             extractHighestSupplyPrescribeTime(ehrExtract, ehrSupplyAuthoriseId)
                 .map(dateTime -> new Extension(MS_LAST_ISSUE_DATE, dateTime))
@@ -123,6 +106,31 @@ public class MedicationStatementMapper {
             return mappedMedicationStatement;
         }
         return null;
+    }
+
+    private MedicationStatement initializeMedicationStatement(String ehrSupplyAuthoriseId,
+                                                              RCMRMT030101UKEhrComposition ehrComposition,
+                                                              RCMRMT030101UKMedicationStatement medicationStatement,
+                                                              String practiceCode) {
+        var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+            MEDICATION_STATEMENT_URL,
+            medicationStatement.getConfidentialityCode(),
+            ehrComposition.getConfidentialityCode());
+
+        var mappedMedicationStatement = new MedicationStatement();
+
+        mappedMedicationStatement
+            .addIdentifier(buildIdentifier(ehrSupplyAuthoriseId + MS_SUFFIX, practiceCode))
+            .setTaken(UNK)
+            .addBasedOn(new Reference(
+                new IdType(ResourceType.MedicationRequest.name(), ehrSupplyAuthoriseId)))
+            .addDosage(buildDosage(medicationStatement.getPertinentInformation()))
+            .addExtension(generatePrescribingAgencyExtension())
+            .setId(ehrSupplyAuthoriseId + MS_SUFFIX)
+            .setMeta(meta);
+
+        return mappedMedicationStatement;
+
     }
 
     private Period mapEffectiveTime(RCMRMT030101UKAuthorise authorise, RCMRMT030101UKDiscontinue discontinue,

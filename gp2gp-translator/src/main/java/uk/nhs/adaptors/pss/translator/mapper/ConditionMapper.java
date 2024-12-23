@@ -58,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
+import uk.nhs.adaptors.pss.translator.util.ResourceFilterUtil;
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
 
 @Service
@@ -91,23 +92,24 @@ public class ConditionMapper extends AbstractMapper<Condition> {
     private final ConfidentialityService confidentialityService;
 
     public List<Condition> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient, List<Encounter> encounters,
-                                        String practiseCode) {
+                                        String practiceCode) {
 
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
                 extractAllLinkSets(component)
                     .filter(Objects::nonNull)
+                    .filter(linkSet -> !ResourceFilterUtil.isReferralRequestToExternalDocumentLinkSet(ehrExtract, linkSet))
                     .map(linkSet -> getCondition(
                         patient,
                         encounters,
                         composition,
                         linkSet,
-                        practiseCode
+                        practiceCode
                     )))
             .toList();
     }
 
     private Condition getCondition(Patient patient, List<Encounter> encounters, RCMRMT030101UKEhrComposition composition,
-                                   RCMRMT030101UKLinkSet linkSet, String practiseCode) {
+                                   RCMRMT030101UKLinkSet linkSet, String practiceCode) {
 
         String id = linkSet.getId().getRoot();
 
@@ -117,11 +119,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
             composition.getConfidentialityCode()
         );
 
-        Condition condition = (Condition) new Condition()
-            .addIdentifier(buildIdentifier(id, practiseCode))
-            .addCategory(generateCategory())
-            .setId(id)
-            .setMeta(meta);
+        Condition condition = initializeCondition(id, practiceCode, meta);
 
         buildClinicalStatus(linkSet.getCode()).ifPresentOrElse(
             condition::setClinicalStatus,
@@ -130,9 +128,9 @@ public class ConditionMapper extends AbstractMapper<Condition> {
                 condition.addNote(new Annotation(new StringType(DEFAULT_CLINICAL_STATUS)));
             });
 
-        condition.setSubject(new Reference(patient));
+        condition.setSubject(new Reference(patient))
+                 .addExtension(buildProblemSignificance(linkSet.getCode()));
 
-        condition.addExtension(buildProblemSignificance(linkSet.getCode()));
         generateAnnotationToMinor(linkSet.getCode()).ifPresent(condition::addNote);
 
         buildContext(composition, encounters).ifPresent(condition::setContext);
@@ -150,6 +148,14 @@ public class ConditionMapper extends AbstractMapper<Condition> {
             );
 
         return condition;
+    }
+
+    private Condition initializeCondition(String id, String practiceCode, Meta meta) {
+        return (Condition) new Condition()
+            .addIdentifier(buildIdentifier(id, practiceCode))
+            .addCategory(generateCategory())
+            .setId(id)
+            .setMeta(meta);
     }
 
     public void addHierarchyReferencesToConditions(List<Condition> conditions, RCMRMT030101UKEhrExtract ehrExtract) {
@@ -291,7 +297,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
     }
 
     private boolean hasMajorCode(CD linkSetCode) {
-        return hasCode(linkSetCode) && MAJOR_CODE.equals(linkSetCode.getQualifier().get(0).getName().getCode());
+        return hasCode(linkSetCode) && MAJOR_CODE.equals(linkSetCode.getQualifier().getFirst().getName().getCode());
     }
 
     private Extension buildConditionReferenceExtension(String id, String heirarchyType) {
@@ -398,7 +404,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
 
         medicationStatements.forEach(medicationStatement -> {
             var medicationStatementId = medicationStatement.getId().getRoot();
-            var moodCode = medicationStatement.getMoodCode().get(0);
+            var moodCode = medicationStatement.getMoodCode().getFirst();
 
             switch (moodCode) {
                 case MEDICATION_MOOD_ORDER -> {

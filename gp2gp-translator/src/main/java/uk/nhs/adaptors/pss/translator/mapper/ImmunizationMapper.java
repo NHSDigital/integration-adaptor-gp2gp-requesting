@@ -56,13 +56,13 @@ public class ImmunizationMapper extends AbstractMapper<Immunization> {
     private final ConfidentialityService confidentialityService;
 
     public List<Immunization> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patientResource,
-                                           List<Encounter> encounterList, String practiseCode) {
+                                           List<Encounter> encounterList, String practiceCode) {
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllObservationStatements(component)
                 .filter(Objects::nonNull)
                 .filter(this::isImmunization)
                 .map(observationStatement ->
-                    mapImmunization(composition, observationStatement, patientResource, encounterList, practiseCode)))
+                    mapImmunization(composition, observationStatement, patientResource, encounterList, practiceCode)))
             .toList();
     }
 
@@ -76,19 +76,41 @@ public class ImmunizationMapper extends AbstractMapper<Immunization> {
 
     private Immunization mapImmunization(RCMRMT030101UKEhrComposition ehrComposition,
                                          RCMRMT030101UKObservationStatement observationStatement, Patient patientResource,
-                                         List<Encounter> encounterList, String practiseCode) {
+                                         List<Encounter> encounterList, String practiceCode) {
 
-        Immunization immunization = new Immunization();
+        var immunization = initializeImmunization(observationStatement,
+                                                  ehrComposition,
+                                                  encounterList,
+                                                  practiceCode,
+                                                  patientResource);
 
-        var id = observationStatement.getId().getRoot();
+        setPractiotionerAndAsserter(ehrComposition, observationStatement, immunization);
+        buildNote(observationStatement).forEach(immunization::addNote);
+        setDateFields(immunization, observationStatement);
+        setVaccineCode(immunization);
+
+        return immunization;
+    }
+
+    private void setVaccineCode(Immunization immunization) {
+        // we never receive a vaccine code but we have to include a unk code to make it FHIR compliant
+        var unkCoding = new Coding().setCode("UNK").setSystem("http://hl7.org/fhir/v3/NullFlavor");
+        var codingList = new ArrayList<Coding>();
+        codingList.add(unkCoding);
+        immunization.setVaccineCode(new CodeableConcept().setCoding(codingList));
+    }
+
+    private static void setPractiotionerAndAsserter(RCMRMT030101UKEhrComposition ehrComposition,
+                                                    RCMRMT030101UKObservationStatement observationStatement,
+                                                    Immunization immunization) {
 
         var recorderAndAsserter = ParticipantReferenceUtil.fetchRecorderAndAsserter(ehrComposition);
         ImmunizationPractitionerComponent recorder = null;
         ImmunizationPractitionerComponent asserter = null;
 
         var practitioner = Optional.ofNullable(getParticipantReference(
-                                                observationStatement.getParticipant(),
-                                                ehrComposition));
+            observationStatement.getParticipant(),
+            ehrComposition));
         if (practitioner.isPresent()) {
             asserter = getImmunizationPractitioner(practitioner.get(), "");
             if (recorderAndAsserter.get(RECORDER).isPresent()
@@ -97,36 +119,38 @@ public class ImmunizationMapper extends AbstractMapper<Immunization> {
             }
         }
 
+        immunization
+            .addPractitioner(recorder)
+            .addPractitioner(asserter);
+    }
+
+    private Immunization initializeImmunization(RCMRMT030101UKObservationStatement observationStatement,
+                                                RCMRMT030101UKEhrComposition ehrComposition,
+                                                List<Encounter> encounterList,
+                                                String practiceCode,
+                                                Patient patientResource) {
+
+        Immunization immunization = new Immunization();
+        var id = observationStatement.getId().getRoot();
+
         var encounter = getEncounterReference(encounterList, ehrComposition.getId());
 
-        final var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+        var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             META_PROFILE,
             ehrComposition.getConfidentialityCode(),
-            observationStatement.getConfidentialityCode()
-        );
+            observationStatement.getConfidentialityCode());
 
-        immunization.setMeta(meta);
-        immunization.addIdentifier(buildIdentifier(id, practiseCode));
-        immunization.addExtension(createVaccineProcedureExtension(observationStatement));
-        immunization.addExtension(createRecordedTimeExtension(ehrComposition));
         immunization
             .setEncounter(encounter)
-            .addPractitioner(recorder)
-            .addPractitioner(asserter)
+            .addIdentifier(buildIdentifier(id, practiceCode))
             .setStatus(ImmunizationStatus.COMPLETED)
+            .setPatient(new Reference(patientResource))
             .setNotGiven(false)
             .setPrimarySource(true)
-            .setPatient(new Reference(patientResource))
-            .setId(id);
-
-        buildNote(observationStatement).forEach(immunization::addNote);
-        setDateFields(immunization, observationStatement);
-
-        // we never receive a vaccine code but we have to include a unk code to make it FHIR compliant
-        var unkCoding = new Coding().setCode("UNK").setSystem("http://hl7.org/fhir/v3/NullFlavor");
-        var codingList = new ArrayList<Coding>();
-        codingList.add(unkCoding);
-        immunization.setVaccineCode(new CodeableConcept().setCoding(codingList));
+            .addExtension(createVaccineProcedureExtension(observationStatement))
+            .addExtension(createRecordedTimeExtension(ehrComposition))
+            .setId(id)
+            .setMeta(meta);
 
         return immunization;
     }

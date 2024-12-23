@@ -13,8 +13,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsNotPresent;
 
 class ConfidentialityServiceTest {
+
     private static final String DUMMY_PROFILE = "Test-MyProfile-1";
     private static final String DUMMY_PROFILE_URI = "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-%s".formatted(DUMMY_PROFILE);
 
@@ -43,7 +45,7 @@ class ConfidentialityServiceTest {
             DUMMY_PROFILE
         );
 
-        assertMetaSecurityIsNotPresent(result);
+        assertMetaSecurityIsNotPresent(result, DUMMY_PROFILE_URI);
     }
 
     @Test
@@ -63,7 +65,7 @@ class ConfidentialityServiceTest {
             Optional.of(ALTERNATIVE_CV)
         );
 
-        assertMetaSecurityIsNotPresent(result);
+        assertMetaSecurityIsNotPresent(result, DUMMY_PROFILE_URI);
     }
 
     @Test
@@ -73,7 +75,7 @@ class ConfidentialityServiceTest {
             Optional.empty()
         );
 
-        assertMetaSecurityIsNotPresent(result);
+        assertMetaSecurityIsNotPresent(result, DUMMY_PROFILE_URI);
     }
 
     @Test
@@ -101,10 +103,4 @@ class ConfidentialityServiceTest {
         );
     }
 
-    private void assertMetaSecurityIsNotPresent(final Meta meta) {
-        assertAll(
-            () -> assertThat(meta.getSecurity().size()).isEqualTo(0),
-            () -> assertThat(meta.getProfile().getFirst().getValue()).isEqualTo(DUMMY_PROFILE_URI)
-        );
-    }
 }

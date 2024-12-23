@@ -72,10 +72,10 @@ public class SpecimenBatteryMapper {
         final var ehrComposition = batteryParameters.getEhrComposition();
 
         final Observation observation = new Observation();
-        final String id = batteryParameters.getBatteryCompoundStatement().getId().get(0).getRoot();
+        final String id = batteryParameters.getBatteryCompoundStatement().getId().getFirst().getRoot();
         observation.setId(id);
         observation.setMeta(generateMeta(META_PROFILE_URL_SUFFIX));
-        observation.addIdentifier(buildIdentifier(id, batteryParameters.getPractiseCode()));
+        observation.addIdentifier(buildIdentifier(id, batteryParameters.getPracticeCode()));
         observation.setSubject(new Reference(batteryParameters.getPatient()));
         observation.setSpecimen(createSpecimenReference(batteryParameters.getSpecimenCompoundStatement()));
         observation.setStatus(Observation.ObservationStatus.FINAL);
@@ -208,7 +208,7 @@ public class SpecimenBatteryMapper {
     }
 
     private Reference createSpecimenReference(RCMRMT030101UKCompoundStatement specimenCompoundStatement) {
-        return new Reference(new IdType(Specimen.name(), specimenCompoundStatement.getId().get(0).getRoot()));
+        return new Reference(new IdType(Specimen.name(), specimenCompoundStatement.getId().getFirst().getRoot()));
     }
 
     private Optional<InstantType> getIssued(
@@ -293,6 +293,6 @@ public class SpecimenBatteryMapper {
         private List<Encounter> encounters;
         private List<Observation> observations;
         private List<Observation> observationComments;
-        private String practiseCode;
+        private String practiceCode;
     }
 }

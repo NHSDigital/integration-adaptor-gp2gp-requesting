@@ -91,7 +91,7 @@ public class MedicationMapperTest {
         assertThat(medication.getMeta()).isNotNull();
         assertThat(medication.getCode()).isNotNull();
         assertThat(medication.getCode().getCoding()).isNotNull();
-        assertThat(medication.getCode().getCoding().get(0)).isEqualTo(DegradedCodeableConcepts.DEGRADED_MEDICATION);
+        assertThat(medication.getCode().getCoding().getFirst()).isEqualTo(DegradedCodeableConcepts.DEGRADED_MEDICATION);
     }
 
     @SneakyThrows

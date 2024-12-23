@@ -40,19 +40,19 @@ public class ObservationCommentMapper extends AbstractMapper<Observation> {
     private static final String CODING_DISPLAY = "Comment note";
 
     public ArrayList<Observation> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient, List<Encounter> encounters,
-                                               String practiseCode) {
+                                               String practiceCode) {
 
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllNonBloodPressureNarrativeStatements(component)
                 .filter(Objects::nonNull)
                 .filter(narrativeStatement -> !isDocumentReference(narrativeStatement))
-                .map(narrativeStatement -> mapObservation(composition, narrativeStatement, patient, encounters, practiseCode)))
+                .map(narrativeStatement -> mapObservation(composition, narrativeStatement, patient, encounters, practiceCode)))
                 .collect((Collectors.toCollection(ArrayList::new)));
     }
 
     private Observation mapObservation(RCMRMT030101UKEhrComposition ehrComposition,
                                        RCMRMT030101UKNarrativeStatement narrativeStatement, Patient patient, List<Encounter> encounters,
-                                       String practiseCode) {
+                                       String practiceCode) {
 
         var narrativeStatementId = narrativeStatement.getId();
         var observation = new Observation();
@@ -63,7 +63,7 @@ public class ObservationCommentMapper extends AbstractMapper<Observation> {
         observation.setIssuedElement(createIssued(narrativeStatement));
         observation.setCode(createCodeableConcept());
         observation.addPerformer(createPerformer(ehrComposition, narrativeStatement));
-        observation.addIdentifier(buildIdentifier(narrativeStatementId.getRoot(), practiseCode));
+        observation.addIdentifier(buildIdentifier(narrativeStatementId.getRoot(), practiceCode));
 
         setObservationEffective(observation, narrativeStatement.getAvailabilityTime());
         setObservationComment(observation, narrativeStatement.getText());

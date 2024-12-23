@@ -2692,7 +2692,7 @@
           } ],
           "system": "http://snomed.info/sct",
           "code": "160274005",
-          "display": "No family history diabetes"
+          "display": "No family history of diabetes mellitus"
         } ],
         "text": "No FH: diabetes"
       },

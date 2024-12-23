@@ -31,5 +31,5 @@ public abstract class AbstractMapper<T> {
     }
 
     public abstract List<T> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient,
-        List<Encounter> encounters, String practiseCode);
+        List<Encounter> encounters, String practiceCode);
 }

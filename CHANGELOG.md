@@ -5,6 +5,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.0.8] - 2024-11-22
+
+### Fixed
+
+* When a `LinkSet` which is a linkage between a `ReferralRequest` and one or more `DocumentReferences` is mapped then a
+  `Condition` will no longer be mapped for this `Linkset`.
+  Instead, the `statementRef`s will be added to the `supportingInfo` when mapping the `ReferralRequest`
+  as `DocumentReferences`
+
+## [3.0.7] - 2024-11-19
+
+### Fixed
+
+* When provided an `agentPerson` without a `name` element, the adaptor will no longer throw an exception, but will
+  instead map the `Practitioner` with a `familyName` of `"unknown"`.
+
+## [3.0.6] - 2024-11-11
+
+### Fixed
+* Remove 20 MB data processing limit to enable the Adaptor to handle larger pieces of data.
+
+## [3.0.5] - 2024-11-05
+
+### Added
+* Documented how the Adaptor behaves when dependent services are unavailable.
+* Expanded the functionality added in [version 2.1.0](#210---2024-04-17) to deduplicate SystmOne Problems.
+  Handle the case where a duplicate, empty `ObservationStatement` is provided by SystmOne and ignore it from the
+  generated FHIR output.
+
+## [3.0.4] - 2024-10-28
+
+### Fixed
+
+- In the event that an inbound MHS message cannot be processed and needs to be sent to the dead letter queue, the
+  adaptor will now emit a log message at INFO level as opposed to DEBUG level.
+- Fixed a bug when mapping a post-dated acute prescription with multiple issues, whereby the adaptor was generating
+  a `MedicationRequest [Plan]` which was being referenced by multiple `MedicationRequest [Order]`.
+  Now each acute prescription issue gets its own `MedicationRequest [Plan]`, with the `priorPrescription` field linking
+  the plans together.
+
+## [3.0.3] - 2024-08-23
+
+> [!NOTE]
+> **Upgrade information** This release includes an update to the SNOMED database
+> Users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
+> This will need to be performed first, followed by deploying the updated version of the translator image.
+
 ## Added
 * If a `medicationStatement` or `medicationRequest` record includes a `confidentialityCode`, the `meta.security` field of the
 corresponding FHIR resource will now be [appropriately populated][nopat-docs].
@@ -22,14 +69,19 @@ corresponding FHIR resource will now be [appropriately populated][nopat-docs].
     corresponding FHIR resource will now be [appropriately populated][nopat-docs].
 * If a `Observation`, `Specimen`, `DiagnosticReport` record includes a `confidentialityCode`, the `meta.security` field of the
   corresponding FHIR resource will now be [appropriately populated][nopat-docs].
-* Addressed a bug in the PS adaptor where immunizations were incorrectly mapped to observations. 
-The adaptor now verifies the Snomed CT ID against both the Concept ID and the Description ID, ensuring 
-that immunizations are correctly identified when a match is found.
-
 
 ### Fixed
 * Resolved issue where the SNOMED import script would reject a password containing a '%' character.
 * Fixed some Test Results being given a duplicated `Observation.category` entries for `Laboratory`.
+* Fixed issue where the GPC Facade was not returning an error when an invalid `ConversationId` header 
+  was provided. The Facade will now return a 400 instead of a 500 HTTP response.
+* Filing Comments were creating with incorrect `effectiveDateTime`, this is now set from the 
+  `ehrComposition /author / time` instead.
+* Filing Comments were creating with an incorrect `performer`, this now references the
+  `ehrComposition / author / agentRef` instead.
+* Addressed a bug where immunizations were incorrectly mapped to observations when the Snomed CT code being sent was a
+  Description ID.
+  The adaptor previously only checked against known vaccination Concept IDs.
 
 ## [3.0.2] - 2024-07-18
 
@@ -268,7 +320,7 @@ that immunizations are correctly identified when a match is found.
 
 > [!NOTE]
 > **Upgrade information** This release includes an update to the SNOMED database
-> Users will need to perform an [update of their patient switching SNOMED database](OPERATING.md#updating-the-snomed-database).
+> Users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
 > This will need to be performed first, followed by deploying the updated version of the translator image.
 
 ## [1.4.2] - 2024-01-31
@@ -348,7 +400,7 @@ that immunizations are correctly identified when a match is found.
 > [!NOTE]
 > **Upgrade information** This release includes a [database migration](OPERATING.md#updating-the-application-schema).
 > This database migration will need to be performed first, followed by deploying the updated version of the facade and translator images.
-> Finally users will need to perform an [update of their patient switching SNOMED database](OPERATING.md#updating-the-snomed-database).
+> Finally users will need to perform an [update of their SNOMED database](OPERATING.md#updating-the-snomed-database).
 
 ## [1.0.1] - 2023-11-21
 

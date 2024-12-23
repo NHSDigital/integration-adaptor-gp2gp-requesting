@@ -44,12 +44,12 @@ public class ProcedureRequestMapper extends AbstractMapper<ProcedureRequest> {
     private final ConfidentialityService confidentialityService;
 
     public List<ProcedureRequest> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient, List<Encounter> encounters,
-                                               String practiseCode) {
+                                               String practiceCode) {
 
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllPlanStatements(component)
                 .filter(Objects::nonNull)
-                .map(planStatement -> mapToProcedureRequest(composition, planStatement, patient, encounters, practiseCode)))
+                .map(planStatement -> mapToProcedureRequest(composition, planStatement, patient, encounters, practiceCode)))
             .map(ProcedureRequest.class::cast)
             .toList();
     }
@@ -59,7 +59,7 @@ public class ProcedureRequestMapper extends AbstractMapper<ProcedureRequest> {
             RCMRMT030101UKPlanStatement planStatement,
             Patient patient,
             List<Encounter> encounters,
-            String practiseCode) {
+            String practiceCode) {
 
         var id = planStatement.getId().getRoot();
         Meta meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
@@ -67,7 +67,7 @@ public class ProcedureRequestMapper extends AbstractMapper<ProcedureRequest> {
             ehrComposition.getConfidentialityCode(),
             planStatement.getConfidentialityCode());
         var procedureRequest = buildBaseProcedureRequest(ehrComposition, planStatement, patient, id, meta);
-        addAdditionalInformationToProcedureRequest(procedureRequest, planStatement, id, practiseCode, ehrComposition, encounters);
+        addAdditionalInformationToProcedureRequest(procedureRequest, planStatement, id, practiceCode, ehrComposition, encounters);
 
         return handleDegradedCode(procedureRequest);
     }

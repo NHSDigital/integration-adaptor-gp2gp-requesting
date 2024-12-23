@@ -2,7 +2,7 @@ package uk.nhs.adaptors.gp2gpmhstestenv.mockspinemhsoutbound.model;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;

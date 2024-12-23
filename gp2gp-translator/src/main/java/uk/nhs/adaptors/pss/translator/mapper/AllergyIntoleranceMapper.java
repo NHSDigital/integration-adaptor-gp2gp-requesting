@@ -62,7 +62,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
 
     @Override
     public List<AllergyIntolerance> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient, List<Encounter> encounters,
-                                                 String practiseCode) {
+                                                 String practiceCode) {
         return mapEhrExtractToFhirResource(
                 ehrExtract,
                 (extract, composition, component) -> extractAllCompoundStatements(component)
@@ -71,7 +71,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
                         .map(compoundStatement -> mapAllergyIntolerance(
                             composition,
                                 compoundStatement,
-                                practiseCode,
+                            practiceCode,
                                 encounters,
                                 patient))
         ).toList();
@@ -79,7 +79,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
 
     private AllergyIntolerance mapAllergyIntolerance(RCMRMT030101UKEhrComposition ehrComposition,
                                                      RCMRMT030101UKCompoundStatement compoundStatement,
-                                                     String practiseCode,
+                                                     String practiceCode,
                                                      List<Encounter> encounters,
                                                      Patient patient) {
 
@@ -92,7 +92,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
             ehrComposition.getConfidentialityCode(),
             observationStatement.getConfidentialityCode());
 
-        initializeAllergyIntolerance(allergyIntolerance, compoundStatement, ehrComposition, patient, practiseCode, id, meta);
+        initializeAllergyIntolerance(allergyIntolerance, compoundStatement, ehrComposition, patient, practiceCode, id, meta);
         buildAdditionalFields(allergyIntolerance, compoundStatement, ehrComposition, encounters, observationStatement);
 
         return allergyIntolerance;
@@ -103,7 +103,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
         RCMRMT030101UKCompoundStatement compoundStatement,
         RCMRMT030101UKEhrComposition ehrComposition,
         Patient patient,
-        String practiseCode,
+        String practiceCode,
         String id,
         Meta meta) {
 
@@ -113,7 +113,7 @@ public class AllergyIntoleranceMapper extends AbstractMapper<AllergyIntolerance>
             .setPatient(new Reference(patient))
             .setClinicalStatus(ACTIVE)
             .setVerificationStatus(UNCONFIRMED)
-            .addIdentifier(buildIdentifier(id, practiseCode))
+            .addIdentifier(buildIdentifier(id, practiceCode))
             .setMeta(meta)
             .setId(id);
     }

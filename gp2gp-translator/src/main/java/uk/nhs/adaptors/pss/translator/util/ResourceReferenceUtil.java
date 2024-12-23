@@ -96,8 +96,8 @@ public class ResourceReferenceUtil {
 
         return compoundStatement == null
             || references.contains(QUESTIONNAIRE_ID.formatted(QUESTIONNAIRE_REFERENCE.formatted(
-            compoundStatement.getId().get(0).getRoot())))
-            || !references.contains(OBSERVATION_REFERENCE.formatted(compoundStatement.getId().get(0).getRoot()));
+            compoundStatement.getId().getFirst().getRoot())))
+            || !references.contains(OBSERVATION_REFERENCE.formatted(compoundStatement.getId().getFirst().getRoot()));
     }
 
     private void addObservationStatementEntry(RCMRMT030101UKObservationStatement observationStatement,
@@ -118,7 +118,7 @@ public class ResourceReferenceUtil {
     private static void addAllergyIntoleranceEntry(RCMRMT030101UKCompoundStatement compoundStatement,
                                                    List<Reference> entryReferences) {
 
-        var observationStatementPart = compoundStatement.getComponent().get(0).getObservationStatement();
+        var observationStatementPart = compoundStatement.getComponent().getFirst().getObservationStatement();
 
         entryReferences.add(createResourceReference(ResourceType.AllergyIntolerance.name(),
                 observationStatementPart.getId().getRoot()));
@@ -127,7 +127,7 @@ public class ResourceReferenceUtil {
     private static void addDiagnosticReportEntry(RCMRMT030101UKCompoundStatement compoundStatement,
                                                  List<Reference> entryReferences) {
         entryReferences.add(createResourceReference(ResourceType.DiagnosticReport.name(),
-                compoundStatement.getId().get(0).getRoot()));
+                compoundStatement.getId().getFirst().getRoot()));
     }
 
     private static void addMedicationEntry(RCMRMT030101UKMedicationStatement medicationStatement,
@@ -149,7 +149,7 @@ public class ResourceReferenceUtil {
                                               List<Reference> entryReferences) {
 
         entryReferences.add(createResourceReference(ResourceType.Observation.name(),
-                compoundStatement.getId().get(0).getRoot()));
+                compoundStatement.getId().getFirst().getRoot()));
     }
 
     private static void addImmunizationEntry(RCMRMT030101UKObservationStatement observationStatement,
@@ -180,17 +180,17 @@ public class ResourceReferenceUtil {
             if (requestStatement.getCode().getQualifier() == null
                     || requestStatement.getCode().getQualifier().isEmpty()) {
                 entryReferences.add(createResourceReference(
-                        ResourceType.ReferralRequest.name(), requestStatement.getId().get(0).getRoot()));
+                        ResourceType.ReferralRequest.name(), requestStatement.getId().getFirst().getRoot()));
             }
 
             //If qualifier present then add Observation or ReferralRequest depending on Value.
             for (CR qualifier : requestStatement.getCode().getQualifier()) {
                 if (qualifier.getValue().getCode().equals(SELF_REFERRAL)) {
                     entryReferences.add(createResourceReference(
-                            ResourceType.Observation.name(), requestStatement.getId().get(0).getRoot()));
+                            ResourceType.Observation.name(), requestStatement.getId().getFirst().getRoot()));
                 } else {
                     entryReferences.add(createResourceReference(
-                            ResourceType.ReferralRequest.name(), requestStatement.getId().get(0).getRoot()));
+                            ResourceType.ReferralRequest.name(), requestStatement.getId().getFirst().getRoot()));
                 }
             }
         }
@@ -202,7 +202,7 @@ public class ResourceReferenceUtil {
             if (isDocumentReference(narrativeStatement)) {
                 // document references actually use the narrative statement id rather than the referenceDocument root id in EMIS data
                 // if EMIS is incorrect, replace the id below with the following...
-                // narrativeStatement.getReference().get(0).getReferredToExternalDocument().getId().getRoot()
+                // narrativeStatement.getReference().getFirst().getReferredToExternalDocument().getId().getRoot()
                 entryReferences.add(createResourceReference(ResourceType.DocumentReference.name(),
                     narrativeStatement.getId().getRoot()));
             } else {

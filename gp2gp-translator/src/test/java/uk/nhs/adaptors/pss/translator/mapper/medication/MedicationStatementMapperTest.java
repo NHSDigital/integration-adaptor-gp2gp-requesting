@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITHOUT_SECURITY;
 import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import java.io.File;
@@ -50,6 +51,7 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.pss.translator.FileFactory;
 import uk.nhs.adaptors.pss.translator.MetaFactory;
 import uk.nhs.adaptors.pss.translator.TestUtility;
+
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 
@@ -79,7 +81,7 @@ class MedicationStatementMapperTest {
             eq(META_PROFILE),
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 
     @Test
@@ -113,7 +115,7 @@ class MedicationStatementMapperTest {
         var lastIssuedDate = result.getExtensionsByUrl(
             "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1");
         assertThat(lastIssuedDate).hasSize(1);
-        var dateTime = (DateTimeType) lastIssuedDate.get(0).getValue();
+        var dateTime = (DateTimeType) lastIssuedDate.getFirst().getValue();
         assertThat(dateTime.getValue()).isEqualTo(DateFormatUtil.parseToDateTimeType("20060428").getValue());
 
         var prescribingAgency = result
@@ -263,13 +265,13 @@ class MedicationStatementMapperTest {
     @Test
     void When_MapToMedicationStatement_Expect_MetaPresentFromConfidentialityServiceWithSecurity() {
         final String fileName = "ehrExtract_nopatConfidentialityCodePresentWithinMedicationStatement.xml";
-        final Meta expectedMeta = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final Meta expectedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
 
         final MedicationStatement result = mapMedicationStatementFromEhrFile(fileName, new DateTimeType());
         final Optional<CV> medicationStatementConfidentialityCode = getMedicationStatementConfidentialityCode();
@@ -288,13 +290,13 @@ class MedicationStatementMapperTest {
     @Test
     void When_MapToMedicationStatement_With_ConfidentialityCodeInEhrComposition_Expect_MetaPresentFromConfidentialityServiceWithSecurity() {
         final String fileName = "ehrExtract_nopatConfidentialityCodePresentWithinEhrComposition.xml";
-        final Meta expectedMeta = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final Meta expectedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
 
         final MedicationStatement result = mapMedicationStatementFromEhrFile(fileName, new DateTimeType());
         final Optional<CV> medicationStatementConfidentialityCode = getMedicationStatementConfidentialityCode();
@@ -368,7 +370,7 @@ class MedicationStatementMapperTest {
     }
 
     private Optional<CV> getMedicationStatementConfidentialityCode() {
-        return confidentialityCodeCaptor.getAllValues().get(0);
+        return confidentialityCodeCaptor.getAllValues().getFirst();
     }
 
     private Optional<CV> getEhrCompositionConfidentialityCode() {

@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 public class OutboundMessageUtil {
     public String parseFromAsid(RCMRIN030000UKMessage payload) {
         return payload.getCommunicationFunctionRcv()
-            .get(0)
+            .getFirst()
             .getDevice()
             .getId()
-            .get(0)
+            .getFirst()
             .getExtension();
     }
 
@@ -18,7 +18,7 @@ public class OutboundMessageUtil {
         return payload.getCommunicationFunctionSnd()
             .getDevice()
             .getId()
-            .get(0)
+            .getFirst()
             .getExtension();
     }
 

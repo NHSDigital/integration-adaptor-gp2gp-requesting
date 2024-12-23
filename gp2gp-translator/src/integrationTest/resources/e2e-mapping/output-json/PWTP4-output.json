@@ -3434,7 +3434,7 @@
         }
       }, {
         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
-        "valueDateTime": "2013-01-03"
+        "valueDateTime": "2010-01-14"
       } ],
       "identifier": [ {
         "system": "https://PSSAdaptor/B83002",
@@ -5953,7 +5953,7 @@
         }
       }, {
         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
-        "valueDateTime": "2010-05-21"
+        "valueDateTime": "2010-01-18"
       } ],
       "identifier": [ {
         "system": "https://PSSAdaptor/B83002",
@@ -14035,7 +14035,7 @@
         "value": "B1AF89A7-D501-4221-919C-4CB7EA76D827"
       } ],
       "basedOn": [ {
-        "reference": "MedicationRequest/9374FDA9-64C9-44AE-938C-6D54D25DED09"
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000086"
       } ],
       "status": "completed",
       "intent": "order",
@@ -14871,7 +14871,7 @@
         "value": "7E144F99-C633-43D0-B8AD-368F0EAEF774"
       } ],
       "basedOn": [ {
-        "reference": "MedicationRequest/9F4841C2-563B-4D0F-A288-66175258B641"
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000087"
       } ],
       "status": "completed",
       "intent": "order",
@@ -18100,7 +18100,7 @@
         "value": "44638ED8-35BC-4715-BC17-D7E59E92554D"
       } ],
       "basedOn": [ {
-        "reference": "MedicationRequest/1458EF9E-D0EA-4745-BB46-C38668E0EC0C"
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000084"
       } ],
       "status": "completed",
       "intent": "order",
@@ -18211,7 +18211,7 @@
         "value": "BFE43BEF-76F4-4D94-AEA1-E92E89287D22"
       } ],
       "basedOn": [ {
-        "reference": "MedicationRequest/386FBA83-24D2-44C4-8EA3-B2BCDA30B16C"
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000085"
       } ],
       "status": "completed",
       "intent": "order",
@@ -18242,6 +18242,412 @@
           "unit": "tablet"
         }
       }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationRequest",
+      "id": "00000000-0000-0000-0000-000000000084",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatusReason-1",
+        "extension": [ {
+          "url": "statusChangeDate",
+          "valueDateTime": "2011-11-15"
+        }, {
+          "url": "statusReason",
+          "valueCodeableConcept": {
+            "text": "End course for acute post G -> T switch for 22047"
+          }
+        } ]
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1",
+            "code": "acute",
+            "display": "Acute"
+          } ]
+        }
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000084"
+      } ],
+      "status": "stopped",
+      "intent": "plan",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000079"
+      },
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "authoredOn": "2011-11-15",
+      "requester": {
+        "agent": {
+          "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+        }
+      },
+      "recorder": {
+        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+      },
+      "dosageInstruction": [ {
+        "text": "One To Be Taken Every Four To Six Hours When Required"
+      } ],
+      "dispenseRequest": {
+        "validityPeriod": {
+          "start": "2011-11-15"
+        },
+        "quantity": {
+          "value": 168.0,
+          "unit": "tablet"
+        }
+      },
+      "priorPrescription": {
+        "reference": "MedicationRequest/1458EF9E-D0EA-4745-BB46-C38668E0EC0C"
+      }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationStatement",
+      "id": "00000000-0000-0000-0000-000000000084-MS",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationStatement-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1",
+            "code": "prescribed-at-gp-practice",
+            "display": "Prescribed at GP practice"
+          } ]
+        }
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
+        "valueDateTime": "2011-11-15"
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000084-MS"
+      } ],
+      "basedOn": [ {
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000084"
+      } ],
+      "status": "stopped",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000079"
+      },
+      "effectivePeriod": {
+        "start": "2011-11-15",
+        "end": "2011-11-15"
+      },
+      "dateAsserted": "2011-11-15T14:55:59+00:00",
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "taken": "unk",
+      "dosage": [ {
+        "text": "One To Be Taken Every Four To Six Hours When Required"
+      } ]
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationRequest",
+      "id": "00000000-0000-0000-0000-000000000085",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1",
+            "code": "acute",
+            "display": "Acute"
+          } ]
+        }
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000085"
+      } ],
+      "status": "completed",
+      "intent": "plan",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000024"
+      },
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "authoredOn": "2010-01-14",
+      "requester": {
+        "agent": {
+          "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+        }
+      },
+      "recorder": {
+        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+      },
+      "dosageInstruction": [ {
+        "text": "One To Be Taken At Night"
+      } ],
+      "dispenseRequest": {
+        "validityPeriod": {
+          "start": "2013-01-03"
+        },
+        "quantity": {
+          "value": 150.0,
+          "unit": "tablet"
+        }
+      },
+      "priorPrescription": {
+        "reference": "MedicationRequest/386FBA83-24D2-44C4-8EA3-B2BCDA30B16C"
+      }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationStatement",
+      "id": "00000000-0000-0000-0000-000000000085-MS",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationStatement-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1",
+            "code": "prescribed-at-gp-practice",
+            "display": "Prescribed at GP practice"
+          } ]
+        }
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
+        "valueDateTime": "2013-01-03"
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000085-MS"
+      } ],
+      "basedOn": [ {
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000085"
+      } ],
+      "status": "completed",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000024"
+      },
+      "effectivePeriod": {
+        "start": "2013-01-03",
+        "end": "2013-01-03"
+      },
+      "dateAsserted": "2010-01-14T10:30:03+00:00",
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "taken": "unk",
+      "dosage": [ {
+        "text": "One To Be Taken At Night"
+      } ]
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationRequest",
+      "id": "00000000-0000-0000-0000-000000000086",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1",
+            "code": "acute",
+            "display": "Acute"
+          } ]
+        }
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000086"
+      } ],
+      "status": "completed",
+      "intent": "plan",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000009"
+      },
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "authoredOn": "2010-03-23",
+      "requester": {
+        "agent": {
+          "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+        }
+      },
+      "recorder": {
+        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+      },
+      "dosageInstruction": [ {
+        "text": "One To Be Taken Each Day After Food"
+      } ],
+      "dispenseRequest": {
+        "validityPeriod": {
+          "start": "2010-03-23"
+        },
+        "quantity": {
+          "value": 28.0,
+          "unit": "tablet"
+        }
+      },
+      "priorPrescription": {
+        "reference": "MedicationRequest/9374FDA9-64C9-44AE-938C-6D54D25DED09"
+      }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationStatement",
+      "id": "00000000-0000-0000-0000-000000000086-MS",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationStatement-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1",
+            "code": "prescribed-at-gp-practice",
+            "display": "Prescribed at GP practice"
+          } ]
+        }
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
+        "valueDateTime": "2010-03-23"
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000086-MS"
+      } ],
+      "basedOn": [ {
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000086"
+      } ],
+      "status": "completed",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000009"
+      },
+      "effectivePeriod": {
+        "start": "2010-03-23",
+        "end": "2010-03-23"
+      },
+      "dateAsserted": "2010-03-23T15:47:58+00:00",
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "taken": "unk",
+      "dosage": [ {
+        "text": "One To Be Taken Each Day After Food"
+      } ]
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationRequest",
+      "id": "00000000-0000-0000-0000-000000000087",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1",
+            "code": "acute",
+            "display": "Acute"
+          } ]
+        }
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000087"
+      } ],
+      "status": "completed",
+      "intent": "plan",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000043"
+      },
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "authoredOn": "2010-01-18",
+      "requester": {
+        "agent": {
+          "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+        }
+      },
+      "recorder": {
+        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+      },
+      "note": [ {
+        "text": "Pharmacy Text: These are some pharmacy notes for Methylphenidate. Patient Text: yutyuhyfhf.\n"
+      } ],
+      "dosageInstruction": [ {
+        "text": "One Or Two To Be Taken At Night"
+      } ],
+      "dispenseRequest": {
+        "validityPeriod": {
+          "start": "2010-05-21"
+        },
+        "quantity": {
+          "value": 56.0,
+          "unit": "tablet"
+        }
+      },
+      "priorPrescription": {
+        "reference": "MedicationRequest/9F4841C2-563B-4D0F-A288-66175258B641"
+      }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationStatement",
+      "id": "00000000-0000-0000-0000-000000000087-MS",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationStatement-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1",
+            "code": "prescribed-at-gp-practice",
+            "display": "Prescribed at GP practice"
+          } ]
+        }
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
+        "valueDateTime": "2010-05-21"
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000087-MS"
+      } ],
+      "basedOn": [ {
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000087"
+      } ],
+      "status": "completed",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000043"
+      },
+      "effectivePeriod": {
+        "start": "2010-05-21",
+        "end": "2010-05-21"
+      },
+      "dateAsserted": "2010-01-18T09:16:52+00:00",
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000007"
+      },
+      "taken": "unk",
+      "dosage": [ {
+        "text": "One Or Two To Be Taken At Night"
+      } ]
     }
   }, {
     "resource": {

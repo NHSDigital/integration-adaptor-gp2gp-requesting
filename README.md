@@ -1,13 +1,15 @@
-# nia-patient-switching-standard-adaptor
-National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk/developer/api-catalogue/gp2gp/patient-switching---integration-adaptor)
+# GP2GP FHIR Request Adaptor
+National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk/developer/api-catalogue/gp2gp/gp2gp-requesting-adaptor)
 
-Incumbent providers (e.g. TPP, EMIS, SystemOne) in order to deploy GP2GP Adaptor in their infrastructure
-to support losing practice scenario - i.e. whereby a different practice transfers patient data from the incumbent
-would have to make changes to their GP Connect interface implementations.
-In particular, they would need to implement 1.6.0 version that is required by the GPC Consumer and GP2GP adaptors.
-This business case is not always easy to be accepted by the incumbent providers, as they would have to invest time to make those changes.
+Incumbent providers (e.g. TPP, EMIS, SystemOne) would have to make changes to their GP Connect interface implementations
+in order to deploy GP2GP Adaptor in their infrastructure to support the losing practice scenario - i.e. whereby a 
+different practice transfers patient data from the incumbent. In particular, they would need to implement 1.6.0 version
+that is required by the GPC Consumer and GP2GP adaptors.
 
-The motivation for the Switching Standard Adaptor is to remove the dependency from incumbent providers to do that work.
+This business case is not always easy to be accepted by the incumbent providers, as they would have to invest time to
+make those changes.
+
+The motivation for the GP2GP FHIR Request   Adaptor is to remove the dependency from incumbent providers to do that work.
 The idea is to build an adaptor that could be installed and configured in a New Market Entrant (NME) infrastructure,
 and could work with the incumbent’s GPC < 1.6.0.
 
@@ -20,6 +22,7 @@ Both are Java Spring Boot applications, released as separate docker images.
 
 ## Table of contents
 
+1. [Guidance for setting up the GP2GP adaptors in INT](/getting-started-instructions.md)
 1. [Guidance for operating the adaptor as a New Market Entrant](/OPERATING.md)
 1. [Guidance on integrating with the adaptors APIs](#endpoints)
 1. [Guidance for developing the adaptor](/developer-information.md)
@@ -27,7 +30,7 @@ Both are Java Spring Boot applications, released as separate docker images.
 
 ## Endpoints
 
-The Patient Switching Adaptor's facade provides two main endpoints for interacting with patient records.
+The Adaptor's facade provides two main endpoints for interacting with patient records.
 
 ### POST /Patient/$gpc.migratestructuredrecord
 
@@ -39,8 +42,32 @@ To use this endpoint, you need to provide the following headers:
 - FROM-ASID : ASID identifier of the winning New Market Entrant (NME)
 - TO-ODS : ODS identifier of the losing incumbent
 - FROM-ODS : ODS identifier of the winning New Market Entrant (NME)
-- ConversationId : A unique GUID for the request. If not provided, the adaptor will generate one and include it in the response headers.
+- ConversationId : A unique UUID for the request. If not provided, the adaptor will generate one and include it in the response headers.
   It must be used for all further calls for the patient's NHS number.
+
+If a `ConversationId` header is provided where the value is populated but does not contain a valid UUID, then the 
+following response will be returned:
+
+```json
+{
+	"resourceType": "OperationOutcome",
+	"meta": {
+		"profile": ["https://fhir.nhs.uk/STU3/StructureDefinition/GPConnect-OperationOutcome-1"]
+	},
+	"issue": [{
+		"severity": "error",
+		"code": "invalid",
+		"details": {
+			"coding": [{
+				"system": "https://fhir.nhs.uk/STU3/ValueSet/Spine-ErrorOrWarningCode-1",
+				"code": "BAD_REQUEST",
+				"display": "Bad request"
+			}]
+		},
+		"diagnostics": "ConversationId header must be either be empty or a valid UUID"
+	}]
+}
+```
 
 For more details on how to query the losing practice details, see the [requesting site requirements].
 
@@ -64,7 +91,7 @@ Request Body Example:
             "name": "includeFullRecord",
             "part": [
                {
-                  "name": "includeSensitiveInfomation",
+                  "name": "includeSensitiveInformation",
                   "valueBoolean": true
                }
             ]
@@ -143,25 +170,57 @@ as these would violate the terms of those libraries' licenses.
 The contents of this repository are protected by Crown Copyright (C).
 
 ## Performance
-The performance of PS Adaptor was tested with JMeter tool. 
-The use case tested was the simulation of the patient transfer request. 
-This was tested by sending EHR record requests to the PS Adaptor, and we expected to receive a bundle back. 
-The patient transfer used two attachments,both of them are text attachments of size 2.44 MB and 0.7 MB.
-We used these tests to observe how the PS Adaptor handles a heavy workload and to profile the CPU and memory usage 
-during the testing process.
 
-There was a series of tests run with the following setup and parameters:
-- PS Adaptor was run in ECS AWS environment with 4 CPUs and 16 GB memory.
-- MHS Adaptor was run in ECS AWS environment with 4 CPUs and 16 GB memory.
-- For the message queue mq.m5.xlarge host type was used
-- RDS DB host type was set to db.t3.xlarge
+Case 1: Performance Testing with JMeter
 
-The test used 2000 transfers which were split into 5 batches of 400 transfers.
-The time for the test was measured from the start of the initial request to the completion of all transfers.
-Pause time between transfers was set to 1 sec and the socket timeout was to 2 minutes.
+We conducted a performance test of the Adaptor using the JMeter tool. 
+The use case focused on simulating a patient transfer request, 
+where Electronic Health Record (EHR) requests were sent to the Adaptor, expecting a bundle in return. 
+This test involved two text attachments with sizes of 2.44 MB and 0.7 MB, respectively. 
+The primary goal was to evaluate how the Adaptor manages a heavy workload and to monitor CPU and memory usage 
+during the process.
 
-The test load with 2000 transactions finished successfully in 14 minutes which gives on average 420-435 ms per transfer.
-The observed CPU utilization was around 50-60% and memory usage was around 70% which leaves plenty of headroom for additional load.
+Test Setup and Parameters:
+
+ - GP2GP FHIR Request Adaptor: Deployed in an ECS AWS environment with 4 CPUs and 16 GB of memory (shared between the PS Translator and Facade).
+ - MHS Adaptor: Deployed in an ECS AWS environment with 4 CPUs and 16 GB of memory (shared between inbound and outbound).
+ - Message Queue: Utilized the mq.m5.xlarge instance type.
+ - RDS Database: Hosted on a db.t3.xlarge instance.
+
+The test involved 2000 patient transfers, divided into 5 batches of 400 transfers each. 
+The total test duration was measured from the start of the initial request until the completion of all transfers. 
+A random pause time between 100 ms and 1100 ms was introduced between transfers, with a socket timeout set to 2 minutes.
+
+Results:
+
+The test load of 2000 transactions was successfully completed in 14 minutes, averaging 420-435 ms per transfer.
+CPU utilization during the test was around 50-60%, and memory usage was approximately 70%, 
+indicating sufficient capacity for additional load.
+
+-----------------------------------------------------------------
+
+Case 2: Performance Testing via TPP/EMIS and Medicus
+
+In a separate series of tests, up to 10 concurrent patient transfers were completed, 
+involving varying attachment types (100, 500, 1000) and file sizes (1 KB, 100 KB, 500 KB, 3.5 MB, 5 MB). 
+These tests were conducted with TPP/EMIS as the sending systems and Medicus as the receiving system.
+
+Resource Allocation:
+
+GP2GP FHIR Request Adaptor:
+    Facade: 2 vCPUs, 4 GB RAM
+    Translator: 2 vCPUs, 4 GB RAM
+MHS Adaptor:
+    Inbound: 2 vCPUs, 4 GB RAM
+    Outbound: 0.25 vCPUs, 0.5 GB RAM
+Message Queue: 
+    Instance Type: mq.m5.large
+
+Results:
+
+A single patient record of 10 MB was processed in approximately 20 seconds.
+On average, the transfer of up to 10 patients was completed within 1 to 1 minute and 40 seconds.
+
 
 ![report1.jpg](test-suite%2Fnon-functional-tests%2Ftest-scenario%2Fperf_report%2Freport1.jpg)
 

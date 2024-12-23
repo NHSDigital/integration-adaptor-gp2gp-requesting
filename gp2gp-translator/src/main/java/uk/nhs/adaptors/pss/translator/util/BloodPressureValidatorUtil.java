@@ -63,7 +63,7 @@ public class BloodPressureValidatorUtil {
 
     private static boolean validateTriple(String header, String observationStatement1, String observationStatement2) {
         for (List<List<String>> list : VALID_BLOOD_PRESSURE_TRIPLES) {
-            if (isValidBloodTriple(list.get(0), list.get(1), list.get(2), header, observationStatement1, observationStatement2)) {
+            if (isValidBloodTriple(list.getFirst(), list.get(1), list.get(2), header, observationStatement1, observationStatement2)) {
                 return true;
             }
         }
@@ -87,7 +87,7 @@ public class BloodPressureValidatorUtil {
 
         if (observationStatements.size() == 2) {
             Optional<String> compoundStatementCode = extractSnomedCode(compoundStatement.getCode());
-            Optional<String> obsStatementCode1 = extractSnomedCode(observationStatements.get(0).getCode());
+            Optional<String> obsStatementCode1 = extractSnomedCode(observationStatements.getFirst().getCode());
             Optional<String> obsStatementCode2 = extractSnomedCode(observationStatements.get(1).getCode());
 
             if (compoundStatementCode.isEmpty() || obsStatementCode1.isEmpty() || obsStatementCode2.isEmpty()) {
@@ -103,7 +103,7 @@ public class BloodPressureValidatorUtil {
 
     public static boolean isBloodPressureWithBatteryAndBloodPressureTriple(
         RCMRMT030101UKCompoundStatement compoundStatement) {
-        return BATTERY_VALUE.equals(compoundStatement.getClassCode().get(0))
+        return BATTERY_VALUE.equals(compoundStatement.getClassCode().getFirst())
             && containsValidBloodPressureTriple(compoundStatement);
     }
 }

@@ -27,6 +27,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.nhs.adaptors.common.util.fhir.FhirParser;
 import uk.nhs.adaptors.connector.dao.MigrationStatusLogDao;
 import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
@@ -38,6 +39,7 @@ import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
 @AutoConfigureMockMvc
+@Transactional
 public class PatientTransferControllerIT {
 
     private static final int NHS_NUMBER_MIN_MAX_LENGTH = 10;

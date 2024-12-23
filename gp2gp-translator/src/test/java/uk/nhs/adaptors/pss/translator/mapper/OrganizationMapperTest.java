@@ -39,6 +39,6 @@ public class OrganizationMapperTest {
         assertThat(organization.getId()).isEqualTo(ID);
         assertThat(organization.getIdentifierFirstRep().getSystem()).isEqualTo(ODS_SYSTEM);
         assertThat(organization.getIdentifierFirstRep().getValue()).isEqualTo(ODS_CODE);
-        assertThat(organization.getMeta().getProfile().get(0).getValue()).isEqualTo(CARE_CONNECT_PROFILE_ORG);
+        assertThat(organization.getMeta().getProfile().getFirst().getValue()).isEqualTo(CARE_CONNECT_PROFILE_ORG);
     }
 }

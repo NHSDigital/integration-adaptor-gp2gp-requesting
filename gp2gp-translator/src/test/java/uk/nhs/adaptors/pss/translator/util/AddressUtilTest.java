@@ -22,7 +22,7 @@ public class AddressUtilTest {
 
         assertThat(address.getUse()).isEqualTo(Address.AddressUse.WORK);
         assertThat(address.getType()).isEqualTo(Address.AddressType.PHYSICAL);
-        assertThat(address.getLine().get(0).getValue()).isEqualTo("234 ASHTREE ROAD");
+        assertThat(address.getLine().getFirst().getValue()).isEqualTo("234 ASHTREE ROAD");
         assertThat(address.getLine().get(1).getValue()).isEqualTo("LEEDS");
         assertThat(address.getLine().get(2).getValue()).isEqualTo("YORKSHIRE");
         assertThat(address.getPostalCode()).isEqualTo("LS12 3RT");
@@ -36,7 +36,7 @@ public class AddressUtilTest {
 
         assertThat(address.getUse()).isEqualTo(Address.AddressUse.WORK);
         assertThat(address.getType()).isEqualTo(Address.AddressType.PHYSICAL);
-        assertThat(address.getLine().get(0).getValue()).isEqualTo("234 ASHTREE ROAD");
+        assertThat(address.getLine().getFirst().getValue()).isEqualTo("234 ASHTREE ROAD");
         assertThat(address.getLine().get(1).getValue()).isEqualTo("LEEDS");
         assertThat(address.getLine().get(2).getValue()).isEqualTo("YORKSHIRE");
         assertThat(address.getPostalCode()).isNull();

@@ -12,8 +12,8 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITHOUT_SECURITY;
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import java.util.List;
@@ -35,7 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import lombok.SneakyThrows;
-import uk.nhs.adaptors.pss.translator.MetaFactory;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
@@ -86,7 +86,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertFullValidData(immunization, immunizationList);
     }
 
@@ -95,7 +95,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_missing_optional_values.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertMissingData(immunization, immunizationList);
     }
 
@@ -104,7 +104,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_id_not_matching_encounter_id.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertNull(immunization.getEncounter().getReference());
     }
 
@@ -113,13 +113,13 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_with_author_and_participant.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertEquals("Practitioner/E7E7B550-09EF-BE85-C20F-34598014166C",
-            immunization.getPractitioner().get(0).getActor().getReference());
+            immunization.getPractitioner().getFirst().getActor().getReference());
         assertEquals("EP",
-            immunization.getPractitioner().get(0).getRole().getCoding().get(0).getCode());
+            immunization.getPractitioner().getFirst().getRole().getCoding().getFirst().getCode());
         assertEquals("http://hl7.org/fhir/stu3/valueset-immunization-role.html",
-            immunization.getPractitioner().get(0).getRole().getCoding().get(0).getSystem());
+            immunization.getPractitioner().getFirst().getRole().getCoding().getFirst().getSystem());
         assertEquals("Practitioner/9A5D5A78-1F63-434C-9637-1D7E7843341B",
             immunization.getPractitioner().get(1).getActor().getReference());
         assertNull(immunization.getPractitioner().get(1).getRole().getText());
@@ -130,11 +130,11 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_with_one_observation_participant.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertEquals(1, immunization.getPractitioner().size());
         assertEquals("Practitioner/9A5D5A78-1F63-434C-9637-1D7E7843341B",
-            immunization.getPractitioner().get(0).getActor().getReference());
-        assertNull(immunization.getPractitioner().get(0).getRole().getText());
+            immunization.getPractitioner().getFirst().getActor().getReference());
+        assertNull(immunization.getPractitioner().getFirst().getRole().getText());
     }
 
     @Test
@@ -142,10 +142,10 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization_with_multiple_observation_statements.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertThat(immunizationList).hasSize(THREE);
         assertEquals(OBSERVATION_ROOT_ID, immunization.getId());
-        assertEquals(META_PROFILE, immunization.getMeta().getProfile().get(0).getValue());
+        assertEquals(META_PROFILE, immunization.getMeta().getProfile().getFirst().getValue());
         assertThatIdentifierIsValid(immunization.getIdentifierFirstRep(), immunization.getId());
     }
 
@@ -155,9 +155,10 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization_with_multiple_observation_statements.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
-        assertEquals(VACCINE_PROCEDURE_URL, immunization.getExtension().get(0).getUrl());
-        assertEquals(CODING_DISPLAY, ((CodeableConcept) immunization.getExtension().get(0).getValue()).getCoding().get(0).getDisplay());
+        var immunization = (Immunization) immunizationList.getFirst();
+        assertEquals(VACCINE_PROCEDURE_URL, immunization.getExtension().getFirst().getUrl());
+        assertEquals(CODING_DISPLAY,
+                     ((CodeableConcept) immunization.getExtension().getFirst().getValue()).getCoding().getFirst().getDisplay());
     }
 
     @Test
@@ -165,7 +166,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_center_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertImmunizationWithHighEffectiveTimeCenter(immunization);
     }
 
@@ -174,7 +175,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_low_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertImmunizationWithEffectiveTimeLow(immunization);
     }
 
@@ -183,7 +184,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_high_and_low_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertImmunizationWithHighAndLowEffectiveTime(immunization);
     }
 
@@ -192,7 +193,7 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_high_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertImmunizationWithHighEffectiveTime(immunization);
     }
 
@@ -201,13 +202,13 @@ public class ImmunizationMapperTest {
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_high_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
-        var immunization = (Immunization) immunizationList.get(0);
+        var immunization = (Immunization) immunizationList.getFirst();
         assertImmunizationWithDefaultVaccineCode(immunization);
     }
 
     @Test
     public void When_EhrCompositionWithNoPatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
-        final var metaWithSecurity = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final var metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         when(
             confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 eq("Immunization-1"),
@@ -222,11 +223,11 @@ public class ImmunizationMapperTest {
             getEncounterList(), PRACTISE_CODE
         );
         final var securityMeta = immunizations
-            .get(0)
+            .getFirst()
             .getMeta()
             .getSecurity(NOPAT_URL_CODESYSTEM, NOPAT_CODE);
 
-        final var ehrCompositionConfidentialityCode = confidentialityCodeCaptor.getAllValues().get(0);
+        final var ehrCompositionConfidentialityCode = confidentialityCodeCaptor.getAllValues().getFirst();
 
         assertAll(
             () -> {
@@ -238,14 +239,12 @@ public class ImmunizationMapperTest {
                         TestUtility.createCv(NOPAT_CODE, NOPAT_OID_CODESYSTEM, NOPAT_DISPLAY)
                     );
             },
-            () -> assertThat(securityMeta.getDisplay())
-                .isEqualTo(NOPAT_DISPLAY)
-        );
+            () -> assertThat(securityMeta.getDisplay()).isEqualTo(NOPAT_DISPLAY));
     }
 
     @Test
     public void When_ObservationWithNoPatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
-        final var metaWithSecurity = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final var metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         when(
             confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 eq("Immunization-1"),
@@ -260,7 +259,7 @@ public class ImmunizationMapperTest {
             getEncounterList(), PRACTISE_CODE
         );
         final var securityMeta = immunizations
-            .get(0)
+            .getFirst()
             .getMeta()
             .getSecurity(NOPAT_URL_CODESYSTEM, NOPAT_CODE);
 
@@ -283,51 +282,51 @@ public class ImmunizationMapperTest {
     private void assertImmunizationWithHighAndLowEffectiveTime(Immunization immunization) {
 
         assertEquals(DateFormatUtil.parseToDateTimeType("20110118114100000").getValue(), immunization.getDateElement().getValue());
-        assertEquals(OBSERVATION_TEXT, immunization.getNote().get(0).getText());
+        assertEquals(OBSERVATION_TEXT, immunization.getNote().getFirst().getText());
         assertEquals("End Date: 2010-01-18T11:41:00+00:00", immunization.getNote().get(1).getText());
     }
 
     private void assertImmunizationWithEffectiveTimeLow(Immunization immunization) {
-        assertEquals(DateFormatUtil.parseToDateTimeType("20100118114100000").getValue(), immunization.getDateElement().getValue());
-        assertEquals(OBSERVATION_TEXT, immunization.getNote().get(0).getText());
+        assertImmunizationWithHighEffectiveTimeCenter(immunization);
     }
 
     private void assertImmunizationWithHighEffectiveTime(Immunization immunization) {
         assertNull(immunization.getDate());
-        assertEquals(OBSERVATION_TEXT, immunization.getNote().get(0).getText());
+        assertEquals(OBSERVATION_TEXT, immunization.getNote().getFirst().getText());
         assertEquals("End Date: 2010-01-18T11:41:00+00:00", immunization.getNote().get(1).getText());
     }
 
     private void assertImmunizationWithDefaultVaccineCode(Immunization immunization) {
         assertNotNull(immunization.getVaccineCode());
-        assertEquals("UNK", immunization.getVaccineCode().getCoding().get(0).getCode());
-        assertEquals("http://hl7.org/fhir/v3/NullFlavor", immunization.getVaccineCode().getCoding().get(0).getSystem());
+        assertEquals("UNK", immunization.getVaccineCode().getCoding().getFirst().getCode());
+        assertEquals("http://hl7.org/fhir/v3/NullFlavor", immunization.getVaccineCode().getCoding().getFirst().getSystem());
     }
 
     private void assertImmunizationWithHighEffectiveTimeCenter(Immunization immunization) {
         assertEquals(DateFormatUtil.parseToDateTimeType("20100118114100000").getValue(), immunization.getDateElement().getValue());
-        assertEquals(OBSERVATION_TEXT, immunization.getNote().get(0).getText());
+        assertEquals(OBSERVATION_TEXT, immunization.getNote().getFirst().getText());
     }
 
     private void assertFullValidData(Immunization immunization, List<Immunization> immunizationList) {
         assertThat(immunizationList).hasSize(1);
         assertEquals(OBSERVATION_ROOT_ID, immunization.getId());
-        assertEquals(META_PROFILE, immunization.getMeta().getProfile().get(0).getValue());
+        assertEquals(META_PROFILE, immunization.getMeta().getProfile().getFirst().getValue());
         assertThatIdentifierIsValid(immunization.getIdentifierFirstRep(), immunization.getId());
         assertEquals(Immunization.ImmunizationStatus.COMPLETED, immunization.getStatus());
         assertTrue(immunization.getPrimarySource());
         assertEquals(DateFormatUtil.parseToDateTimeType("20100118114100000").getValue(), immunization.getDateElement().getValue());
-        assertEquals(OBSERVATION_TEXT, immunization.getNote().get(0).getText());
+        assertEquals(OBSERVATION_TEXT, immunization.getNote().getFirst().getText());
         assertEquals("End Date: 2010-01-18T11:41:00+00:00", immunization.getNote().get(1).getText());
         assertEquals(PATIENT_ID, immunization.getPatient().getResource().getIdElement().getValue());
         assertEquals(ENCOUNTER_ID, immunization.getEncounter().getResource().getIdElement().getValue());
-        assertEquals("Practitioner/9C1610C2-5E48-4ED5-882B-5A4A172AFA35", immunization.getPractitioner().get(0).getActor().getReference());
+        assertEquals("Practitioner/9C1610C2-5E48-4ED5-882B-5A4A172AFA35",
+                     immunization.getPractitioner().getFirst().getActor().getReference());
     }
 
     private void assertMissingData(Immunization immunization, List<Immunization> immunizationList) {
         assertEquals(1, immunizationList.size());
         assertEquals(OBSERVATION_ROOT_ID, immunization.getId());
-        assertEquals(META_PROFILE, immunization.getMeta().getProfile().get(0).getValue());
+        assertEquals(META_PROFILE, immunization.getMeta().getProfile().getFirst().getValue());
         assertThatIdentifierIsValid(immunization.getIdentifierFirstRep(), immunization.getId());
         assertEquals(Immunization.ImmunizationStatus.COMPLETED, immunization.getStatus());
         assertTrue(immunization.getPrimarySource());
@@ -346,15 +345,14 @@ public class ImmunizationMapperTest {
 
         when(codeableConceptMapper.mapToCodeableConcept(any()))
             .thenReturn(createCodeableConcept(null, null, CODING_DISPLAY));
-        when(immunizationChecker.isImmunization(any()))
-            .thenReturn(true);
+        when(immunizationChecker.isImmunization(any())).thenReturn(true);
         lenient()
             .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 eq("Immunization-1"),
                 eq(Optional.empty()),
                 eq(Optional.empty())
             ))
-            .thenReturn(MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            .thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 
     private Patient getPatient() {

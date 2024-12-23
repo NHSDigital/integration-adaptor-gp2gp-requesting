@@ -4,11 +4,13 @@ import static java.util.stream.Collectors.toCollection;
 
 import static org.hl7.fhir.dstu3.model.Observation.ObservationStatus.UNKNOWN;
 import static uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors.extractAllCompoundStatements;
+import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToDateTimeType;
 import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToInstantType;
 import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildIdentifier;
 import static uk.nhs.adaptors.pss.translator.util.TextUtil.extractPmipComment;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -95,7 +97,7 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
 
         List<Observation> conclusionComments = new ArrayList<>();
 
-        ehrExtract.getComponent().get(0).getEhrFolder().getComponent()
+        ehrExtract.getComponent().getFirst().getEhrFolder().getComponent()
                 .stream()
                 .flatMap(e -> e.getEhrComposition().getComponent().stream())
                 .flatMap(CompoundStatementResourceExtractors::extractAllCompoundStatements)
@@ -107,7 +109,6 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
                 .map(narrativeStatement -> getObservationCommentById(observationComments, narrativeStatement.getId().getRoot()))
                 .flatMap(Optional::stream)
                 .forEach(observationComment -> {
-
                     if (observationComment.getComment().contains(LAB_REPORT_COMMENT_TYPE)) {
                         conclusionComments.add(observationComment);
                     }
@@ -119,29 +120,31 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
         observationComments.removeAll(conclusionComments);
     }
 
-    private DiagnosticReport createDiagnosticReport(RCMRMT030101UKCompoundStatement compoundStatement, Patient patient,
-                                                    RCMRMT030101UKEhrComposition composition, List<Encounter> encounters,
+    private DiagnosticReport createDiagnosticReport(RCMRMT030101UKCompoundStatement compoundStatement,
+                                                    Patient patient,
+                                                    RCMRMT030101UKEhrComposition ehrComposition,
+                                                    List<Encounter> encounters,
                                                     List<Observation> observationComments,
-                                                    String practiceCode) {
-
+                                                    String practiceCode
+    ) {
         final DiagnosticReport diagnosticReport = new DiagnosticReport();
-        final String id = compoundStatement.getId().get(0).getRoot();
+        final String id = compoundStatement.getId().getFirst().getRoot();
 
         var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             META_PROFILE,
-            composition.getConfidentialityCode(),
+            ehrComposition.getConfidentialityCode(),
             compoundStatement.getConfidentialityCode());
 
-        diagnosticReport.setMeta(meta);
-        diagnosticReport.setId(id);
-        diagnosticReport.addIdentifier(buildIdentifier(id, practiceCode));
-        diagnosticReport.setCode(createCode());
-        diagnosticReport.setStatus(DiagnosticReportStatus.UNKNOWN);
-        diagnosticReport.setSubject(new Reference(patient));
-        diagnosticReport.setSpecimen(getSpecimenReferences(compoundStatement));
+        diagnosticReport.setMeta(meta)
+                        .setId(id);
+        diagnosticReport.addIdentifier(buildIdentifier(id, practiceCode))
+                        .setCode(createCode())
+                        .setStatus(DiagnosticReportStatus.UNKNOWN)
+                        .setSubject(new Reference(patient))
+                        .setSpecimen(getSpecimenReferences(compoundStatement));
         createIdentifierExtension(compoundStatement.getId()).ifPresent(diagnosticReport::addIdentifier);
-        buildContext(composition, encounters).ifPresent(diagnosticReport::setContext);
-        setResultReferences(compoundStatement, diagnosticReport, observationComments);
+        buildContext(ehrComposition, encounters).ifPresent(diagnosticReport::setContext);
+        setResultReferences(ehrComposition, compoundStatement, diagnosticReport, observationComments);
 
         var conclusion = getConclusion(compoundStatement);
 
@@ -172,14 +175,16 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
                 .map(RCMRMT030101UKComponent02::getCompoundStatement)
                 .filter(ResourceFilterUtil::isSpecimen)
                 .map(compoundStatement1 -> new Reference(
-                        new IdType(ResourceType.Specimen.name(), compoundStatement1.getId().get(0).getRoot())))
+                        new IdType(ResourceType.Specimen.name(), compoundStatement1.getId().getFirst().getRoot())))
                 .toList();
     }
 
-    private void setResultReferences(RCMRMT030101UKCompoundStatement compoundStatement,
-                                     DiagnosticReport diagnosticReport,
-                                     List<Observation> observationComments) {
-
+    private void setResultReferences(
+        RCMRMT030101UKEhrComposition ehrComposition,
+        RCMRMT030101UKCompoundStatement compoundStatement,
+        DiagnosticReport diagnosticReport,
+        List<Observation> observationComments
+    ) {
         var resultReferences = getDirectResultReferences(compoundStatement);
         diagnosticReport.setResult(resultReferences);
 
@@ -193,23 +198,33 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
                 getObservationCommentById(observationComments, batteryLevelFilingCommentId.get());
 
         if (existingObservationComment.isPresent()) {
-            var filingCommentObservation = buildFilingComment(existingObservationComment.get());
+            var filingCommentObservation = buildFilingComment(ehrComposition, existingObservationComment.get());
 
             diagnosticReport.getResult().add(buildFilingCommentReference(filingCommentObservation));
             observationComments.add(filingCommentObservation);
         }
     }
 
-    private Observation buildFilingComment(Observation existingObservationComment) {
+    private Observation buildFilingComment(
+        RCMRMT030101UKEhrComposition ehrComposition,
+        Observation existingObservationComment) {
         var filingCommentObservation = existingObservationComment.copy();
         var filingCommentObservationId = idGeneratorService.generateUuid().toUpperCase();
         filingCommentObservation.setId(filingCommentObservationId);
         filingCommentObservation.getIdentifierFirstRep().setValue(filingCommentObservationId);
         filingCommentObservation.setComment(null);
         filingCommentObservation.setStatus(UNKNOWN);
-
+        filingCommentObservation.setEffective(
+            parseToDateTimeType(ehrComposition.getAuthor().getTime().getValue())
+        );
+        filingCommentObservation.setPerformer(
+            Collections.singletonList(
+                new Reference("Practitioner/" + ehrComposition.getAuthor().getAgentRef().getId().getRoot())
+            )
+        );
         return filingCommentObservation;
     }
+
     @NotNull
     private Optional<String> getBatteryLevelFilingCommentId(RCMRMT030101UKCompoundStatement compoundStatement) {
         return compoundStatement.getComponent()
@@ -219,7 +234,7 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
                 .filter(RCMRMT030101UKComponent02::hasNarrativeStatement)
                 .map(RCMRMT030101UKComponent02::getNarrativeStatement)
                 .filter(this::isUserCommentType)
-                .map(ns -> ns.getId().getRoot())
+                .map(narrativeStatement -> narrativeStatement.getId().getRoot())
                 .findFirst();
     }
 
@@ -248,7 +263,7 @@ public class DiagnosticReportMapper extends AbstractMapper<DiagnosticReport> {
             RCMRMT030101UKComponent02 component,
             String classCode) {
         return Optional.ofNullable(component.getCompoundStatement())
-                .filter(compoundStatement -> classCode.equals(compoundStatement.getClassCode().get(0)))
+                .filter(compoundStatement -> classCode.equals(compoundStatement.getClassCode().getFirst()))
                 .map(compoundStatement -> compoundStatement.getComponent().stream())
                 .orElse(Stream.empty());
     }

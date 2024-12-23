@@ -85,6 +85,100 @@
                         </responsibleParty>
                         <component typeCode="COMP">
                             <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="B18C520A-7671-11EF-9D98-00155D78C707"/>
+                                <code code="37351000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Administration Note"/>
+                                <statusCode code="COMPLETE"/>
+                                <effectiveTime>
+                                    <center value="20240919112245"/>
+                                </effectiveTime>
+                                <availabilityTime value="20240919112245"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20240919112245"/>
+                                    <agentRef classCode="AGNT">
+                                        <id root="B18C5205-7671-11EF-9D98-00155D78C707"/>
+                                    </agentRef>
+                                </author>
+                                <location typeCode="LOC">
+                                    <locatedEntity classCode="LOCE">
+                                        <locatedPlace classCode="PLC" determinerCode="INSTANCE">
+                                            <name>FIRSTCARE PRACTICE</name>
+                                            <telecom use="WP" value="tel:01132050099">
+                                                <useablePeriod>
+                                                    <low value="20240919"/>
+                                                </useablePeriod>
+                                            </telecom>
+                                            <addr use="WP">
+                                                <streetAddressLine>2434 Troy Road</streetAddressLine>
+                                                <streetAddressLine>Horsforth</streetAddressLine>
+                                                <streetAddressLine>Leeds</streetAddressLine>
+                                                <streetAddressLine>West Yorkshire</streetAddressLine>
+                                                <postalCode>LS18 5TN</postalCode>
+                                                <useablePeriod>
+                                                    <low value="20240919"/>
+                                                </useablePeriod>
+                                            </addr>
+                                        </locatedPlace>
+                                    </locatedEntity>
+                                </location>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="B18C5205-7671-11EF-9D98-00155D78C707"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP">
+                                    <ObservationStatement classCode="OBS" moodCode="EVN">
+                                        <id root="B18C520B-7671-11EF-9D98-00155D78C707"/>
+                                        <code code="XE0s9" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Hearing loss">
+                                            <translation code="15188001" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Hearing loss"/>
+                                            <translation code="F59..00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Hearing loss"/>
+                                        </code>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <low value="20240919"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20240919"/>
+                                        <pertinentInformation typeCode="PERT">
+                                            <sequenceNumber value="+1"/>
+                                            <pertinentAnnotation classCode="OBS" moodCode="EVN">
+                                                <text>Problem severity: Major</text>
+                                            </pertinentAnnotation>
+                                        </pertinentInformation>
+                                    </ObservationStatement>
+                                </component>
+                                <component typeCode="COMP">
+                                    <LinkSet classCode="OBS" moodCode="EVN">
+                                        <id root="B18C520C-7671-11EF-9D98-00155D78C707"/>
+                                        <code code="394774009" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Active Problem"/>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <low value="20240919000000"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20240919112245"/>
+                                        <conditionNamed typeCode="NAME" inversionInd="true">
+                                            <namedStatementRef classCode="OBS" moodCode="EVN">
+                                                <id root="B18C520B-7671-11EF-9D98-00155D78C707"/>
+                                            </namedStatementRef>
+                                        </conditionNamed>
+                                    </LinkSet>
+                                </component>
+                                <component typeCode="COMP">
+                                    <ObservationStatement classCode="OBS" moodCode="EVN">
+                                        <id root="B1910CF0-7671-11EF-9D98-00155D78C707"/>
+                                        <code code="XE0s9" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Hearing loss">
+                                            <translation code="15188001" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Hearing loss"/>
+                                            <translation code="F59..00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Hearing loss"/>
+                                        </code>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <center nullFlavor="NI"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20240919112245"/>
+                                    </ObservationStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
                                 <id root="62A39454-299F-432E-993E-5A6232B4E099"/>
                                 <code code="37351000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Administration Note"/>
                                 <statusCode code="COMPLETE"/>

@@ -50,7 +50,7 @@ public class ResourceReferenceUtilTest {
         resourceReferenceUtil.extractChildReferencesFromEhrComposition(ehrComposition, references);
 
         assertThat(references).hasSize(TWO);
-        assertThat(references.get(0).getReference()).isEqualTo("MedicationRequest/A0A70B62-2649-4C8F-B3AB-618B8257C942");
+        assertThat(references.getFirst().getReference()).isEqualTo("MedicationRequest/A0A70B62-2649-4C8F-B3AB-618B8257C942");
         assertThat(references.get(1).getReference()).isEqualTo("MedicationRequest/9B4B797A-D674-4362-B666-2ADC8551EEDA");
     }
 
@@ -62,7 +62,7 @@ public class ResourceReferenceUtilTest {
         resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
 
         assertThat(references).hasSize(TWO);
-        assertThat(references.get(0).getReference()).isEqualTo("MedicationRequest/A0A70B62-2649-4C8F-B3AB-618B8257C942");
+        assertThat(references.getFirst().getReference()).isEqualTo("MedicationRequest/A0A70B62-2649-4C8F-B3AB-618B8257C942");
         assertThat(references.get(1).getReference()).isEqualTo("MedicationRequest/9B4B797A-D674-4362-B666-2ADC8551EEDA");
     }
 
@@ -75,7 +75,7 @@ public class ResourceReferenceUtilTest {
 //        resourceReferenceUtil.extractChildReferencesFromEhrComposition(ehrComposition, references);
 //
 //        assertThat(references.size()).isEqualTo(FOUR);
-//        assertThat(references.get(0).getReference()).isEqualTo("QuestionnaireResponse/7334D39A-BBB3-424A-B5D3-E841BCA39BF7-QRSP");
+//        assertThat(references.getFirst().getReference()).isEqualTo("QuestionnaireResponse/7334D39A-BBB3-424A-B5D3-E841BCA39BF7-QRSP");
 //        assertThat(references.get(1).getReference()).isEqualTo("Observation/7334D39A-BBB3-424A-B5D3-E841BCA39BF7");
 //        assertThat(references.get(2).getReference()).isEqualTo("Observation/3DCC9FC9-1873-4004-9789-C4E5C52B02B9");
 //        assertThat(references.get(THREE).getReference()).isEqualTo("Observation/278ADD5F-2AC7-48DC-966A-0BA7C029C793");
@@ -90,7 +90,7 @@ public class ResourceReferenceUtilTest {
 //        resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
 //
 //        assertThat(references.size()).isEqualTo(FOUR);
-//        assertThat(references.get(0).getReference()).isEqualTo("QuestionnaireResponse/7334D39A-BBB3-424A-B5D3-E841BCA39BF7-QRSP");
+//        assertThat(references.getFirst().getReference()).isEqualTo("QuestionnaireResponse/7334D39A-BBB3-424A-B5D3-E841BCA39BF7-QRSP");
 //        assertThat(references.get(1).getReference()).isEqualTo("Observation/7334D39A-BBB3-424A-B5D3-E841BCA39BF7");
 //        assertThat(references.get(2).getReference()).isEqualTo("Observation/3DCC9FC9-1873-4004-9789-C4E5C52B02B9");
 //        assertThat(references.get(THREE).getReference()).isEqualTo("Observation/278ADD5F-2AC7-48DC-966A-0BA7C029C793");
@@ -102,10 +102,10 @@ public class ResourceReferenceUtilTest {
 
         List<Reference> references = new ArrayList<>();
         resourceReferenceUtil.extractChildReferencesFromTemplate(
-            ehrComposition.getComponent().get(0).getCompoundStatement(), references);
+            ehrComposition.getComponent().getFirst().getCompoundStatement(), references);
 
         assertThat(references).hasSize(2);
-        assertThat(references.get(0).getReference()).isEqualTo("Observation/3DCC9FC9-1873-4004-9789-C4E5C52B02B9");
+        assertThat(references.getFirst().getReference()).isEqualTo("Observation/3DCC9FC9-1873-4004-9789-C4E5C52B02B9");
         assertThat(references.get(1).getReference()).isEqualTo("Observation/278ADD5F-2AC7-48DC-966A-0BA7C029C793");
     }
 
@@ -125,7 +125,7 @@ public class ResourceReferenceUtilTest {
         resourceReferenceUtil.extractChildReferencesFromEhrComposition(ehrComposition, references);
 
         assertThat(references.size()).isOne();
-        assertThat(references.get(0).getReference()).isEqualTo(referenceString);
+        assertThat(references.getFirst().getReference()).isEqualTo(referenceString);
     }
 
     private static Stream<Arguments> ehrCompositionResourceFiles() {
@@ -157,7 +157,7 @@ public class ResourceReferenceUtilTest {
         resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
 
         assertThat(references.size()).isOne();
-        assertThat(references.get(0).getReference()).isEqualTo(referenceString);
+        assertThat(references.getFirst().getReference()).isEqualTo(referenceString);
     }
 
     private static Stream<Arguments> compoundStatementResourceFiles() {

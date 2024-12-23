@@ -10,17 +10,17 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
-    testImplementation 'org.assertj:assertj-core:3.26.3'
-    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
-    testImplementation 'org.postgresql:postgresql:42.7.3'
-    testImplementation ('org.apache.qpid:qpid-jms-client:1.6.0') {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+    testImplementation 'org.assertj:assertj-core:3.27.0'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.4.1'
+    testImplementation 'org.postgresql:postgresql:42.7.4'
+    testImplementation ('org.apache.qpid:qpid-jms-client:2.6.1') {
         exclude group: 'io.netty', module: 'netty-codec-http'
     }
 
     constraints {
-        implementation('io.netty:netty-common:4.1.112.Final') {
+        implementation('io.netty:netty-common:4.1.116.Final') {
             because 'to fix CVE-2022-24823'
         }
     }

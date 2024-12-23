@@ -8,12 +8,12 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '3.3.2'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
     id 'checkstyle'
-    id 'io.freefair.lombok' version '8.6'
-    id 'com.github.spotbugs' version '6.0.19'
+    id 'io.freefair.lombok' version '8.10.2'
+    id 'com.github.spotbugs' version '6.0.27'
 }
 
 apply plugin: 'java'
@@ -28,20 +28,19 @@ repositories {
 
 dependencies {
     implementation project(':common')
-    implementation 'org.postgresql:postgresql:42.7.3'
-    implementation 'org.jdbi:jdbi3-core:3.45.2'
-    implementation 'org.jdbi:jdbi3-sqlobject:3.45.2'
-    implementation 'org.jdbi:jdbi3-postgres:3.45.3'
+    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.jdbi:jdbi3-core:3.47.0'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.47.0'
+    implementation 'org.jdbi:jdbi3-postgres:3.47.0'
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.29.0'
-    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.3'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.30.0'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:4.0.0'
     liquibaseRuntime 'info.picocli:picocli:4.7.6'
-    liquibaseRuntime 'org.postgresql:postgresql:42.7.3'
-    liquibaseRuntime 'org.yaml:snakeyaml:2.2'
+    liquibaseRuntime 'org.postgresql:postgresql:42.7.4'
+    liquibaseRuntime 'org.yaml:snakeyaml:2.3'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
 }
 
 test {

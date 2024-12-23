@@ -38,6 +38,7 @@ import org.hl7.v3.RCMRMT030101UKMedicationDosage;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.v3.RCMRMT030101UKReversalOf;
 import org.hl7.v3.RCMRMT030101UKSupplyAnnotation;
+import org.jetbrains.annotations.NotNull;
 import uk.nhs.adaptors.pss.translator.util.CompoundStatementUtil;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 
@@ -55,7 +56,7 @@ public class MedicationMapperUtils {
         = "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1";
 
     public static Optional<Extension> buildPrescriptionTypeExtension(RCMRMT030101UKAuthorise supplyAuthorise) {
-        if (supplyAuthorise != null && supplyAuthorise.hasRepeatNumber() && supplyAuthorise.getRepeatNumber().getValue().intValue() == 0) {
+        if (supplyAuthorise != null && isAcutePrescription(supplyAuthorise)) {
             return Optional.of(new Extension(PRESCRIPTION_TYPE_EXTENSION_URL, new CodeableConcept(
                 new Coding(PRESCRIPTION_TYPE_CODING_SYSTEM, ACUTE.toLowerCase(), ACUTE)
             )));
@@ -63,6 +64,11 @@ public class MedicationMapperUtils {
         return Optional.of(new Extension(PRESCRIPTION_TYPE_EXTENSION_URL, new CodeableConcept(
             new Coding(PRESCRIPTION_TYPE_CODING_SYSTEM, REPEAT.toLowerCase(), REPEAT)
         )));
+    }
+
+    public static boolean isAcutePrescription(@NotNull RCMRMT030101UKAuthorise supplyAuthorise) {
+        return supplyAuthorise.hasRepeatNumber()
+            && supplyAuthorise.getRepeatNumber().getValue().intValue() == 0;
     }
 
     public static List<Annotation> buildNotes(List<RCMRMT030101UKPertinentInformation2> pertinentInformationList) {
@@ -97,8 +103,8 @@ public class MedicationMapperUtils {
         SimpleQuantity quantity = new SimpleQuantity();
         quantity.setValue(Double.parseDouble(quantitySupplied.getValue()));
         if (quantitySupplied.hasTranslation()
-            && quantitySupplied.getTranslation().get(0).hasOriginalText()) {
-            quantity.setUnit(quantitySupplied.getTranslation().get(0).getOriginalText());
+            && quantitySupplied.getTranslation().getFirst().hasOriginalText()) {
+            quantity.setUnit(quantitySupplied.getTranslation().getFirst().getOriginalText());
         }
         return Optional.of(quantity);
     }

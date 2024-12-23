@@ -1,12 +1,12 @@
 package uk.nhs.adaptors.pss.translator.mapper.diagnosticreport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsPresent;
 import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToDateTimeType;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Meta;
@@ -23,7 +22,6 @@ import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Specimen;
-import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKCompoundStatement;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
@@ -34,8 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
-import uk.nhs.adaptors.pss.translator.MetaFactory;
-import uk.nhs.adaptors.pss.translator.TestUtility;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.mapper.DateTimeMapper;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 
@@ -56,12 +53,7 @@ public class SpecimenMapperTest {
     private static final DiagnosticReport DIAGNOSTIC_REPORT_WITH_SPECIMEN = generateDiagnosticReportWithSpecimenReference();
     private static final DiagnosticReport DIAGNOSTIC_REPORT_WITHOUT_SPECIMEN = generateDiagnosticReportWithNoSpecimenReference();
     private static final String SPECIMEN_META_PROFILE = "Specimen-1";
-    private static final Meta META_WITH_SECURITY_ADDED = MetaFactory.getMetaFor(META_WITH_SECURITY, SPECIMEN_META_PROFILE);
-    private static final CV NOPAT_CV = TestUtility.createCv(
-        "NOPAT",
-        "http://hl7.org/fhir/v3/ActCode",
-        "no disclosure to patient, family or caregivers without attending provider's authorization");
-
+    private static final Meta META_WITH_SECURITY_ADDED = MetaUtil.getMetaFor(META_WITH_SECURITY, SPECIMEN_META_PROFILE);
     private static final String NARRATIVE_STATEMENT_ID = "9326C01E-488B-4EDF-B9C9-529E69EE0361";
 
     @Mock
@@ -90,7 +82,7 @@ public class SpecimenMapperTest {
 
         assertThat(specimenList).isNotEmpty();
         final Specimen specimen = specimenList.getFirst();
-        assertMetaSecurityIsPresent(specimen.getMeta());
+        assertMetaSecurityIsPresent(META_WITH_SECURITY_ADDED, specimen.getMeta());
     }
 
     @Test
@@ -110,7 +102,7 @@ public class SpecimenMapperTest {
 
         assertThat(specimenList).isNotEmpty();
         final Specimen specimen = specimenList.getFirst();
-        assertMetaSecurityIsPresent(specimen.getMeta());
+        assertMetaSecurityIsPresent(META_WITH_SECURITY_ADDED, specimen.getMeta());
     }
 
     @Test
@@ -237,15 +229,7 @@ public class SpecimenMapperTest {
         return (DiagnosticReport) new DiagnosticReport().setId(DR_ID);
     }
 
-    private void assertMetaSecurityIsPresent(final Meta meta) {
-        final List<Coding> metaSecurity = meta.getSecurity();
-        final int metaSecuritySize = metaSecurity.size();
 
-        assertAll(
-            () -> assertThat(metaSecuritySize).isEqualTo(1),
-            () -> assertThat(meta).usingRecursiveComparison().isEqualTo(META_WITH_SECURITY_ADDED)
-        );
-    }
 
     private RCMRMT030101UKCompoundStatement getCompoundStatement(RCMRMT030101UKEhrExtract ehrExtract) {
         return ehrExtract.getComponent().getFirst()

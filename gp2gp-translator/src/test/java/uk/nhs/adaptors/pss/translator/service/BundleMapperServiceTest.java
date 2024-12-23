@@ -154,7 +154,7 @@ public class BundleMapperServiceTest {
 
         verify(patientMapper).mapToPatient(any(RCMRMT030101UKPatient.class), any(Organization.class));
         verify(organizationMapper).mapAuthorOrganization(anyString(), anyList());
-        verify(duplicateObservationStatementMapper).mergeDuplicateObservationStatements(any(RCMRMT030101UKEhrExtract.class));
+        verify(duplicateObservationStatementMapper).mergeOrRemoveDuplicateObservationStatements(any(RCMRMT030101UKEhrExtract.class));
         verify(agentDirectoryMapper).mapAgentDirectory(any(RCMRMT030101UKAgentDirectory.class));
         verify(locationMapper, atLeast(1)).mapToLocation(any(RCMRMT030101UKLocation.class), anyString());
         verify(encounterMapper).mapEncounters(any(RCMRMT030101UKEhrExtract.class), any(Patient.class), anyString(), anyList());

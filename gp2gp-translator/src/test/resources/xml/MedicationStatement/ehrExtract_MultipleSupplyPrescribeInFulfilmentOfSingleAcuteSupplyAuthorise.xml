@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EhrExtract xmlns="urn:hl7-org:v3" classCode="EXTRACT" moodCode="EVN">
+    <availabilityTime value="20100115" />
+    <component typeCode="COMP">
+        <ehrFolder classCode="FOLDER" moodCode="EVN">
+            <component typeCode="COMP">
+                <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                    <id root="48D7C4F2-2744-4584-AAB8-103A24A1B25C"/>
+                    <code code="196391000000103" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Non-consultation medication data">
+                        <originalText>Medication Course Commence</originalText>
+                    </code>
+                    <statusCode code="COMPLETE"/>
+                    <effectiveTime>
+                        <center value="20240726"/>
+                    </effectiveTime>
+                    <availabilityTime value="20240726"/>
+                    <author contextControlCode="OP" typeCode="AUT">
+                        <time value="20240726140915"/> <!-- 26th July 14:09:15 -->
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </author>
+                    <Participant2 contextControlCode="OP" typeCode="RESP">
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </Participant2>
+                    <component typeCode="COMP">
+                        <MedicationStatement classCode="SBADM" moodCode="INT">
+                            <id root="ADCA2CA3-07CB-4B40-9BDC-DF50A72CFA91"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center nullFlavor="NI"/>
+                            </effectiveTime>
+                            <availabilityTime value="20240726"/>
+                            <consumable typeCode="CSM">
+                                <manufacturedProduct classCode="MANU">
+                                    <manufacturedMaterial classCode="MMAT" determinerCode="KIND">
+                                        <code code="META14270NEMIS" codeSystem="2.16.840.1.113883.2.1.6.9" displayName="Memantine 10mg tablets">
+                                            <translation code="42037411000001100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                        </code>
+                                        <quantity unit="1" value="28">
+                                            <translation value="28">
+                                                <originalText>tablet</originalText>
+                                            </translation>
+                                        </quantity>
+                                    </manufacturedMaterial>
+                                </manufacturedProduct>
+                            </consumable>
+                            <component typeCode="COMP">
+                                <ehrSupplyAuthorise classCode="SPLY" moodCode="INT">
+                                    <id root="000EEA41-289B-4B1C-A5AB-421A666A0D2C"/>
+                                    <code code="9bG0.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="NHS prescription"/>
+                                    <statusCode code="COMPLETE"/>
+                                    <effectiveTime>
+                                        <center nullFlavor="NI"/>
+                                    </effectiveTime>
+                                    <availabilityTime value="20240726"/>
+                                    <repeatNumber value="0"/>
+                                    <quantity unit="1" value="28">
+                                        <translation value="28">
+                                            <originalText>tablet</originalText>
+                                        </translation>
+                                    </quantity>
+                                </ehrSupplyAuthorise>
+                            </component>
+                            <pertinentInformation typeCode="PERT">
+                                <pertinentMedicationDosage classCode="SBADM" moodCode="RMD">
+                                    <text>1 per day</text>
+                                </pertinentMedicationDosage>
+                            </pertinentInformation>
+                        </MedicationStatement>
+                    </component>
+                </ehrComposition>
+            </component>
+            <component typeCode="COMP">
+                <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                    <id root="DAC38465-555B-4F1F-ABE8-C837208EB664"/>
+                    <code code="196391000000103" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Non-consultation medication data">
+                        <originalText>Medication Issue</originalText>
+                    </code>
+                    <statusCode code="COMPLETE"/>
+                    <effectiveTime>
+                        <center value="202407261409"/>
+                    </effectiveTime>
+                    <availabilityTime value="202407261409"/>
+                    <author contextControlCode="OP" typeCode="AUT">
+                        <time value="20240726140936"/> <!-- 26th July 14:09:36 -->
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </author>
+                    <Participant2 contextControlCode="OP" typeCode="RESP">
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </Participant2>
+                    <component typeCode="COMP">
+                        <MedicationStatement classCode="SBADM" moodCode="ORD">
+                            <id root="7875AD10-11AB-4568-9BCD-4485E212C041"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center nullFlavor="NI"/>
+                            </effectiveTime>
+                            <availabilityTime value="20240726"/>
+                            <consumable typeCode="CSM">
+                                <manufacturedProduct classCode="MANU">
+                                    <manufacturedMaterial classCode="MMAT" determinerCode="KIND">
+                                        <code code="META14270NEMIS" codeSystem="2.16.840.1.113883.2.1.6.9" displayName="Memantine 10mg tablets">
+                                            <translation code="42037411000001100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                        </code>
+                                        <quantity unit="1" value="28">
+                                            <translation value="28">
+                                                <originalText>tablet</originalText>
+                                            </translation>
+                                        </quantity>
+                                    </manufacturedMaterial>
+                                </manufacturedProduct>
+                            </consumable>
+                            <component typeCode="COMP">
+                                <ehrSupplyPrescribe classCode="SPLY" moodCode="ORD">
+                                    <id root="0151D924-FD16-4B03-AF77-C9E97D9F44B2"/>
+                                    <code code="9bG5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Prescription by another organisation"/>
+                                    <statusCode code="COMPLETE"/>
+                                    <availabilityTime value="20240726"/>
+                                    <quantity unit="1" value="28">
+                                        <translation value="28">
+                                            <originalText>tablet</originalText>
+                                        </translation>
+                                    </quantity>
+                                    <inFulfillmentOf typeCode="FLFS">
+                                        <priorMedicationRef classCode="SBADM" moodCode="ORD">
+                                            <id root="000EEA41-289B-4B1C-A5AB-421A666A0D2C"/>
+                                        </priorMedicationRef>
+                                    </inFulfillmentOf>
+                                </ehrSupplyPrescribe>
+                            </component>
+                            <pertinentInformation typeCode="PERT">
+                                <pertinentMedicationDosage classCode="SBADM" moodCode="RMD">
+                                    <text>1 per day</text>
+                                </pertinentMedicationDosage>
+                            </pertinentInformation>
+                        </MedicationStatement>
+                    </component>
+                </ehrComposition>
+            </component>
+            <component typeCode="COMP">
+                <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                    <id root="5E6B576E-55A2-47AD-95C9-BD7A03D6B08B"/>
+                    <code code="196391000000103" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Non-consultation medication data">
+                        <originalText>Medication Issue</originalText>
+                    </code>
+                    <statusCode code="COMPLETE"/>
+                    <effectiveTime>
+                        <center value="202407261414"/>
+                    </effectiveTime>
+                    <availabilityTime value="202407261414"/>
+                    <author contextControlCode="OP" typeCode="AUT">
+                        <time value="20240726141426"/> <!-- 26th July 14:09:36 -->
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </author>
+                    <Participant2 contextControlCode="OP" typeCode="RESP">
+                        <agentRef classCode="AGNT">
+                            <id root="27583EEF-565A-1AB3-7865-BD8E7C0480B4"/>
+                        </agentRef>
+                    </Participant2>
+                    <component typeCode="COMP">
+                        <MedicationStatement classCode="SBADM" moodCode="ORD">
+                            <id root="C7F7F8E7-9475-40E1-8190-2515D0F14BC4"/>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <center nullFlavor="NI"/>
+                            </effectiveTime>
+                            <availabilityTime value="20240726"/>
+                            <consumable typeCode="CSM">
+                                <manufacturedProduct classCode="MANU">
+                                    <manufacturedMaterial classCode="MMAT" determinerCode="KIND">
+                                        <code code="META14270NEMIS" codeSystem="2.16.840.1.113883.2.1.6.9" displayName="Memantine 10mg tablets">
+                                            <translation code="42037411000001100" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                        </code>
+                                        <quantity unit="1" value="28">
+                                            <translation value="28">
+                                                <originalText>tablet</originalText>
+                                            </translation>
+                                        </quantity>
+                                    </manufacturedMaterial>
+                                </manufacturedProduct>
+                            </consumable>
+                            <component typeCode="COMP">
+                                <ehrSupplyPrescribe classCode="SPLY" moodCode="ORD">
+                                    <id root="063A3D85-CB38-4DBE-BE4C-B3AC9A34CBF2"/>
+                                    <code code="9bG0.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="NHS prescription"/>
+                                    <statusCode code="COMPLETE"/>
+                                    <availabilityTime value="20240726"/>
+                                    <quantity unit="1" value="28">
+                                        <translation value="28">
+                                            <originalText>tablet</originalText>
+                                        </translation>
+                                    </quantity>
+                                    <inFulfillmentOf typeCode="FLFS">
+                                        <priorMedicationRef classCode="SBADM" moodCode="ORD">
+                                            <id root="000EEA41-289B-4B1C-A5AB-421A666A0D2C"/>
+                                        </priorMedicationRef>
+                                    </inFulfillmentOf>
+                                </ehrSupplyPrescribe>
+                            </component>
+                            <pertinentInformation typeCode="PERT">
+                                <pertinentMedicationDosage classCode="SBADM" moodCode="RMD">
+                                    <text>1 per day</text>
+                                </pertinentMedicationDosage>
+                            </pertinentInformation>
+                        </MedicationStatement>
+                    </component>
+                </ehrComposition>
+            </component>
+        </ehrFolder>
+    </component>
+</EhrExtract>

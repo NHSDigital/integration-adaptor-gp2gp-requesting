@@ -62,7 +62,7 @@ public class SpecimenCompoundsMapper {
         List<DiagnosticReport> diagnosticReports,
         Patient patient,
         List<Encounter> encounters,
-        String practiseCode) {
+        String practiceCode) {
 
         final List<Observation> batteryObservations = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public class SpecimenCompoundsMapper {
                             .encounters(encounters)
                             .observations(observations)
                             .observationComments(observationComments)
-                            .practiseCode(practiseCode)
+                            .practiceCode(practiceCode)
                             .build();
 
                         batteryObservations.add(batteryMapper.mapBatteryObservation(batteryParameters));
@@ -150,9 +150,9 @@ public class SpecimenCompoundsMapper {
     }
 
     private void handleObservationStatement(RCMRMT030101UKEhrComposition ehrComposition,
-                                              RCMRMT030101UKCompoundStatement specimenCompoundStatement,
-                                              RCMRMT030101UKObservationStatement observationStatement,
-                                              Observation observation) {
+                                            RCMRMT030101UKCompoundStatement specimenCompoundStatement,
+                                            RCMRMT030101UKObservationStatement observationStatement,
+                                            Observation observation) {
 
         var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             META_PROFILE,
@@ -161,8 +161,9 @@ public class SpecimenCompoundsMapper {
 
         final Reference specimenReference = new Reference(new IdType(
             Specimen.name(),
-            specimenCompoundStatement.getId().get(0).getRoot()
+            specimenCompoundStatement.getId().getFirst().getRoot()
         ));
+
         if (observationStatement.getAvailabilityTime().hasValue()) {
             observation.setIssuedElement(
                 DateFormatUtil.parseToInstantType(
@@ -170,9 +171,10 @@ public class SpecimenCompoundsMapper {
                 )
             );
         }
-        observation.setSpecimen(specimenReference);
-        observation.addCategory(createCategory());
-        observation.setMeta(meta);
+
+        observation.setSpecimen(specimenReference)
+                   .addCategory(createCategory())
+                   .setMeta(meta);
     }
 
     private void handleNarrativeStatements(RCMRMT030101UKCompoundStatement compoundStatement,
@@ -249,7 +251,7 @@ public class SpecimenCompoundsMapper {
         batteryCompoundStatement.getComponent().stream()
             .filter(RCMRMT030101UKComponent02::hasCompoundStatement)
             .map(RCMRMT030101UKComponent02::getCompoundStatement)
-            .filter(compoundStatement -> CLUSTER_CLASSCODE.equals(compoundStatement.getClassCode().get(0)))
+            .filter(compoundStatement -> CLUSTER_CLASSCODE.equals(compoundStatement.getClassCode().getFirst()))
             .forEach(compoundStatement ->
                          handleClusterCompoundStatement(
                              ehrComposition,
@@ -271,12 +273,12 @@ public class SpecimenCompoundsMapper {
 
     private Optional<RCMRMT030101UKCompoundStatement> getCompoundStatementByDRId(RCMRMT030101UKEhrExtract ehrExtract, String id) {
 
-        return ehrExtract.getComponent().get(0).getEhrFolder().getComponent()
+        return ehrExtract.getComponent().getFirst().getEhrFolder().getComponent()
             .stream()
             .flatMap(component3 -> component3.getEhrComposition().getComponent().stream())
             .flatMap(CompoundStatementResourceExtractors::extractAllCompoundStatements)
             .filter(Objects::nonNull)
-            .filter(compoundStatement -> id.equals(compoundStatement.getId().get(0).getRoot()))
+            .filter(compoundStatement -> id.equals(compoundStatement.getId().getFirst().getRoot()))
             .findFirst();
     }
 
@@ -333,7 +335,7 @@ public class SpecimenCompoundsMapper {
     private RCMRMT030101UKEhrComposition getCurrentEhrComposition(RCMRMT030101UKEhrExtract ehrExtract,
                                                                   RCMRMT030101UKCompoundStatement parentCompoundStatement) {
 
-        return ehrExtract.getComponent().get(0).getEhrFolder().getComponent()
+        return ehrExtract.getComponent().getFirst().getEhrFolder().getComponent()
             .stream()
             .filter(RCMRMT030101UKComponent3::hasEhrComposition)
             .map(RCMRMT030101UKComponent3::getEhrComposition)
@@ -345,7 +347,7 @@ public class SpecimenCompoundsMapper {
     }
 
     private static boolean hasBatteryOrClusterClassCode(RCMRMT030101UKCompoundStatement compoundStatement) {
-        return CLUSTER_CLASSCODE.equals(compoundStatement.getClassCode().get(0))
-            || BATTERY_CLASSCODE.equals(compoundStatement.getClassCode().get(0));
+        return CLUSTER_CLASSCODE.equals(compoundStatement.getClassCode().getFirst())
+            || BATTERY_CLASSCODE.equals(compoundStatement.getClassCode().getFirst());
     }
 }

@@ -48,7 +48,8 @@ public class AcknowledgeRecordService {
 
         try {
             message = parseOriginalMessage(acknowledgeRecordMessage);
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            LOGGER.error("Original message was not parsed due to an exception: {}", exception.getMessage());
             return false;
         }
 
@@ -67,10 +68,9 @@ public class AcknowledgeRecordService {
         return nackAckPrepInterface.sendNackMessage(nackReason, message, conversationId);
     }
 
-    private RCMRIN030000UKMessage parseOriginalMessage(AcknowledgeRecordMessage message)
-        throws JAXBException, JsonProcessingException {
-        var payload = objectMapper.readValue(message.getOriginalMessage(), InboundMessage.class)
-                .getPayload();
+    private RCMRIN030000UKMessage parseOriginalMessage(AcknowledgeRecordMessage message) throws JAXBException, JsonProcessingException {
+
+        var payload = objectMapper.readValue(message.getOriginalMessage(), InboundMessage.class).getPayload();
 
         return unmarshallString(payload, RCMRIN030000UKMessage.class);
     }

@@ -1,0 +1,119 @@
+name: "GP2GP Sending Adaptor Build Workflow"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  common-modules-tests:
+    name: "Common Modules Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: "Common Modules Tests"
+        working-directory: ./docker
+        run: |
+          docker network create ps-network || true
+          docker compose -f ./docker-compose.yml -f ./docker-compose-checks.yml build common_modules
+          docker compose -f ./docker-compose.yml -f ./docker-compose-checks.yml up \
+           --exit-code-from common_modules common_modules
+          docker cp common_modules_checks:/home/gradle/service/db-connector/build db-connector-build
+          docker cp common_modules_checks:/home/gradle/service/common/build common-build
+
+  facade-tests:
+    name: "GPC API Facade Tests"
+    uses: ./.github/workflows/test.yml
+    with:
+      name: GPC API Facade
+      path: ./gpc-api-facade
+    secrets: inherit
+
+  translator-tests:
+    name: "GP2GP Translator Tests"
+    uses: ./.github/workflows/test.yml
+    with:
+      name: GP2GP Translator
+      path: ./gp2gp-translator
+    secrets: inherit
+
+  generate-build-id:
+    name: "Generate Build Id"
+    needs: [ common-modules-tests, facade-tests, translator-tests ]
+    runs-on: ubuntu-latest
+    outputs:
+      build-id: ${{ steps.generate.outputs.buildId }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - id: generate
+        working-directory: ./scripts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./create_build_id.sh
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          GIT_BRANCH=PR
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          GIT_BRANCH=main
+          fi
+          
+          BUILD_ID=$(./create_build_id.sh $GIT_BRANCH ${{ github.run_number }} ${{ github.sha }})
+          echo "Generated the build tag: $BUILD_ID"
+          echo "buildId=$BUILD_ID" >> "$GITHUB_OUTPUT"  
+
+  publish-docker-images:
+    name: "Publish docker images to ECR"
+    needs: [ generate-build-id ]
+    strategy:
+      matrix:
+        config:
+          - directory: gpc-facade
+            repository: pss_gpc_facade
+            build-context: .
+          - directory: gp2gp-translator
+            repository: pss_gp2gp-translator
+            build-context: .
+          - directory: snomed-schema
+            repository: pss_snomed_schema
+            build-context: .
+          - directory: db-migration
+            repository: pss_db_migration
+            build-context: .
+          - directory: mhs-adaptor-mock
+            repository: pss-mock-mhs
+            build-context: ./docker/mhs-adaptor-mock
+    uses: ./.github/workflows/publish.yml
+    with:
+      directory: ${{ matrix.config.directory }}
+      repository: ${{ matrix.config.repository }}
+      build-context: ${{ matrix.config.build-context }}
+      build-id: ${{ needs.generate-build-id.outputs.build-id }}
+    secrets: inherit
+
+  comment:
+    if: github.event_name == 'pull_request'
+    name: "Create Build ID Comment"
+    needs: [ generate-build-id, publish-docker-images]
+    continue-on-error: true
+    permissions: write-all
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            Images built and published to ECR using a Build Id of ${{ needs.generate-build-id.outputs.build-id }}
+          comment_tag: images-built
+          mode: upsert
+

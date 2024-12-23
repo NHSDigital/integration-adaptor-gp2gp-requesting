@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITHOUT_SECURITY;
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import java.io.File;
@@ -41,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.connector.model.PatientAttachmentLog;
 import uk.nhs.adaptors.pss.translator.FileFactory;
-import uk.nhs.adaptors.pss.translator.MetaFactory;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
@@ -65,8 +68,8 @@ class DocumentReferenceMapperTest {
     private static final String PLACEHOLDER = "GP2GP generated placeholder. Original document not available. See notes for details";
     private static final Integer EXPECTED_DOCUMENT_REFERENCE_COUNT = 3;
     private static final String TEST_FILES_DIRECTORY = "DocumentReference";
-    private static final Meta META_WITH_SECURITY_ADDED = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-    private static final Meta META_WITHOUT_SECURITY_ADDED = MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
+    private static final Meta META_WITH_SECURITY_ADDED = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+    private static final Meta META_WITHOUT_SECURITY_ADDED = MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
     private static final String NOPAT = "NOPAT";
 
     private static final String SNOMED_SYSTEM = "http://snomed.info/sct";
@@ -111,7 +114,7 @@ class DocumentReferenceMapperTest {
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
 
-        assertThat(documentReferences.size()).isEqualTo(EXPECTED_DOCUMENT_REFERENCE_COUNT);
+        assertThat(documentReferences).hasSize(EXPECTED_DOCUMENT_REFERENCE_COUNT);
     }
 
     @Test
@@ -259,7 +262,7 @@ class DocumentReferenceMapperTest {
         assertThat(documentReference.getDescription()).isEqualTo("Some example text");
         assertThat(documentReference.getIndexedElement().getValue()).isEqualTo("2010-01-14");
         assertThat(documentReference.getCreatedElement().asStringValue()).isEqualTo("2019-07-08T13:35:00+00:00");
-        assertThat(documentReference.getSubject().getResource()).isNotNull();
+        assertNotNull(documentReference.getSubject().getResource());
         assertThat(documentReference.getSubject().getResource().getIdElement().getValue()).isEqualTo(PATIENT_ID);
         assertThat(documentReference.getContext().getEncounter().getResource().getIdElement().getValue()).isEqualTo(ENCOUNTER_ID);
         assertAttachmentData(documentReference);
@@ -275,7 +278,7 @@ class DocumentReferenceMapperTest {
         assertThat(documentReference.getDescription()).isEqualTo("Some example text");
         assertThat(documentReference.getIndexedElement().getValue()).isEqualTo("2010-01-14");
         assertThat(documentReference.getCreatedElement().asStringValue()).isEqualTo("2019-07-08T13:35:00+00:00");
-        assertThat(documentReference.getSubject().getResource()).isNotNull();
+        assertNotNull(documentReference.getSubject().getResource());
         assertThat(documentReference.getSubject().getResource().getIdElement().getValue()).isEqualTo(PATIENT_ID);
         assertThat(documentReference.getContext().getEncounter().getResource().getIdElement().getValue()).isEqualTo(ENCOUNTER_ID);
         assertAttachmentData(documentReference);
@@ -303,8 +306,8 @@ class DocumentReferenceMapperTest {
     private void assertDocumentReferenceWithAbsentAttachment(DocumentReference documentReference) {
         assertThat(documentReference.getId()).isEqualTo(NARRATIVE_STATEMENT_ROOT_ID);
         assertThat(documentReference.getContent().getFirst().getAttachment().getTitle()).isEqualTo(PLACEHOLDER);
-        assertThat(documentReference.getContent().getFirst().getAttachment().getUrl()).isNotNull();
-        assertThat(documentReference.getContent().getFirst().getAttachment().hasSize()).isFalse();
+        assertNotNull(documentReference.getContent().getFirst().getAttachment().getUrl());
+        assertFalse(documentReference.getContent().getFirst().getAttachment().hasSize());
         assertThat(documentReference.getContent().getFirst().getAttachment().getContentType()).isEqualTo(CONTENT_TYPE);
     }
 
@@ -314,7 +317,7 @@ class DocumentReferenceMapperTest {
         assertThat(documentReference.getStatus()).isEqualTo(DocumentReferenceStatus.CURRENT);
         assertThatIdentifierIsValid(documentReference.getIdentifierFirstRep(), documentReference.getId());
         assertThat(documentReference.getType().getText()).isEqualTo(NARRATIVE_STATEMENT_TYPE);
-        assertThat(documentReference.getContext().getEncounter().getResource()).isNull();
+        assertNull(documentReference.getContext().getEncounter().getResource());
     }
 
     private void assertThatIdentifierIsValid(Identifier identifier, String id) {
@@ -359,6 +362,6 @@ class DocumentReferenceMapperTest {
         Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
             confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 }

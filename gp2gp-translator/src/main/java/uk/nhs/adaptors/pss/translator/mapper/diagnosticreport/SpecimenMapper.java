@@ -14,6 +14,7 @@ import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -88,23 +89,32 @@ public class SpecimenMapper {
                                     RCMRMT030101UKCompoundStatement specimenCompoundStatement,
                                     Patient patient, String practiceCode) {
 
-        var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+        var specimen = initializeSpecimen(ehrComposition, specimenCompoundStatement, patient, practiceCode);
+        getAccessionIdentifier(specimenCompoundStatement).ifPresent(specimen::setAccessionIdentifier);
+        getType(specimenCompoundStatement).ifPresent(specimen::setType);
+        getCollectedDateTime(specimenCompoundStatement).ifPresent(specimen::setCollection);
+
+        return specimen;
+    }
+
+    private Specimen initializeSpecimen(RCMRMT030101UKEhrComposition ehrComposition,
+                                                 RCMRMT030101UKCompoundStatement specimenCompoundStatement,
+                                                 Patient patient,
+                                                 String practiceCode) {
+
+        final Meta meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             SPECIMEN_META_PROFILE_SUFFIX,
             ehrComposition.getConfidentialityCode(),
             specimenCompoundStatement.getConfidentialityCode());
 
-        Specimen specimen = new Specimen();
         final String id = specimenCompoundStatement.getId().getFirst().getRoot();
 
+        var specimen = new Specimen();
         specimen.addIdentifier(buildIdentifier(id, practiceCode))
                 .setSubject(new Reference(patient))
                 .setNote(getNote(specimenCompoundStatement))
                 .setId(id)
                 .setMeta(meta);
-
-        getAccessionIdentifier(specimenCompoundStatement).ifPresent(specimen::setAccessionIdentifier);
-        getType(specimenCompoundStatement).ifPresent(specimen::setType);
-        getCollectedDateTime(specimenCompoundStatement).ifPresent(specimen::setCollection);
 
         return specimen;
     }

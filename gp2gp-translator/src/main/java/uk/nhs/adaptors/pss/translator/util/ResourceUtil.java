@@ -26,9 +26,9 @@ public class ResourceUtil {
         return meta;
     }
 
-    public static Identifier buildIdentifier(String rootId, String practiseCode) {
+    public static Identifier buildIdentifier(String rootId, String practiceCode) {
         Identifier identifier = new Identifier();
-        identifier.setSystem(IDENTIFIER_SYSTEM.formatted(practiseCode));
+        identifier.setSystem(IDENTIFIER_SYSTEM.formatted(practiceCode));
         identifier.setValue(rootId);
 
         return identifier;

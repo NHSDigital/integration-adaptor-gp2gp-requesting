@@ -2414,7 +2414,7 @@
         }
       }, {
         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
-        "valueDateTime": "2010-02-26"
+        "valueDateTime": "2010-01-13"
       } ],
       "identifier": [ {
         "system": "https://PSSAdaptor/B83002",
@@ -6581,7 +6581,7 @@
         "value": "AF48B343-AC42-4B3B-B674-761698C9F06E"
       } ],
       "basedOn": [ {
-        "reference": "MedicationRequest/5C1AC485-77A3-4109-AB43-5D2E59EA10C9"
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000019"
       } ],
       "status": "completed",
       "intent": "order",
@@ -6612,6 +6612,104 @@
           "unit": "device"
         }
       }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationRequest",
+      "id": "00000000-0000-0000-0000-000000000019",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescriptionType-1",
+            "code": "acute",
+            "display": "Acute"
+          } ]
+        }
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000019"
+      } ],
+      "status": "completed",
+      "intent": "plan",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000013"
+      },
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000010"
+      },
+      "authoredOn": "2010-01-13",
+      "requester": {
+        "agent": {
+          "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+        }
+      },
+      "recorder": {
+        "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
+      },
+      "dosageInstruction": [ {
+        "text": "n/a"
+      } ],
+      "dispenseRequest": {
+        "validityPeriod": {
+          "start": "2010-02-26"
+        },
+        "quantity": {
+          "value": 1.0,
+          "unit": "device"
+        }
+      },
+      "priorPrescription": {
+        "reference": "MedicationRequest/5C1AC485-77A3-4109-AB43-5D2E59EA10C9"
+      }
+    }
+  }, {
+    "resource": {
+      "resourceType": "MedicationStatement",
+      "id": "00000000-0000-0000-0000-000000000019-MS",
+      "meta": {
+        "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationStatement-1" ]
+      },
+      "extension": [ {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1",
+        "valueCodeableConcept": {
+          "coding": [ {
+            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1",
+            "code": "prescribed-at-gp-practice",
+            "display": "Prescribed at GP practice"
+          } ]
+        }
+      }, {
+        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationStatementLastIssueDate-1",
+        "valueDateTime": "2010-02-26"
+      } ],
+      "identifier": [ {
+        "system": "https://PSSAdaptor/B83002",
+        "value": "00000000-0000-0000-0000-000000000019-MS"
+      } ],
+      "basedOn": [ {
+        "reference": "MedicationRequest/00000000-0000-0000-0000-000000000019"
+      } ],
+      "status": "completed",
+      "medicationReference": {
+        "reference": "Medication/00000000-0000-0000-0000-000000000013"
+      },
+      "effectivePeriod": {
+        "start": "2010-02-26",
+        "end": "2010-02-26"
+      },
+      "dateAsserted": "2010-01-13T11:37:31+00:00",
+      "subject": {
+        "reference": "Patient/00000000-0000-0000-0000-000000000010"
+      },
+      "taken": "unk",
+      "dosage": [ {
+        "text": "n/a"
+      } ]
     }
   }, {
     "resource": {

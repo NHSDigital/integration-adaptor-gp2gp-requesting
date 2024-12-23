@@ -63,25 +63,25 @@ public class BloodPressureMapper extends AbstractMapper<Observation> {
     private ConfidentialityService confidentialityService;
 
     public List<Observation> mapResources(RCMRMT030101UKEhrExtract ehrExtract, Patient patient, List<Encounter> encounters,
-                                          String practiseCode) {
+                                          String practiceCode) {
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllCompoundStatements(component)
                 .filter(Objects::nonNull)
                 .filter(BloodPressureValidatorUtil::isBloodPressureWithBatteryAndBloodPressureTriple)
                 .filter(compoundStatement -> !isDiagnosticReport(compoundStatement)
                     && !hasDiagnosticReportParent(ehrExtract, compoundStatement))
-                .map(compoundStatement -> mapObservation(composition, compoundStatement, patient, encounters, practiseCode)))
+                .map(compoundStatement -> mapObservation(composition, compoundStatement, patient, encounters, practiceCode)))
             .toList();
     }
 
     private Observation mapObservation(RCMRMT030101UKEhrComposition ehrComposition,
                                        RCMRMT030101UKCompoundStatement compoundStatement, Patient patient, List<Encounter> encounters,
-                                       String practiseCode) {
+                                       String practiceCode) {
         var observationStatements = getObservationStatementsFromCompoundStatement(compoundStatement);
-        var id = compoundStatement.getId().get(0);
+        var id = compoundStatement.getId().getFirst();
 
         Observation observation = new Observation()
-            .addIdentifier(buildIdentifier(id.getRoot(), practiseCode))
+            .addIdentifier(buildIdentifier(id.getRoot(), practiceCode))
             .setStatus(ObservationStatus.FINAL)
             .setCode(getCode(compoundStatement.getCode()))
             .setComponent(getComponent(observationStatements))

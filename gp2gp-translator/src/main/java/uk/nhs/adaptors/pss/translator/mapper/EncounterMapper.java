@@ -85,7 +85,7 @@ public class EncounterMapper {
     public Map<String, List<? extends DomainResource>> mapEncounters(
             RCMRMT030101UKEhrExtract ehrExtract,
             Patient patient,
-            String practiseCode,
+            String practiceCode,
             List<Location> entryLocations
     ) {
         List<Encounter> encounters = new ArrayList<>();
@@ -98,7 +98,7 @@ public class EncounterMapper {
         List<RCMRMT030101UKEhrComposition> ehrCompositionList = getEncounterEhrCompositions(ehrExtract);
 
         ehrCompositionList.forEach(ehrComposition -> {
-            var encounter = mapToEncounter(ehrComposition, patient, practiseCode, entryLocations);
+            var encounter = mapToEncounter(ehrComposition, patient, practiceCode, entryLocations);
             var consultation = consultationListMapper.mapToConsultation(ehrComposition, encounter);
 
             var topicCompoundStatementList = getTopicCompoundStatements(ehrComposition);
@@ -242,7 +242,7 @@ public class EncounterMapper {
     }
 
     private boolean hasValidCategoryCompoundStatement(RCMRMT030101UKCompoundStatement compoundStatement) {
-        return compoundStatement != null && CATEGORY_CLASS_CODE.equals(compoundStatement.getClassCode().get(0));
+        return compoundStatement != null && CATEGORY_CLASS_CODE.equals(compoundStatement.getClassCode().getFirst());
     }
 
     private List<RCMRMT030101UKEhrComposition> getEncounterEhrCompositions(RCMRMT030101UKEhrExtract ehrExtract) {
@@ -278,36 +278,40 @@ public class EncounterMapper {
     }
 
     private boolean hasValidTopicCompoundStatement(RCMRMT030101UKCompoundStatement compoundStatement) {
-        return compoundStatement != null && TOPIC_CLASS_CODE.equals(compoundStatement.getClassCode().get(0));
+        return compoundStatement != null && TOPIC_CLASS_CODE.equals(compoundStatement.getClassCode().getFirst());
     }
 
     private Encounter mapToEncounter(
-            RCMRMT030101UKEhrComposition ehrComposition,
-            Patient patient,
-            String practiseCode,
-            List<Location> entryLocations
-    ) {
-        var id = ehrComposition.getId().getRoot();
+        RCMRMT030101UKEhrComposition ehrComposition,
+        Patient patient,
+        String practiceCode,
+        List<Location> entryLocations) {
 
-        var encounter = new Encounter();
+        var id = ehrComposition.getId().getRoot();
 
         final Meta meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             ENCOUNTER_META_PROFILE,
             ehrComposition.getConfidentialityCode()
         );
 
+        var encounter = initializeEncounter(ehrComposition, patient, practiceCode, id, meta);
+        setEncounterLocation(encounter, ehrComposition, entryLocations);
+
+        return encounter;
+    }
+
+    private Encounter initializeEncounter(RCMRMT030101UKEhrComposition ehrComposition, Patient patient,
+                                                   String practiceCode, String id, Meta meta) {
+        var encounter = new Encounter();
         encounter
             .setParticipant(getParticipants(ehrComposition.getAuthor(), ehrComposition.getParticipant2()))
             .setStatus(EncounterStatus.FINISHED)
             .setSubject(new Reference(patient))
             .setType(getType(ehrComposition.getCode()))
             .setPeriod(getPeriod(ehrComposition))
-            .addIdentifier(buildIdentifier(id, practiseCode))
+            .addIdentifier(buildIdentifier(id, practiceCode))
             .setMeta(meta)
             .setId(id);
-
-        setEncounterLocation(encounter, ehrComposition, entryLocations);
-
         return encounter;
     }
 

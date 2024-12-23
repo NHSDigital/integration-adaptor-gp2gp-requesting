@@ -56,7 +56,7 @@ public class CodeableConceptUtilsTest {
                 null,
                 extension);
 
-        assertThat(result.getCoding().get(0).getExtension().get(0).getUrlElement().getValue()).isEqualTo(EXTENSION_URL);
+        assertThat(result.getCoding().getFirst().getExtension().getFirst().getUrlElement().getValue()).isEqualTo(EXTENSION_URL);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class CodeableConceptUtilsTest {
                 DISPLAY,
                 null,
                 GP2GP_SPECIFIC_CODE);
-        final var actualBaseCoding = result.getCoding().get(0);
+        final var actualBaseCoding = result.getCoding().getFirst();
         final var actualEhrRequestAckCoding = result.getCoding().get(1);
 
         assertAll(
@@ -92,6 +92,6 @@ public class CodeableConceptUtilsTest {
                 null,
                 GP2GP_SPECIFIC_CODE);
 
-        assertThat(result.getCoding().get(0).getSystem()).isEqualTo(expectedSystem);
+        assertThat(result.getCoding().getFirst().getSystem()).isEqualTo(expectedSystem);
     }
 }

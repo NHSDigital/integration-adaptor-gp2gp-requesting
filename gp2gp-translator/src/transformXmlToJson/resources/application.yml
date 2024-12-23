@@ -1,0 +1,55 @@
+server:
+  port: ${GP2GP_TRANSLATOR_SERVER_PORT:8085}
+
+logging:
+  level:
+    uk.nhs.adaptors.pss.translator: DEBUG
+
+spring:
+  datasource:
+    url: ${PS_DB_URL:jdbc:postgresql://localhost:5436}/patient_switching
+    username: gp2gp_user
+    password: ${GP2GP_TRANSLATOR_USER_DB_PASSWORD:123456}
+
+amqp:
+  pss:
+    queueName: ${PS_QUEUE_NAME:pssQueue}
+    broker: ${PS_AMQP_BROKER:amqp://localhost:5672}
+    username: ${PS_AMQP_USERNAME:}
+    password: ${PS_AMQP_PASSWORD:}
+    maxRedeliveries: ${PS_AMQP_MAX_REDELIVERIES:3}
+  mhs:
+    queueName: ${MHS_QUEUE_NAME:mhsQueue}
+    broker: ${MHS_AMQP_BROKER:amqp://localhost:5672}
+    username: ${MHS_AMQP_USERNAME:}
+    password: ${MHS_AMQP_PASSWORD:}
+    maxRedeliveries: ${MHS_AMQP_MAX_REDELIVERIES:3}
+    dlqPrefix: ${MHS_DLQ_PREFIX:DLQ.}
+  gp2gp:
+    queueName: ${GP2GP_MHS_INBOUND_QUEUE:gp2gpInboundQueue}
+    broker: ${GP2GP_AMQP_BROKERS:amqp://localhost:5672}
+    username: ${GP2GP_AMQP_USERNAME:}
+    password: ${GP2GP_AMQP_PASSWORD:}
+  daisyChaining: ${PS_DAISY_CHAINING_ACTIVE:false}
+
+mhs:
+  url: ${MHS_BASE_URL:http://localhost:8080}
+
+storage:
+  type: ${STORAGE_TYPE:LocalMock}
+  region: ${STORAGE_REGION:}
+  containerName: ${STORAGE_CONTAINER_NAME:}
+  accountReference: ${STORAGE_REFERENCE:}
+  accountSecret: ${STORAGE_SECRET:}
+  retryLimit: ${STORAGE_RETRY_Limit:3}
+
+sds:
+  url: ${SDS_BASE_URL:https://api.service.nhs.uk/spine-directory/FHIR/R4}
+  apiKey: ${SDS_API_KEY}
+
+timeout:
+  ehrExtractWeighting: ${TIMEOUT_EHR_EXTRACT_WEIGHTING:1}
+  copcWeighting: ${TIMEOUT_COPC_WEIGHTING:1}
+  cronTime: ${TIMEOUT_CRON_TIME:0 0 */2 * * *}
+
+base64.skipDecode: ${SKIP_DECODE:false}

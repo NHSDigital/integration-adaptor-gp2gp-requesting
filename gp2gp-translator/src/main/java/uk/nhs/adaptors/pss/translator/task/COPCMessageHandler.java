@@ -110,7 +110,7 @@ public class COPCMessageHandler {
                     if (!inlineAttachments.isEmpty()) {
                         // we are expecting inline attachments to only have one attachment in the storeCOPCAttachment method below
                         // so use isBase64 flag of the first inline attachment
-                        patientAttachmentLog.setIsBase64(Boolean.valueOf(inlineAttachments.get(0).getIsBase64()));
+                        patientAttachmentLog.setIsBase64(Boolean.valueOf(inlineAttachments.getFirst().getIsBase64()));
                     }
 
                     storeCOPCAttachment(patientAttachmentLog, inboundMessage, conversationId);
@@ -195,7 +195,7 @@ public class COPCMessageHandler {
                 return;
             } else {
                 // otherwise let's select the first child fragment to run the process as normal
-                currentAttachmentLog = childFragments.get(0);
+                currentAttachmentLog = childFragments.getFirst();
             }
         }
 
@@ -293,7 +293,7 @@ public class COPCMessageHandler {
         Document ebXmlDocument, int patientId) throws ValidationException, InlineAttachmentProcessingException {
         String fragmentMid = getFragmentMidId(ebXmlDocument);
         String fileName = getFileNameForFragment(inboundMessage, payload);
-        var attachment = inboundMessage.getAttachments().get(0);
+        var attachment = inboundMessage.getAttachments().getFirst();
 
         PatientAttachmentLog fragmentAttachmentLog = buildFragmentAttachmentLog(attachment, fragmentMid,
             createFilenameForFragment(fileName), patientId);
@@ -315,12 +315,12 @@ public class COPCMessageHandler {
         if (fragmentAttachmentLog.getLargeAttachment() == null || fragmentAttachmentLog.getLargeAttachment()) {
 
             attachmentHandlerService.storeAttachmentWithoutProcessing(fragmentAttachmentLog.getFilename(),
-                inboundMessage.getAttachments().get(0).getPayload(), conversationId,
+                inboundMessage.getAttachments().getFirst().getPayload(), conversationId,
                 fragmentAttachmentLog.getContentType());
         } else {
             var attachment = attachmentHandlerService.buildInboundAttachmentsFromAttachmentLogs(
                 List.of(fragmentAttachmentLog),
-                List.of(inboundMessage.getAttachments().get(0).getPayload()),
+                List.of(inboundMessage.getAttachments().getFirst().getPayload()),
                 conversationId
             );
 
@@ -338,9 +338,9 @@ public class COPCMessageHandler {
 
     private String getFileNameForFragment(InboundMessage inboundMessage, COPCIN000001UK01Message payload) {
         // confirm filename in payload on future examples
-        if (!inboundMessage.getAttachments().get(0).getDescription().isEmpty()
-            && inboundMessage.getAttachments().get(0).getDescription().contains("Filename")) {
-            return XmlParseUtilService.parseFragmentFilename(inboundMessage.getAttachments().get(0).getDescription());
+        if (!inboundMessage.getAttachments().getFirst().getDescription().isEmpty()
+            && inboundMessage.getAttachments().getFirst().getDescription().contains("Filename")) {
+            return XmlParseUtilService.parseFragmentFilename(inboundMessage.getAttachments().getFirst().getDescription());
         } else {
             return retrieveFileNameFromPayload(payload);
         }
@@ -366,7 +366,7 @@ public class COPCMessageHandler {
             .getSubject()
             .getPayloadInformation()
             .getPertinentInformation()
-            .get(0)
+            .getFirst()
             .getPertinentPayloadBody()
             .getValue()
             .getReference()
@@ -398,16 +398,16 @@ public class COPCMessageHandler {
             if (payloadReference.getHref().contains("cid:")) {
                 // EMIS does not use unique IDs for cid references, so we have to generate our own
                 messageId = "ADAPTOR_GENERATED_" + idGeneratorService.generateUuid().toUpperCase();
-                descriptionString = message.getAttachments().get(0).getDescription();
+                descriptionString = message.getAttachments().getFirst().getDescription();
                 filename = createFilenameForFragment(XmlParseUtilService.parseFragmentFilename(descriptionString));
-                isBase64 = Boolean.parseBoolean(message.getAttachments().get(0).getIsBase64());
+                isBase64 = Boolean.parseBoolean(message.getAttachments().getFirst().getIsBase64());
 
                 // upload the file
                 attachmentHandlerService.storeAttachmentWithoutProcessing(
                     filename,
-                    message.getAttachments().get(0).getPayload(),
+                    message.getAttachments().getFirst().getPayload(),
                     conversationId,
-                    message.getAttachments().get(0).getContentType()
+                    message.getAttachments().getFirst().getContentType()
                 );
                 fileUpload = true;
             } else {

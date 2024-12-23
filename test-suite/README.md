@@ -76,7 +76,7 @@ If you want to start from a fresh DB, delete the volume with `docker volume rm t
    SDS_API_KEY: "change_if_needed" # used for calculating migration timeouts 
    
    #changepathforsnomedFilepath
-   SNOMED_CT_TERMINOLOGY_FILE: "/snomed/file/location/uk_sct2mo_38.2.0_20240605000001Z.zip"
+   SNOMED_CT_TERMINOLOGY_FILE: "/snomed/file/location/uk_sct2mo_39.0.0_20240925000001Z.zip"
    
    PS_LOGGING_LEVEL: "DEBUG"
    

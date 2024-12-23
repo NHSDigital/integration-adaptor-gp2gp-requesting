@@ -3,6 +3,8 @@ package uk.nhs.adaptors.pss.translator.mapper.diagnosticreport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -10,15 +12,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsPresent;
 import static uk.nhs.adaptors.pss.translator.mapper.diagnosticreport.SpecimenBatteryMapper.SpecimenBatteryParameters;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Meta;
@@ -26,8 +27,6 @@ import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.dstu3.model.UriType;
-import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKCompoundStatement;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
@@ -42,8 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
 import org.mockito.stubbing.Answer1;
-import uk.nhs.adaptors.pss.translator.MetaFactory;
-import uk.nhs.adaptors.pss.translator.TestUtility;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,11 +60,7 @@ public class SpecimenCompoundsMapperTest {
     private static final String TEST_COMMENT_LINE = "First comment Line";
     private static final String TEST_COMMENT_LINE_1 = "Test Comment";
     private static final String META_PROFILE = "Observation-1";
-    private static final Meta META = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-    private static final CV NOPAT_CV = TestUtility.createCv(
-        "NOPAT",
-        "http://hl7.org/fhir/v3/ActCode",
-        "no disclosure to patient, family or caregivers without attending provider's authorization");
+    private static final Meta META = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
 
     private static final Patient PATIENT = (Patient) new Patient().setId("TEST_PATIENT_ID");
 
@@ -106,8 +100,8 @@ public class SpecimenCompoundsMapperTest {
 
         final Reference result = diagnosticReports.getFirst().getResult().getFirst();
 
-        assertMetaSecurityIsPresent(observations.getFirst().getMeta());
-        assertMetaSecurityIsPresent((Meta) result.getResource().getMeta());
+        assertMetaSecurityIsPresent(META, observations.getFirst().getMeta());
+        assertMetaSecurityIsPresent(META, (Meta) result.getResource().getMeta());
     }
 
     @Test
@@ -124,11 +118,10 @@ public class SpecimenCompoundsMapperTest {
         specimenCompoundsMapper.handleSpecimenChildComponents(
             ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE);
 
-
         final Reference result = diagnosticReports.getFirst().getResult().getFirst();
 
-        assertMetaSecurityIsPresent(observations.getFirst().getMeta());
-        assertMetaSecurityIsPresent((Meta) result.getResource().getMeta());
+        assertMetaSecurityIsPresent(META, observations.getFirst().getMeta());
+        assertMetaSecurityIsPresent(META, (Meta) result.getResource().getMeta());
     }
 
     @Test
@@ -165,7 +158,7 @@ public class SpecimenCompoundsMapperTest {
         assertThat(observationComments).hasSize(2);
         assertThat(observationComment.getComment()).isEqualTo(TEST_COMMENT_LINE_1);
         assertThat(observationComment.getRelated()).isNotEmpty();
-        assertThat(observationComment.getRelated().getFirst().getTarget().getResource()).isNotNull();
+        assertNotNull(observationComment.getRelated().getFirst().getTarget().getResource());
         assertThat(observationComment.getRelated().getFirst().getTarget().getResource().getIdElement().getValue())
                 .isEqualTo(observation.getId());
         assertThat(diagnosticReports.getFirst().getResult().size()).isOne();
@@ -215,7 +208,7 @@ public class SpecimenCompoundsMapperTest {
             ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE
         );
 
-        assertMetaSecurityIsPresent(observationComments.getFirst().getMeta());
+        assertMetaSecurityIsPresent(META, observationComments.getFirst().getMeta());
     }
 
     @Test
@@ -240,7 +233,7 @@ public class SpecimenCompoundsMapperTest {
 
         final Observation observation = observations.getFirst();
 
-        assertThat(observation.getIssuedElement().asStringValue()).isNull();
+        assertNull(observation.getIssuedElement().asStringValue());
     }
 
     @Test void testOrderingIsPreservedForDiagnosticReportResults() {
@@ -292,8 +285,8 @@ public class SpecimenCompoundsMapperTest {
     }
 
     private void assertParentSpecimenIsReferenced(Observation observation) {
-        assertThat(observation.hasSpecimen()).isTrue();
-        assertThat(observation.getSpecimen().hasReference()).isTrue();
+        assertTrue(observation.hasSpecimen());
+        assertTrue(observation.getSpecimen().hasReference());
         assertThat(observation.getSpecimen().getReference()).contains(SPECIMEN_ID);
     }
 
@@ -340,22 +333,6 @@ public class SpecimenCompoundsMapperTest {
             ? reference.getReference()
             : reference.getResource().getIdElement().getValue();
     }
-
-    private void assertMetaSecurityIsPresent(final Meta meta) {
-        final List<Coding> metaSecurity = meta.getSecurity();
-        final int metaSecuritySize = metaSecurity.size();
-        final Coding metaSecurityCoding = metaSecurity.getFirst();
-        final UriType metaProfile = meta.getProfile().getFirst();
-
-        assertAll(
-            () -> assertThat(metaSecuritySize).isEqualTo(1),
-            () -> assertThat(metaProfile.getValue()).isEqualTo(META_PROFILE),
-            () -> assertThat(metaSecurityCoding.getCode()).isEqualTo(NOPAT_CV.getCode()),
-            () -> assertThat(metaSecurityCoding.getDisplay()).isEqualTo(NOPAT_CV.getDisplayName()),
-            () -> assertThat(metaSecurityCoding.getSystem()).isEqualTo(NOPAT_CV.getCodeSystem())
-        );
-    }
-
 
     @SneakyThrows
     private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String fileName) {

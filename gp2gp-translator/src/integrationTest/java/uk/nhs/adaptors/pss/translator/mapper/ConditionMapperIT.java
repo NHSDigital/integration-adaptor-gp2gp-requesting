@@ -68,7 +68,7 @@ public class ConditionMapperIT {
 
         conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
 
-        var code = conditions.get(0).getCode().getCodingFirstRep();
+        var code = conditions.getFirst().getCode().getCodingFirstRep();
 
         assertEquals(OBSERVATION_CONCEPT_DESCRIPTION, code.getDisplay());
         assertEquals(OBSERVATION_CONCEPT_ID, code.getCode());
@@ -92,7 +92,7 @@ public class ConditionMapperIT {
 
         conditionMapper.addReferences(buildBundleWithNamedStatementAllergy(), conditions, ehrExtract);
 
-        var code = conditions.get(0).getCode().getCoding().get(1);
+        var code = conditions.getFirst().getCode().getCoding().get(1);
 
         assertEquals(ALLERGY_CONCEPT_DESCRIPTION, code.getDisplay());
         assertEquals(ALLERGY_CONCEPT_ID, code.getCode());

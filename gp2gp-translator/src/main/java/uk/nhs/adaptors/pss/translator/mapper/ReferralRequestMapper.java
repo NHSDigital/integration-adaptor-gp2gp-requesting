@@ -6,27 +6,36 @@ import static org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriorityEnumFacto
 import static uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors.extractAllRequestStatements;
 import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildIdentifier;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.v3.CD;
 import org.hl7.v3.CR;
 import org.hl7.v3.CV;
 import org.hl7.v3.IVLTS;
+import org.hl7.v3.RCMRMT030101UKComponent;
+import org.hl7.v3.RCMRMT030101UKComponent3;
+import org.hl7.v3.RCMRMT030101UKComponent4;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
+import org.hl7.v3.RCMRMT030101UKLinkSet;
 import org.hl7.v3.RCMRMT030101UKPart;
 import org.hl7.v3.RCMRMT030101UKRequestStatement;
 import org.hl7.v3.RCMRMT030101UKResponsibleParty3;
@@ -38,6 +47,7 @@ import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
 import uk.nhs.adaptors.pss.translator.util.ParticipantReferenceUtil;
+import uk.nhs.adaptors.pss.translator.util.ResourceFilterUtil;
 
 @Service
 @AllArgsConstructor
@@ -57,20 +67,47 @@ public class ReferralRequestMapper extends AbstractMapper<ReferralRequest> {
     );
     private static final String SNOMED_CODE_SYSTEM = "2.16.840.1.113883.2.1.3.2.4.15";
 
+    private static final BinaryOperator<List<Reference>> DOCUMENT_REFERENCE_MERGE_FUNCTION = (existing, added) -> {
+        added.forEach(addedReference -> {
+            if (existing.stream().noneMatch(
+                existingReference -> addedReference.getReference().equals(existingReference.getReference())
+            )) {
+                existing.add(addedReference);
+            }
+        });
+
+        return existing;
+    };
+
     private CodeableConceptMapper codeableConceptMapper;
     private ConfidentialityService confidentialityService;
 
     public List<ReferralRequest> mapResources(RCMRMT030101UKEhrExtract ehrExtract,
                                               Patient patient,
                                               List<Encounter> encounters,
-                                              String practiseCode) {
+                                              String practiceCode) {
+
+        var referralRequestToDocumentReferences = extractReferralRequestIdToDocumentReferences(ehrExtract);
 
         return mapEhrExtractToFhirResource(ehrExtract, (extract, composition, component) ->
             extractAllRequestStatements(component)
                 .filter(Objects::nonNull)
                 .filter(this::isNotSelfReferral)
-                .map(requestStatement
-                         -> mapToReferralRequest(ehrExtract, composition, requestStatement, patient, encounters, practiseCode)))
+                .map(requestStatement -> {
+                    var documentReferences = referralRequestToDocumentReferences.getOrDefault(
+                        requestStatement.getId().getFirst().getRoot(),
+                        List.of()
+                    );
+                    return mapToReferralRequest(
+                        ehrExtract,
+                        composition,
+                        requestStatement,
+                        patient,
+                        encounters,
+                        documentReferences,
+                        practiceCode
+                    );
+                }))
             .toList();
     }
 
@@ -79,11 +116,31 @@ public class ReferralRequestMapper extends AbstractMapper<ReferralRequest> {
                                                 RCMRMT030101UKRequestStatement requestStatement,
                                                 Patient patient,
                                                 List<Encounter> encounters,
-                                                String practiseCode) {
+                                                List<Reference> documentReferences,
+                                                String practiceCode
+    ) {
 
+        var referralRequest = initializeReferralRequest(ehrComposition, requestStatement, patient, practiceCode);
+
+        setReferralRequestContext(referralRequest, ehrComposition, encounters);
+        setReferralRequestRecipient(ehrExtract, requestStatement, referralRequest);
+        setReferralRequestReasonCode(referralRequest, requestStatement.getCode());
+
+        if (!documentReferences.isEmpty()) {
+            referralRequest.setSupportingInfo(documentReferences);
+        }
+
+        return referralRequest;
+    }
+
+    private ReferralRequest initializeReferralRequest(RCMRMT030101UKEhrComposition ehrComposition,
+                                                               RCMRMT030101UKRequestStatement requestStatement,
+                                                               Patient patient,
+                                                               String practiceCode) {
         var referralRequest = new ReferralRequest();
-        var id = requestStatement.getId().get(0).getRoot();
-        var identifier = buildIdentifier(id, practiseCode);
+        var id = requestStatement.getId().getFirst().getRoot();
+        var identifier = buildIdentifier(id, practiceCode);
+
         var agent = ParticipantReferenceUtil.getParticipantReference(requestStatement.getParticipant(), ehrComposition);
 
         var authoredOn = getAuthoredOn(requestStatement.getAvailabilityTime());
@@ -95,20 +152,16 @@ public class ReferralRequestMapper extends AbstractMapper<ReferralRequest> {
             ehrComposition.getConfidentialityCode()
         );
 
-        referralRequest.setId(id);
-        referralRequest.setMeta(meta);
+        referralRequest.setId(id)
+                       .setMeta(meta);
         referralRequest.getIdentifier().add(identifier);
-        referralRequest.setStatus(ReferralRequestStatus.UNKNOWN);
-        referralRequest.setIntent(ReferralCategory.ORDER);
-        referralRequest.getRequester().setAgent(agent);
-        referralRequest.setAuthoredOnElement(authoredOn);
-        referralRequest.setNote(getNotes(requestStatement));
-        referralRequest.setSubject(new Reference(patient));
-        referralRequest.setPriority(referralPriority);
-
-        setReferralRequestContext(referralRequest, ehrComposition, encounters);
-        setReferralRequestRecipient(ehrExtract, requestStatement, referralRequest);
-        setReferralRequestReasonCode(referralRequest, requestStatement.getCode());
+        referralRequest.setStatus(ReferralRequestStatus.UNKNOWN)
+                        .setIntent(ReferralCategory.ORDER)
+                        .setAuthoredOnElement(authoredOn)
+                        .setNote(getNotes(requestStatement))
+                        .setSubject(new Reference(patient))
+                        .setPriority(referralPriority)
+                        .getRequester().setAgent(agent);
 
         return referralRequest;
     }
@@ -130,7 +183,7 @@ public class ReferralRequestMapper extends AbstractMapper<ReferralRequest> {
     }
 
     private boolean isMatchingAgent(RCMRMT030101UKPart part, String requestAgentRoot) {
-        return part.getAgent().getId().get(0).getRoot().equals(requestAgentRoot)
+        return part.getAgent().getId().getFirst().getRoot().equals(requestAgentRoot)
                && part.getAgent().getAgentPerson() == null;
     }
 
@@ -263,5 +316,33 @@ public class ReferralRequestMapper extends AbstractMapper<ReferralRequest> {
             }
         }
         return true;
+    }
+
+    private static Map<String, List<Reference>> extractReferralRequestIdToDocumentReferences(
+        RCMRMT030101UKEhrExtract ehrExtract) {
+
+        return ehrExtract.getComponent()
+            .stream()
+            .map(RCMRMT030101UKComponent::getEhrFolder)
+            .flatMap(ehrFolder -> ehrFolder.getComponent().stream())
+            .map(RCMRMT030101UKComponent3::getEhrComposition)
+            .flatMap(ehrComposition -> ehrComposition.getComponent().stream())
+            .map(RCMRMT030101UKComponent4::getLinkSet)
+            .filter(Objects::nonNull)
+            .filter(linkSet -> ResourceFilterUtil.isReferralRequestToExternalDocumentLinkSet(ehrExtract, linkSet))
+            .map(ReferralRequestMapper::buildReferralRequestToDocumentReferenceSimpleEntry)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, DOCUMENT_REFERENCE_MERGE_FUNCTION));
+    }
+
+    private static AbstractMap.SimpleEntry<String, List<Reference>> buildReferralRequestToDocumentReferenceSimpleEntry(
+        RCMRMT030101UKLinkSet linkSet
+    ) {
+        var referralRequestId = linkSet.getConditionNamed().getNamedStatementRef().getId().getRoot();
+        var documentReferences = linkSet.getComponent().stream()
+            .map(component -> component.getStatementRef().getId().getRoot())
+            .map(id -> new Reference(new IdType(ResourceType.DocumentReference.name(), id)))
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        return new AbstractMap.SimpleEntry<>(referralRequestId, documentReferences);
     }
 }

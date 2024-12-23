@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 
 import static org.springframework.util.ResourceUtils.getFile;
 
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITHOUT_SECURITY;
-import static uk.nhs.adaptors.pss.translator.MetaFactory.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
@@ -56,7 +56,7 @@ import org.mockito.stubbing.Answer;
 
 import lombok.SneakyThrows;
 
-import uk.nhs.adaptors.pss.translator.MetaFactory;
+import uk.nhs.adaptors.pss.translator.util.MetaUtil;
 import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DatabaseImmunizationChecker;
@@ -158,7 +158,7 @@ public class EncounterMapperTest {
         Mockito.lenient()
             .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 any(String.class), any(Optional.class)
-            )).thenReturn(MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 
     @Test
@@ -205,9 +205,9 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY).size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
-        assertThat(encounter.getType().get(0).getCodingFirstRep().getDisplay())
+        assertThat(encounter.getType().getFirst().getCodingFirstRep().getDisplay())
             .isEqualTo(CODING_DISPLAY);
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
     }
@@ -236,16 +236,16 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY).size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
-        assertThat(encounter.getType().get(0).getCodingFirstRep())
+        assertThat(encounter.getType().getFirst().getCodingFirstRep())
             .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
     }
 
     @Test
     public void testMapValidEncounterWithNopatConfidentialityCodeWithinEhrCompositionExpectMetaSecurityAdded() {
-        final Meta stubbedMeta = MetaFactory.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final CodeableConcept codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
 
         when(codeableConceptMapper.mapToCodeableConcept(
@@ -276,16 +276,16 @@ public class EncounterMapperTest {
             ehrExtract, patient, PRACTISE_CODE, entryLocations
         );
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
-        assertThat(encounter.getType().get(0).getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(encounter.getType().getFirst().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
         assertMetaSecurityPresent(encounter.getMeta());
         verifyCreateMetaAndAddSecurityCalled(1,  ehrComposition.getConfidentialityCode());
     }
 
     @Test
     public void testMapValidEncounterWithNoscrubConfidentialityCodeWithinEhrCompositionExpectMetaSecurityNotAdded() {
-        final Meta stubbedMeta = MetaFactory.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
+        final Meta metaWithoutSecurity = MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
         final CodeableConcept codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
 
         when(codeableConceptMapper.mapToCodeableConcept(
@@ -305,7 +305,7 @@ public class EncounterMapperTest {
             .lenient()
             .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 any(String.class), any(Optional.class)
-            )).thenReturn(stubbedMeta);
+            )).thenReturn(metaWithoutSecurity);
 
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtractElement(ENCOUNTER_WITH_NOSCRUB_CONFIDENTIALITY_CODE_WITHIN_EHR_COMPOSITION);
@@ -316,9 +316,9 @@ public class EncounterMapperTest {
             ehrExtract, patient, PRACTISE_CODE, entryLocations
         );
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
-        assertThat(encounter.getType().get(0).getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(encounter.getType().getFirst().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
         assertThat(encounter.getMeta().getSecurity()).isEmpty();
         verifyCreateMetaAndAddSecurityCalled(1,  ehrComposition.getConfidentialityCode());
     }
@@ -343,20 +343,20 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY).size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "2485BC20-90B4-11EC-B1E5-0800200C9A66", true,
             "2010-01-13T15:20:00+00:00", "2010-01-13T15:20:00+00:00");
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
 
-        var category = (ListResource) mappedResources.get(CATEGORY_KEY).get(0);
+        var category = (ListResource) mappedResources.get(CATEGORY_KEY).getFirst();
         assertThat(category.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(topic.getEntryFirstRep().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
@@ -383,7 +383,7 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY).size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(
                 encounter,
@@ -392,24 +392,24 @@ public class EncounterMapperTest {
                 "2010-01-13T15:20:00+00:00"
         );
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
-        assertThat(consultation.getEntry().get(0).getItem().getReference())
+        assertThat(consultation.getEntry().getFirst().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
 
         var relatedProblemExt = topic.getExtensionsByUrl(RELATED_PROBLEM_EXT_URL);
         assertThat(relatedProblemExt.size()).isOne();
 
-        var relatedProblemTarget = relatedProblemExt.get(0).getExtensionsByUrl(RELATED_PROBLEM_TARGET_URL);
+        var relatedProblemTarget = relatedProblemExt.getFirst().getExtensionsByUrl(RELATED_PROBLEM_TARGET_URL);
         assertThat(relatedProblemTarget.size()).isOne();
 
-        var relatedProblemReference = (Reference) relatedProblemTarget.get(0).getValue();
+        var relatedProblemReference = (Reference) relatedProblemTarget.getFirst().getValue();
         assertThat(relatedProblemReference.getReference()).isEqualTo(LINKSET_REFERENCE);
 
-        var category = (ListResource) mappedResources.get(CATEGORY_KEY).get(0);
+        var category = (ListResource) mappedResources.get(CATEGORY_KEY).getFirst();
         assertThat(category.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(topic.getEntryFirstRep().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
@@ -434,15 +434,15 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY)).isEmpty();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "5EB5D070-8FE1-11EC-B1E5-0800200C9A66", true,
             "2010-01-13T15:20:00+00:00", "2010-01-13T15:20:00+00:00");
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference()).isEqualTo(ENCOUNTER_ID);
 
@@ -469,15 +469,15 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY)).isEmpty();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "5EB5D070-8FE1-11EC-B1E5-0800200C9A66", true,
             "2010-01-13T15:20:00+00:00", "2010-01-13T15:20:00+00:00");
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference()).isEqualTo(ENCOUNTER_ID);
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
@@ -501,14 +501,14 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY)).isEmpty();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "5EB5D070-8FE1-11EC-B1E5-0800200C9A66", false, null, null);
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference()).isEqualTo(ENCOUNTER_ID);
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
@@ -534,20 +534,20 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY).size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "2485BC20-90B4-11EC-B1E5-0800200C9A66", true,
             "2010-01-13T15:20:00+00:00", "2010-01-13T15:20:00+00:00");
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
 
-        var category = (ListResource) mappedResources.get(CATEGORY_KEY).get(0);
+        var category = (ListResource) mappedResources.get(CATEGORY_KEY).getFirst();
         assertThat(category.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(topic.getEntryFirstRep().getItem().getReference())
             .isEqualTo(ENCOUNTER_ID);
@@ -575,15 +575,15 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(CATEGORY_KEY)).isEmpty();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
 
         assertEncounter(encounter, "5EB5D070-8FE1-11EC-B1E5-0800200C9A66", true,
             "2010-01-13T15:20:00+00:00", "2010-01-13T15:20:00+00:00");
 
-        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).get(0);
+        var consultation = (ListResource) mappedResources.get(CONSULTATION_KEY).getFirst();
         assertThat(consultation.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
 
-        var topic = (ListResource) mappedResources.get(TOPIC_KEY).get(0);
+        var topic = (ListResource) mappedResources.get(TOPIC_KEY).getFirst();
         assertThat(topic.getEncounter().getReference()).isEqualTo(ENCOUNTER_ID);
         assertThat(consultation.getEntryFirstRep().getItem().getReference()).isEqualTo(ENCOUNTER_ID);
 
@@ -609,7 +609,7 @@ public class EncounterMapperTest {
         var encounterList = mappedResources.get(ENCOUNTER_KEY);
         assertThat(encounterList.size()).isOne();
 
-        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).get(0);
+        var encounter = (Encounter) mappedResources.get(ENCOUNTER_KEY).getFirst();
         assertEncounter(encounter, "5EB5D070-8FE1-11EC-B1E5-0800200C9A66", false, startDate, endDate);
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
     }
@@ -659,7 +659,7 @@ public class EncounterMapperTest {
             String endDate
     ) {
         assertThat(encounter.getId()).isEqualTo(id);
-        assertThat(encounter.getMeta().getProfile().get(0).getValue()).isEqualTo(META_PROFILE);
+        assertThat(encounter.getMeta().getProfile().getFirst().getValue()).isEqualTo(META_PROFILE);
         assertThat(encounter.getIdentifierFirstRep().getSystem()).isEqualTo(IDENTIFIER_SYSTEM);
         assertThat(encounter.getIdentifierFirstRep().getValue()).isEqualTo(id);
         assertThat(encounter.getStatus()).isEqualTo(EncounterStatus.FINISHED);
@@ -680,11 +680,11 @@ public class EncounterMapperTest {
     private void assertMetaSecurityPresent(Meta meta) {
         assertAll(
             () -> assertThat(meta.getSecurity()).hasSize(1),
-            () -> assertThat(meta.getSecurity().get(0).getCode())
+            () -> assertThat(meta.getSecurity().getFirst().getCode())
                 .isEqualTo("NOPAT"),
-            () -> assertThat(meta.getSecurity().get(0).getSystem())
+            () -> assertThat(meta.getSecurity().getFirst().getSystem())
                 .isEqualTo("http://hl7.org/fhir/v3/ActCode"),
-            () -> assertThat(meta.getSecurity().get(0).getDisplay())
+            () -> assertThat(meta.getSecurity().getFirst().getDisplay())
                 .isEqualTo("no disclosure to patient, family or caregivers without attending provider's authorization")
         );
     }

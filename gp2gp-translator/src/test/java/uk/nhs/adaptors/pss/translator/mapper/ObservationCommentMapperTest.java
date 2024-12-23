@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.pss.translator.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.util.ResourceUtils.getFile;
 
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
@@ -20,6 +21,7 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 
 public class ObservationCommentMapperTest {
+
     private static final String XML_RESOURCES_BASE = "xml/ObservationComment/";
     private static final String PATIENT_ID = "123.456";
     private static final String ENCOUNTER_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
@@ -51,27 +53,27 @@ public class ObservationCommentMapperTest {
         List<Observation> observations =
             observationCommentMapper.mapResources(ehrExtract, patient, Collections.singletonList(encounter), PRACTISE_CODE);
 
-        var observation = observations.get(0);
+        var observation = observations.getFirst();
 
         assertThat(observation.getId()).isEqualTo(narrativeStatementId);
-        assertThat(observation.getMeta().getProfile().get(0).getValue()).isEqualTo(META_URL);
+        assertThat(observation.getMeta().getProfile().getFirst().getValue()).isEqualTo(META_URL);
         assertThat(observation.getStatus()).isEqualTo(Observation.ObservationStatus.FINAL);
         assertThat(observation.getSubject().getResource()).isEqualTo(patient);
 
         var coding = observation.getCode().getCoding();
-        assertThat(coding.get(0).getCode()).isEqualTo(CODING_CODE);
-        assertThat(coding.get(0).getSystem()).isEqualTo(CODING_SYSTEM);
+        assertThat(coding.getFirst().getCode()).isEqualTo(CODING_CODE);
+        assertThat(coding.getFirst().getSystem()).isEqualTo(CODING_SYSTEM);
 
         assertThat(observation.getEffective().toString()).isEqualTo(
             DateFormatUtil.parseToDateTimeType(narrativeStatement.getAvailabilityTime().getValue()).toString());
 
         assertThat(observation.getIssuedElement().asStringValue()).isEqualTo("2020-10-12T13:33:44.000+00:00");
 
-        var identifier = observation.getIdentifier().get(0);
+        var identifier = observation.getIdentifier().getFirst();
         assertThat(identifier.getValue()).isEqualTo(narrativeStatementId);
         assertThat(identifier.getSystem()).isEqualTo(IDENTIFIER_SYSTEM);
 
-        assertThat(observation.getPerformer().get(0).getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
+        assertThat(observation.getPerformer().getFirst().getReference()).isEqualTo("Practitioner/2D70F602-6BB1-47E0-B2EC-39912A59787D");
         assertThat(observation.getComment()).isEqualTo("Some example text");
         assertThat(observation.getContext().getResource()).isEqualTo(encounter);
     }
@@ -129,7 +131,7 @@ public class ObservationCommentMapperTest {
         List<Observation> observations =
             observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
-        assertThat(observations.get(0).getIssuedElement().asStringValue()).isNull();
+        assertNull(observations.getFirst().getIssuedElement().asStringValue());
     }
 
     @Test
@@ -140,7 +142,7 @@ public class ObservationCommentMapperTest {
             observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
         // Calling `getContext` auto creates a Reference object so asserting the reference is null
-        assertThat(observations.get(0).getContext().getReference()).isNull();
+        assertNull(observations.getFirst().getContext().getReference());
     }
 
     @Test
@@ -150,13 +152,13 @@ public class ObservationCommentMapperTest {
         List<Observation> observations =
             observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
-        assertThat(observations.get(0).getComment()).isNull();
+        assertNull(observations.getFirst().getComment());
     }
 
     private RCMRMT030101UKNarrativeStatement getNarrativeStatement(RCMRMT030101UKEhrExtract ehrExtract) {
-        return ehrExtract.getComponent().get(0)
-            .getEhrFolder().getComponent().get(0)
-            .getEhrComposition().getComponent().get(0)
+        return ehrExtract.getComponent().getFirst()
+            .getEhrFolder().getComponent().getFirst()
+            .getEhrComposition().getComponent().getFirst()
             .getNarrativeStatement();
     }
 
