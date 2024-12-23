@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.liquibase:liquibase-gradle-plugin:2.2.2"
+        classpath "org.liquibase:liquibase-gradle-plugin:3.0.1"
     }
 }
 
