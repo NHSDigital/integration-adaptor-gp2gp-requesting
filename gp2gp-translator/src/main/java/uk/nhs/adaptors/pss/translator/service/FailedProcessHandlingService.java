@@ -25,7 +25,6 @@ import static uk.nhs.adaptors.pss.translator.model.NACKReason.UNEXPECTED_CONDITI
 import java.util.List;
 
 import org.hl7.v3.COPCIN000001UK01Message;
-import org.hl7.v3.RCMRIN030000UKMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,16 +80,6 @@ public class FailedProcessHandlingService {
         MigrationStatus migrationStatus = getMigrationStatus(conversationId);
 
         return FAILED_MIGRATION_STATUSES.contains(migrationStatus);
-    }
-
-    public void handleFailedProcess(RCMRIN030000UKMessage ehrExtractMessage, String conversationId) {
-        LOGGER.info("Received EHR Extract [Message ID: {}] but the transfer process has already failed. "
-                    + "Responding with NACK for unexpected condition.", ehrExtractMessage.getId().getRoot());
-
-        var nackMessageData = nackAckPreparationService
-            .prepareNackMessageData(UNEXPECTED_CONDITION, ehrExtractMessage, conversationId);
-
-        sendNACKMessageHandler.prepareAndSendMessage(nackMessageData);
     }
 
     public void handleFailedProcess(COPCIN000001UK01Message copcMessage, String conversationId) {
