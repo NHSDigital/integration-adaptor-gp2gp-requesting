@@ -2,6 +2,7 @@ package uk.nhs.adaptors.pss.util;
 
 import static org.assertj.core.api.Assertions.fail;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_TRANSLATED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.MIGRATION_COMPLETED;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.assertj.core.api.ObjectAssert;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -123,6 +125,11 @@ public abstract class BaseEhrHandler {
     protected boolean isMigrationStatus(MigrationStatus migrationStatus) {
         var migrationStatusLog = migrationStatusLogService.getLatestMigrationStatusLog(conversationId);
         return migrationStatus.equals(migrationStatusLog.getMigrationStatus());
+    }
+
+    @NotNull
+    protected ObjectAssert<MigrationStatus> assertThatMigrationStatus() {
+        return assertThat(migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus());
     }
 
     protected void verifyBundle(String path) throws JSONException {

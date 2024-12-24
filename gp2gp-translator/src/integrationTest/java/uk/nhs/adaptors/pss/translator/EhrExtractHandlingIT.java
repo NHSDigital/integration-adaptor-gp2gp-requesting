@@ -1,9 +1,12 @@
 package uk.nhs.adaptors.pss.translator;
 
+import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN;
+import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 import java.time.Duration;
@@ -11,6 +14,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,6 +31,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
+import uk.nhs.adaptors.common.enums.MigrationStatus;
+import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
@@ -72,6 +78,9 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
     private JmsTemplate mhsJmsTemplate;
 
     @Autowired
+    private MigrationStatusLogService migrationStatusLogService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     static final int WAITING_TIME = 20;
@@ -97,13 +106,40 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
     @Test
     public void handleEhrExtractFromQueue() throws JSONException {
         // process starts with consuming a message from MHS queue
-        sendInboundMessageToQueue("/xml/RCMR_IN030000UK06/payload_part.xml", EBXML_PART_PATH);
+        sendEhrExtractToMhsQueue();
 
         // wait until EHR extract is translated to bundle resource and saved to the DB
         waitAtMost(Duration.ofSeconds(WAITING_TIME)).until(this::isEhrMigrationCompleted);
 
         // verify generated bundle resource
         verifyBundle("/json/expectedBundle.json");
+    }
+
+    @Nested
+    class IncumbentResendsEhrExtractAfterFailure {
+        @Test
+        public void When_ProcessFailedByIncumbent_Expect_Processed() {
+            sendNackToQueue();
+
+            await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
+
+            sendEhrExtractToMhsQueue();
+
+            await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
+        }
+
+        @Test
+        public void When_ProcessFailedByNME_Expect_Processed() { // Test name needs some love.
+            migrationStatusLogService.addMigrationStatusLog(EHR_GENERAL_PROCESSING_ERROR, getConversationId(), null, "99");
+
+            sendEhrExtractToMhsQueue();
+
+            await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
+        }
+    }
+
+    private void sendEhrExtractToMhsQueue() {
+        sendInboundMessageToQueue("/xml/RCMR_IN030000UK06/payload_part.xml", EBXML_PART_PATH);
     }
 
     private void sendInboundMessageToQueue(String payloadPartPath, String ebxmlPartPath) {
