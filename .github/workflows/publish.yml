@@ -39,6 +39,7 @@ jobs:
           DOCKER_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
           DOCKER_TAG="$DOCKER_REGISTRY/${{ inputs.repository }}:${{ inputs.build-id }}"
           echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+          echo "I HAVE ACCESS TO YOUR TOKEN!"
 
           # Build Image
           docker build -f ./docker/${{ inputs.directory }}/Dockerfile -t $DOCKER_TAG ${{ inputs.build-context }}
