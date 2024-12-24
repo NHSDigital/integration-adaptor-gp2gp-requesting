@@ -1,9 +1,13 @@
 package uk.nhs.adaptors.pss.translator;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN;
+import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 import java.time.Duration;
@@ -11,6 +15,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,7 +32,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
+import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
+import uk.nhs.adaptors.pss.translator.model.NACKReason;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
@@ -38,6 +45,7 @@ import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 public class EhrExtractHandlingIT extends BaseEhrHandler  {
 
     private static final String EBXML_PART_PATH = "/xml/RCMR_IN030000UK06/ebxml_part.xml";
+    private static final String EHR_MESSAGE_EXTRACT_PATH = "/json/LargeMessage/Scenario_3/uk06.json";
 
     private static final List<String> STATIC_IGNORED_JSON_PATHS = List.of(
         "id",
@@ -72,6 +80,9 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
     private JmsTemplate mhsJmsTemplate;
 
     @Autowired
+    private MigrationStatusLogService migrationStatusLogService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     static final int WAITING_TIME = 20;
@@ -104,6 +115,40 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
 
         // verify generated bundle resource
         verifyBundle("/json/expectedBundle.json");
+    }
+
+    @Test
+    @Disabled("The test needs to be changed to check that the EHR Extract was processed successfully instead.")
+    public void When_ProcessFailedByIncumbent_With_EhrExtract_Expect_NotProcessed() {
+        sendNackToQueue();
+
+        await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
+
+        sendEhrExtractToQueue();
+
+        await().until(() -> hasNackBeenSentWithCode(NACKReason.UNEXPECTED_CONDITION.getCode()));
+
+        var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
+
+        assertThat(migrationStatus).isEqualTo(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN);
+    }
+
+    @Test
+    @Disabled("The test needs to be changed to check that the EHR Extract was processed successfully instead.")
+    public void When_ProcessFailedByNME_With_EhrExtract_Expect_NotProcessed() {
+        migrationStatusLogService.addMigrationStatusLog(EHR_GENERAL_PROCESSING_ERROR, getConversationId(), null, "99");
+
+        sendEhrExtractToQueue();
+
+        await().until(() -> hasNackBeenSentWithCode(NACKReason.UNEXPECTED_CONDITION.getCode()));
+
+        var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
+
+        assertThat(migrationStatus).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
+    }
+
+    private void sendEhrExtractToQueue() {
+        sendInboundMessageToQueue(EHR_MESSAGE_EXTRACT_PATH);
     }
 
     private void sendInboundMessageToQueue(String payloadPartPath, String ebxmlPartPath) {
