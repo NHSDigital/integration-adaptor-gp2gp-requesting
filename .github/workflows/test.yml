@@ -142,9 +142,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::123123123:role/github-aws-role
           role-session-name: gp2gp_github_action_build_workflow
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: eu-west-2
 
       - name: Retrieve Snomed CT Image
         run: |
