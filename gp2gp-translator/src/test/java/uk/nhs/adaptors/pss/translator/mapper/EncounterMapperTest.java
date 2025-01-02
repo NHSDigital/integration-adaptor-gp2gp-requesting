@@ -270,7 +270,7 @@ public class EncounterMapperTest {
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtractElement(ENCOUNTER_WITH_NOPAT_CONFIDENTIALITY_CODE_WITHIN_EHR_COMPOSITION);
         final RCMRMT030101UKEhrComposition ehrComposition =
-            TestUtility.GET_EHR_COMPOSITION.apply(ehrExtract);
+            TestUtility.getEhrComposition(ehrExtract);
 
         Map<String, List<? extends DomainResource>> mappedResources = encounterMapper.mapEncounters(
             ehrExtract, patient, PRACTISE_CODE, entryLocations
@@ -310,7 +310,7 @@ public class EncounterMapperTest {
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtractElement(ENCOUNTER_WITH_NOSCRUB_CONFIDENTIALITY_CODE_WITHIN_EHR_COMPOSITION);
         final RCMRMT030101UKEhrComposition ehrComposition =
-            TestUtility.GET_EHR_COMPOSITION.apply(ehrExtract);
+            TestUtility.getEhrComposition(ehrExtract);
 
         Map<String, List<? extends DomainResource>> mappedResources = encounterMapper.mapEncounters(
             ehrExtract, patient, PRACTISE_CODE, entryLocations
