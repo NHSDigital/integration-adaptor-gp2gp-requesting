@@ -112,11 +112,13 @@ public class SendContinueRequestHandlerTest {
                 .mcciIN010000UK13creationTime(MCCI_IN010000UK13_CREATIONTIME)
                 .build();
 
-        when(mhsClientService.send(any())).thenThrow(WebClientResponseException.class);
+        doThrow(new WebClientResponseException(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), headers,
+            "test body".getBytes(UTF_8), UTF_8))
+            .when(mhsClientService).send(any());
 
         try {
             sendContinueRequestHandler.prepareAndSendRequest(continueRequestData);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         verify(migrationStatusLogService)
