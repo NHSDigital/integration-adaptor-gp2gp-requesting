@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import uk.nhs.adaptors.common.util.DateUtils;
 import uk.nhs.adaptors.pss.translator.model.NACKMessageData;
+import uk.nhs.adaptors.pss.translator.model.NACKReason;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationAcknowledgementMessageServiceTest {
@@ -38,7 +39,6 @@ public class ApplicationAcknowledgementMessageServiceTest {
     private static final String TEST_TO_ASID = "TEST_TO_ASID";
     private static final String TEST_TO_ODS = "TEST_TO_ODS";
     private static final String TEST_CONVERSATION_ID = "abcd12345";
-    private static final String NACK_CODE = "TEST_NACK_CODE";
 
     @Mock
     private DateUtils dateUtils;
@@ -56,7 +56,7 @@ public class ApplicationAcknowledgementMessageServiceTest {
         messageData = NACKMessageData.builder()
             .conversationId(TEST_CONVERSATION_ID)
             .toOdsCode(TEST_TO_ODS)
-            .nackCode(NACK_CODE)
+            .nackReason(NACKReason.LARGE_MESSAGE_TIMEOUT)
             .messageRef(MESSAGE_REF)
             .fromAsid(TEST_FROM_ASID)
             .toAsid(TEST_TO_ASID)
@@ -67,7 +67,7 @@ public class ApplicationAcknowledgementMessageServiceTest {
     public void When_BuildNackMessage_WithValidTestData_Expect_NackCodeIsSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(NACK_CODE));
+        assertTrue(nackMessage.contains(NACKReason.LARGE_MESSAGE_TIMEOUT.getCode()));
     }
 
     @Test

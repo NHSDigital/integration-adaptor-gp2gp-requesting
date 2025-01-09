@@ -13,7 +13,7 @@ public class NACKMessageData {
     private String conversationId;
 
     @NonNull
-    private String nackCode;
+    private NACKReason nackReason;
 
     @NonNull
     private String toOdsCode;

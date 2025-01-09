@@ -95,11 +95,10 @@ public class NackAckPreparationService implements NackAckPrepInterface {
         String messageRef = XmlParseUtilService.parseMessageRef(payload);
         String toAsid = XmlParseUtilService.parseToAsid(payload);
         String fromAsid = XmlParseUtilService.parseFromAsid(payload);
-        String nackCode = reason.getCode();
 
         return NACKMessageData.builder()
                 .conversationId(conversationId)
-                .nackCode(nackCode)
+                .nackReason(reason)
                 .toOdsCode(toOdsCode)
                 .messageRef(messageRef)
                 .toAsid(toAsid)
@@ -114,11 +113,10 @@ public class NackAckPreparationService implements NackAckPrepInterface {
         String messageRef = XmlParseUtilService.parseMessageRef(payload);
         String toAsid = XmlParseUtilService.parseToAsid(payload);
         String fromAsid = XmlParseUtilService.parseFromAsid(payload);
-        String nackCode = reason.getCode();
 
         return NACKMessageData.builder()
                 .conversationId(conversationId)
-                .nackCode(nackCode)
+                .nackReason(reason)
                 .toOdsCode(toOdsCode)
                 .messageRef(messageRef)
                 .toAsid(toAsid)
