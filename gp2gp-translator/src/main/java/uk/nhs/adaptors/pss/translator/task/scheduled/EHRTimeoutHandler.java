@@ -184,7 +184,7 @@ public class EHRTimeoutHandler {
 
         NACKMessageData messageData = NACKMessageData
             .builder()
-            .nackCode(reason.getCode())
+            .nackReason(reason)
             .fromAsid(outboundMessageUtil.parseFromAsid(payload))
             .toAsid(outboundMessageUtil.parseToAsid(payload))
             .toOdsCode(outboundMessageUtil.parseToOdsCode(payload))

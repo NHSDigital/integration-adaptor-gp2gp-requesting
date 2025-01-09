@@ -51,7 +51,6 @@ class NackAckPreparationServiceTest {
     private static final String TEST_MESSAGE_REF = "31FA3430-6E88-11EA-9384-E83935108FD5";
     private static final String TEST_TO_ASID = "200000000149";
     private static final String TEST_FROM_ASID = "200000001161";
-    private static final String TEST_NACK_CODE = "30";
 
     @Mock
     private MigrationStatusLogService migrationStatusLogService;
@@ -96,7 +95,7 @@ class NackAckPreparationServiceTest {
     public void When_SendNackMessageRCMR_WithValidParameters_Expect_ShouldParseMessageDataCorrectly() throws JAXBException {
 
         NACKMessageData expectedMessageData = NACKMessageData.builder()
-                .nackCode(TEST_NACK_CODE)
+                .nackReason(NACKReason.LARGE_MESSAGE_GENERAL_FAILURE)
                 .toOdsCode(TEST_TO_ODS)
                 .toAsid(TEST_TO_ASID)
                 .fromAsid(TEST_FROM_ASID)
@@ -127,7 +126,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals("29", ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(NACKReason.LARGE_MESSAGE_REASSEMBLY_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -141,7 +140,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals("31", ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(NACKReason.LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -155,7 +154,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_GENERAL_FAILURE.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_GENERAL_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -169,7 +168,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_TIMEOUT.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_TIMEOUT, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -183,7 +182,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(CLINICAL_SYSTEM_INTEGRATION_FAILURE.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(CLINICAL_SYSTEM_INTEGRATION_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -197,7 +196,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(EHR_EXTRACT_CANNOT_BE_PROCESSED.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(EHR_EXTRACT_CANNOT_BE_PROCESSED, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -211,7 +210,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(UNEXPECTED_CONDITION.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(UNEXPECTED_CONDITION, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -258,7 +257,7 @@ class NackAckPreparationServiceTest {
     public void When_SendNackMessageCOPC_WithValidParameters_Expect_ShouldParseMessageDataCorrectly() throws JAXBException {
 
         NACKMessageData expectedMessageData = NACKMessageData.builder()
-                .nackCode(TEST_NACK_CODE)
+                .nackReason(NACKReason.LARGE_MESSAGE_GENERAL_FAILURE)
                 .toOdsCode(TEST_TO_ODS)
                 .toAsid(TEST_TO_ASID)
                 .fromAsid(TEST_FROM_ASID)
@@ -289,7 +288,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_REASSEMBLY_FAILURE.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_REASSEMBLY_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -303,7 +302,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -317,7 +316,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_GENERAL_FAILURE.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_GENERAL_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -331,7 +330,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(LARGE_MESSAGE_TIMEOUT.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(LARGE_MESSAGE_TIMEOUT, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -345,7 +344,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(CLINICAL_SYSTEM_INTEGRATION_FAILURE.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(CLINICAL_SYSTEM_INTEGRATION_FAILURE, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -359,7 +358,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(EHR_EXTRACT_CANNOT_BE_PROCESSED.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(EHR_EXTRACT_CANNOT_BE_PROCESSED, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test
@@ -373,7 +372,7 @@ class NackAckPreparationServiceTest {
                 CONVERSATION_ID);
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
-        assertEquals(UNEXPECTED_CONDITION.getCode(), ackMessageDataCaptor.getValue().getNackCode());
+        assertEquals(UNEXPECTED_CONDITION, ackMessageDataCaptor.getValue().getNackReason());
     }
 
     @Test

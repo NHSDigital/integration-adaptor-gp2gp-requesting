@@ -28,6 +28,7 @@ import uk.nhs.adaptors.pss.translator.exception.MhsServerErrorException;
 import uk.nhs.adaptors.pss.translator.mhs.MhsRequestBuilder;
 import uk.nhs.adaptors.pss.translator.mhs.model.OutboundMessage;
 import uk.nhs.adaptors.pss.translator.model.NACKMessageData;
+import uk.nhs.adaptors.pss.translator.model.NACKReason;
 import uk.nhs.adaptors.pss.translator.service.ApplicationAcknowledgementMessageService;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
 import uk.nhs.adaptors.pss.translator.service.MhsClientService;
@@ -40,7 +41,6 @@ public class SendNACKMessageHandlerTest {
     private static final String TEST_TO_ODS = "1234";
     private static final String TEST_TO_ASID = "5678";
     private static final String TEST_FROM_ASID = "98765";
-    private static final String TEST_NACK_CODE = "30";
     private static final String TEST_MESSAGE_ID = "test-message-id";
 
     @Mock
@@ -70,7 +70,7 @@ public class SendNACKMessageHandlerTest {
             .toOdsCode(TEST_TO_ODS)
             .toAsid(TEST_TO_ASID)
             .fromAsid(TEST_FROM_ASID)
-            .nackCode(TEST_NACK_CODE)
+            .nackReason(NACKReason.LARGE_MESSAGE_GENERAL_FAILURE)
             .build();
 
         when(idGeneratorService.generateUuid()).thenReturn(TEST_MESSAGE_ID);

@@ -1085,7 +1085,7 @@ class COPCMessageHandlerTest {
                 .sendNackMessage(eq(LARGE_MESSAGE_GENERAL_FAILURE), any(COPCIN000001UK01Message.class), eq(CONVERSATION_ID));
 
             verify(sendNACKMessageHandler).prepareAndSendMessage(nackMessageDataCaptor.capture());
-            assertThat(nackMessageDataCaptor.getValue().getNackCode()).isEqualTo(UNEXPECTED_CONDITION.getCode());
+            assertThat(nackMessageDataCaptor.getValue().getNackReason()).isEqualTo(UNEXPECTED_CONDITION);
 
         } finally {
             mockedXmlUnmarshall.close();
@@ -1119,7 +1119,7 @@ class COPCMessageHandlerTest {
                 .sendNackMessage(LARGE_MESSAGE_GENERAL_FAILURE, mockCOPCMessage, CONVERSATION_ID);
 
             verify(sendNACKMessageHandler).prepareAndSendMessage(nackMessageDataCaptor.capture());
-            assertThat(nackMessageDataCaptor.getValue().getNackCode()).isEqualTo(UNEXPECTED_CONDITION.getCode());
+            assertThat(nackMessageDataCaptor.getValue().getNackReason()).isEqualTo(UNEXPECTED_CONDITION);
 
         } finally {
             mockedXmlUnmarshall.close();
@@ -1164,7 +1164,7 @@ class COPCMessageHandlerTest {
                 .sendNackMessage(LARGE_MESSAGE_GENERAL_FAILURE, mockCOPCMessage, CONVERSATION_ID);
 
             verify(sendNACKMessageHandler).prepareAndSendMessage(nackMessageDataCaptor.capture());
-            assertThat(nackMessageDataCaptor.getValue().getNackCode()).isEqualTo(UNEXPECTED_CONDITION.getCode());
+            assertThat(nackMessageDataCaptor.getValue().getNackReason()).isEqualTo(UNEXPECTED_CONDITION);
 
         } finally {
             mockedXmlUnmarshall.close();
@@ -1201,7 +1201,7 @@ class COPCMessageHandlerTest {
                 .sendNackMessage(LARGE_MESSAGE_GENERAL_FAILURE, mockCOPCMessage, CONVERSATION_ID);
 
             verify(sendNACKMessageHandler).prepareAndSendMessage(nackMessageDataCaptor.capture());
-            assertThat(nackMessageDataCaptor.getValue().getNackCode()).isEqualTo(UNEXPECTED_CONDITION.getCode());
+            assertThat(nackMessageDataCaptor.getValue().getNackReason()).isEqualTo(UNEXPECTED_CONDITION);
 
         } finally {
             mockedXmlUnmarshall.close();
@@ -1237,7 +1237,7 @@ class COPCMessageHandlerTest {
                 .sendNackMessage(LARGE_MESSAGE_GENERAL_FAILURE, mockCOPCMessage, CONVERSATION_ID);
 
             verify(sendNACKMessageHandler).prepareAndSendMessage(nackMessageDataCaptor.capture());
-            assertEquals(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED.getCode(), nackMessageDataCaptor.getValue().getNackCode());
+            assertEquals(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED, nackMessageDataCaptor.getValue().getNackReason());
 
             verify(migrationStatusLogService, times(1))
                 .addMigrationStatusLog(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED.getMigrationStatus(),

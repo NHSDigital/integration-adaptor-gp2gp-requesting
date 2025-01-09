@@ -38,7 +38,7 @@ public class ApplicationAcknowledgementMessageService {
             .toAsid(messageData.getToAsid())
             .fromAsid(messageData.getFromAsid())
             .messageRef(messageData.getMessageRef())
-            .nackCode(messageData.getNackCode())
+            .nackCode(messageData.getNackReason().getCode())
             .build();
 
         return fillTemplate(NACK_MESSAGE_TEMPLATE, params);

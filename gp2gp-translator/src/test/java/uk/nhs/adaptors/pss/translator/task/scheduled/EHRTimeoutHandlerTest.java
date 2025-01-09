@@ -94,7 +94,6 @@ public class EHRTimeoutHandlerTest {
     private static final String EBXML_STRING = "test ebXML";
     private static final String EBXML_STRING_TWO = "test ebXML 2";
     private static final String UNEXPECTED_CONDITION_CODE = "99";
-    private static final String ATTACHMENTS_NOT_RECEIVED_CODE = "31";
 
     @Captor
     private ArgumentCaptor<NACKMessageData> nackMessageData;
@@ -186,7 +185,7 @@ public class EHRTimeoutHandlerTest {
         callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_TRANSLATED, TEN_DAYS_AGO, 0, conversationId);
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(nackMessageData.capture());
 
-        assertThat(nackMessageData.getValue().getNackCode()).isEqualTo(UNEXPECTED_CONDITION_CODE);
+        assertThat(nackMessageData.getValue().getNackReason()).isEqualTo(UNEXPECTED_CONDITION);
     }
 
     @ParameterizedTest
@@ -196,7 +195,7 @@ public class EHRTimeoutHandlerTest {
         callCheckForTimeoutsWithOneRequest(migrationStatus, TEN_DAYS_AGO, 0, conversationId);
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(nackMessageData.capture());
 
-        assertThat(nackMessageData.getValue().getNackCode()).isEqualTo(ATTACHMENTS_NOT_RECEIVED_CODE);
+        assertThat(nackMessageData.getValue().getNackReason()).isEqualTo(LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED);
     }
 
     @ParameterizedTest

@@ -490,7 +490,7 @@ public class COPCMessageHandler {
 
         NACKMessageData messageData = NACKMessageData
             .builder()
-            .nackCode(reason.getCode())
+            .nackReason(reason)
             .fromAsid(outboundMessageUtil.parseFromAsid(ehrExtract))
             .toAsid(outboundMessageUtil.parseToAsid(ehrExtract))
             .toOdsCode(outboundMessageUtil.parseToOdsCode(ehrExtract))
