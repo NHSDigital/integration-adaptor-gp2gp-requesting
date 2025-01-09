@@ -65,17 +65,21 @@ class NackAckPreparationServiceTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void When_SendNackMessageRCMR_Expect_ShouldUpdateLogAndReturnPrepareAndSendMessageResult(boolean expectedResult)
+    public void When_SendNackMessageRCMR_Expect_ShouldUpdateLogAndReturnPrepareAndSendMessageResult(boolean ableToSendMessage)
         throws JAXBException {
 
         RCMRIN030000UKMessage payload = unmarshallString(readInboundMessagePayloadFromFile(), RCMRIN030000UKMessage.class);
-        when(sendNACKMessageHandler.prepareAndSendMessage(any(NACKMessageData.class))).thenReturn(expectedResult);
+        when(sendNACKMessageHandler.prepareAndSendMessage(any(NACKMessageData.class))).thenReturn(ableToSendMessage);
 
-        var actualResult = nackAckPreparationService.sendNackMessage(NACKReason.LARGE_MESSAGE_GENERAL_FAILURE, payload, CONVERSATION_ID);
+        var hasMessageBeenSent = nackAckPreparationService.sendNackMessage(
+            NACKReason.LARGE_MESSAGE_GENERAL_FAILURE,
+            payload,
+            CONVERSATION_ID
+        );
 
         verify(migrationStatusLogService)
             .addMigrationStatusLog(ERROR_LRG_MSG_GENERAL_FAILURE, CONVERSATION_ID, null, LARGE_MESSAGE_GENERAL_FAILURE.getCode());
-        assertThat(actualResult).isEqualTo(expectedResult);
+        assertThat(hasMessageBeenSent).isEqualTo(ableToSendMessage);
     }
 
     @ParameterizedTest
@@ -98,7 +102,8 @@ class NackAckPreparationServiceTest {
         nackAckPreparationService.sendNackMessage(
                 nackReason,
                 payload,
-                CONVERSATION_ID);
+                CONVERSATION_ID
+        );
 
         verify(sendNACKMessageHandler).prepareAndSendMessage(ackMessageDataCaptor.capture());
         assertEquals(expectedMessageData, ackMessageDataCaptor.getValue());
@@ -123,17 +128,21 @@ class NackAckPreparationServiceTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void When_SendNackMessageCOPC_Expect_ShouldUpdateLogAndReturnPrepareAndSendMessageResult(boolean expectedResult)
+    public void When_SendNackMessageCOPC_Expect_ShouldUpdateLogAndReturnPrepareAndSendMessageResult(boolean ableToSendMessage)
         throws JAXBException {
 
         var payload = unmarshallString(readSubsequentInboundMessagePayloadFromFile(), COPCIN000001UK01Message.class);
-        when(sendNACKMessageHandler.prepareAndSendMessage(any(NACKMessageData.class))).thenReturn(expectedResult);
+        when(sendNACKMessageHandler.prepareAndSendMessage(any(NACKMessageData.class))).thenReturn(ableToSendMessage);
 
-        var actualResult = nackAckPreparationService.sendNackMessage(NACKReason.LARGE_MESSAGE_GENERAL_FAILURE, payload, CONVERSATION_ID);
+        var hasMessageBeenSent = nackAckPreparationService.sendNackMessage(
+            NACKReason.LARGE_MESSAGE_GENERAL_FAILURE,
+            payload,
+            CONVERSATION_ID
+        );
 
         verify(migrationStatusLogService)
             .addMigrationStatusLog(ERROR_LRG_MSG_GENERAL_FAILURE, CONVERSATION_ID, null, LARGE_MESSAGE_GENERAL_FAILURE.getCode());
-        assertThat(actualResult).isEqualTo(expectedResult);
+        assertThat(hasMessageBeenSent).isEqualTo(ableToSendMessage);
     }
 
     @ParameterizedTest
