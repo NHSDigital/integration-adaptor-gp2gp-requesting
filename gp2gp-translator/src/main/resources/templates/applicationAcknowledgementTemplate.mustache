@@ -7,7 +7,7 @@
     <processingCode code="P"/>
     <processingModeCode code="T"/>
     <acceptAckCode code="NE"/>
-    <acknowledgement {{#nackCode}}typeCode="AE"{{/nackCode}}{{^nackCode}}typeCode="AA"{{/nackCode}}>
+    <acknowledgement {{#nackReason}}typeCode="AE"{{/nackReason}}{{^nackReason}}typeCode="AA"{{/nackReason}}>
         <messageRef>
             <id root="{{messageRef}}"/>
         </messageRef>
@@ -30,16 +30,16 @@
                 </agentSystemSDS>
             </AgentSystemSDS>
         </author1>
-        {{#nackCode}}
+        {{#nackReason}}
         <reason typeCode="RSON">
             <justifyingDetectedIssueEvent classCode="ALRT" moodCode="EVN">
-                <code code="{{nackCode}}" codeSystem="2.16.840.1.113883.2.1.3.2.4.17.101">
+                <code code="{{nackReason.code}}" codeSystem="2.16.840.1.113883.2.1.3.2.4.17.101" displayName="{{nackReason.responseText}}">
                     <qualifier>
                         <value code="ER" codeSystem="2.16.840.1.113883.2.1.3.2.4.17.104"/>
                     </qualifier>
                 </code>
             </justifyingDetectedIssueEvent>
         </reason>
-        {{/nackCode}}
+        {{/nackReason}}
     </ControlActEvent>
 </MCCI_IN010000UK13>

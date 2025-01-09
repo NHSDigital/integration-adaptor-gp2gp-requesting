@@ -1,8 +1,7 @@
 package uk.nhs.adaptors.pss.translator.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.toHl7Format;
@@ -64,38 +63,41 @@ public class ApplicationAcknowledgementMessageServiceTest {
     }
 
     @Test
-    public void When_BuildNackMessage_WithValidTestData_Expect_NackCodeIsSetCorrectly() {
+    public void When_BuildNackMessage_WithValidTestData_Expect_NackCodeAndResponseTextAreOutput() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(NACKReason.LARGE_MESSAGE_TIMEOUT.getCode()));
+        assertAll(
+            () -> assertThat(nackMessage).contains("code=\"" + NACKReason.LARGE_MESSAGE_TIMEOUT.getCode() + "\""),
+            () -> assertThat(nackMessage).contains("displayName=\"" + NACKReason.LARGE_MESSAGE_TIMEOUT.getResponseText() + "\"")
+        );
     }
 
     @Test
     public void When_BuildNackMessage_WithValidTestData_Expect_MessageIdIsSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(MESSAGE_ID));
+        assertThat(nackMessage).contains(MESSAGE_ID);
     }
 
     @Test
     public void When_BuildNackMessage_WithValidTestData_Expect_MessageRefIsSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(MESSAGE_REF));
+        assertThat(nackMessage).contains(MESSAGE_REF);
     }
 
     @Test
     public void When_BuildNackMessage_WithValidTestData_Expect_ToAsidIsSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(TEST_TO_ASID));
+        assertThat(nackMessage).contains(TEST_TO_ASID);
     }
 
     @Test
     public void When_NackMessage_WithTestData_Expect_FromAsidIsSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(TEST_FROM_ASID));
+        assertThat(nackMessage).contains(TEST_FROM_ASID);
     }
 
     @Test
@@ -105,15 +107,17 @@ public class ApplicationAcknowledgementMessageServiceTest {
 
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains(toHl7Format(instant)));
+        assertThat(nackMessage).contains(toHl7Format(instant));
     }
 
     @Test
     public void When_NackMessage_WithNackCodePresent_Expect_TypeCodeSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertTrue(nackMessage.contains("typeCode=\"AE\""));
-        assertFalse(nackMessage.contains("typeCode=\"AA\""));
+        assertAll(
+            () -> assertThat(nackMessage).contains("typeCode=\"AE\""),
+            () -> assertThat(nackMessage).doesNotContain("typeCode=\"AA\"")
+        );
     }
 
     @Test
@@ -126,7 +130,7 @@ public class ApplicationAcknowledgementMessageServiceTest {
         Document messageXml = db.parse(new InputSource(new StringReader(nackMessage)));
         NodeList nodes = messageXml.getElementsByTagName("reason");
 
-        assertTrue(nodes.getLength() > 0);
+        assertThat(nodes.getLength()).isEqualTo(1);
     }
 
     @Test
@@ -140,6 +144,6 @@ public class ApplicationAcknowledgementMessageServiceTest {
         NodeList nodes = messageXml.getElementsByTagName("reason");
         String reasonAttribute = nodes.item(0).getAttributes().item(0).toString();
 
-        assertEquals("typeCode=\"RSON\"", reasonAttribute);
+        assertThat(reasonAttribute).isEqualTo("typeCode=\"RSON\"");
     }
 }

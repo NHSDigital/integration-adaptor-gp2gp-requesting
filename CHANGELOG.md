@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+* When sending a negative acknowledgement to the sending system in the event of a failure, include the textual
+  description of the reason, e.g. "EHR Extract message not well-formed or not able to be processed".
+  This behaviour while not required by the spec, has been implemented by other GP2GP systems, and is expected to be
+  provided by one implementation.
+
 ## [3.0.8] - 2024-11-22
 
 ### Fixed
