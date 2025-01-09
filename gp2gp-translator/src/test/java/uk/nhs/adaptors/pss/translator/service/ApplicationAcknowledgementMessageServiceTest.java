@@ -63,10 +63,13 @@ public class ApplicationAcknowledgementMessageServiceTest {
     }
 
     @Test
-    public void When_BuildNackMessage_WithValidTestData_Expect_NackCodeIsSetCorrectly() {
+    public void When_BuildNackMessage_WithValidTestData_Expect_NackCodeAndResponseTextAreOutput() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertThat(nackMessage).contains(NACKReason.LARGE_MESSAGE_TIMEOUT.getCode());
+        assertAll(
+            () -> assertThat(nackMessage).contains("code=\"" + NACKReason.LARGE_MESSAGE_TIMEOUT.getCode() + "\""),
+            () -> assertThat(nackMessage).contains("displayName=\"" + NACKReason.LARGE_MESSAGE_TIMEOUT.getResponseText() + "\"")
+        );
     }
 
     @Test

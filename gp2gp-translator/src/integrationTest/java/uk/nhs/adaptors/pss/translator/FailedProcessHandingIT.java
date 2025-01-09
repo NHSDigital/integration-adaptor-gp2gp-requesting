@@ -204,7 +204,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
             && mostRecentRequest.getBody()
                 .contains("<acknowledgement typeCode=\\\"AE\\\">")
             && mostRecentRequest.getBody()
-                .contains("<code code=\\\"" + code + "\\\" codeSystem=\\\"2.16.840.1.113883.2.1.3.2.4.17.101\\\">");
+                .contains("<code code=\\\"" + code + "\\\" codeSystem=\\\"2.16.840.1.113883.2.1.3.2.4.17.101\\\"");
     }
 
     private List<Request> getMhsRequestsForConversation() {
