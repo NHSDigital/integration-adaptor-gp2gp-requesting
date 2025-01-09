@@ -30,7 +30,11 @@ This is a __required__ prerequisite for both requesting and sending adaptors.
    ```
 1. Specify the `MHS_FORWARD_RELIABLE_ENDPOINT_URL` environment variable for Inbound/Outbound adaptors set to the value
    specified by the [Integration Environment - Messaging URLs][messaging-urls] "Used for all domain reliable messaging".
+   When specifying the URL you will need to provide the hostname provided by the Spine team.
+   This hostname will not be resolvable via public DNS however, so you will either need to either add the IP address
+   specified for the host into your `/etc/hosts` file or use the [HSCN DNS servers] for DNS resolution.
 
+[HSCN DNS servers]: https://digital.nhs.uk/services/health-and-social-care-network/hscn-technical-guidance/dns
 [messaging-urls]: https://digital.nhs.uk/services/path-to-live-environments/integration-environment#messaging-urls
 [spine-certificates]: https://digital.nhs.uk/services/path-to-live-environments/integration-environment#rootca-and-subca-certificates
 
