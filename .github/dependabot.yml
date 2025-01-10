@@ -5,26 +5,12 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "gradle"
-    directory: "/common"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gradle"
-    directory: "/db-connector"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gradle"
-    directory: "/gp2gp-translator"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gradle"
-    directory: "/gpc-api-facade"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gradle"
-    directory: "/schema"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gradle"
-    directory: "/smoke-tests"
+    directories:
+      - "/common"
+      - "/db-connector"
+      - "/gp2gp-translator"
+      - "/gpc-api-facade"
+      - "/schema"
+      - "/smoke-tests"
     schedule:
       interval: "weekly"
