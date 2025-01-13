@@ -19,7 +19,6 @@ import static org.awaitility.Awaitility.await;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_ATTACHMENTS_NOT_RECEIVED;
-import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_MESSAGE_PROCESSING;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 
@@ -195,12 +194,6 @@ public class COPCHandlingIT extends BaseEhrHandler {
         assertThat(mergedAttachmentLog.getUploaded()).isTrue();
     }
 
-    private void sendInboundMessageToQueue(String json) {
-        var jsonMessage = readResourceAsString(json)
-                .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
-                .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
-        getMhsJmsTemplate().send(session -> session.createTextMessage(jsonMessage));
-    }
     private boolean hasContinueMessageBeenReceived() {
         var migrationStatusLog = getMigrationStatusLogService().getLatestMigrationStatusLog(getConversationId());
         return CONTINUE_REQUEST_ACCEPTED.equals(migrationStatusLog.getMigrationStatus());

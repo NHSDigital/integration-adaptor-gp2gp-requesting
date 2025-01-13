@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -147,5 +148,20 @@ public abstract class BaseEhrHandler {
 
     protected String generateConversationId() {
         return UUID.randomUUID().toString();
+    }
+
+    protected void sendInboundMessageToQueue(String json) {
+        getMhsJmsTemplate().send(
+            session -> session.createTextMessage(
+                fetchMessageInJsonFormat(json)
+            )
+        );
+    }
+
+    @NotNull
+    protected String fetchMessageInJsonFormat(String json) {
+        return readResourceAsString(json)
+            .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
+            .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
     }
 }
