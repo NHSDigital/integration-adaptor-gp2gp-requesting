@@ -73,7 +73,7 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     public void When_ProcessFailedByIncumbent_With_CopcMessage_Expect_NotProcessed() {
         sendEhrExtractToQueue();
 
-        await().until(this::isContinueRequestAccepted);
+        await().until(() -> isMigrationStatus(CONTINUE_REQUEST_ACCEPTED));
 
         sendNackToQueue();
 
@@ -114,7 +114,7 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     private void whenCopcSentExpectNackCode(MigrationStatus preCopcMigrationStatus, String nackCode) {
         sendEhrExtractToQueue();
 
-        await().until(this::isContinueRequestAccepted);
+        await().until(() -> isMigrationStatus(CONTINUE_REQUEST_ACCEPTED));
 
         migrationStatusLogService.addMigrationStatusLog(preCopcMigrationStatus, getConversationId(), null, null);
 
@@ -153,10 +153,4 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     private String parseMessageToString(InboundMessage inboundMessage) {
         return objectMapper.writeValueAsString(inboundMessage);
     }
-
-    private boolean isContinueRequestAccepted() {
-        var migrationStatusLog = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId());
-        return migrationStatusLog != null && CONTINUE_REQUEST_ACCEPTED.equals(migrationStatusLog.getMigrationStatus());
-    }
-
 }
