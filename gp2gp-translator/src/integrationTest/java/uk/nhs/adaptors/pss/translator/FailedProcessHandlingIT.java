@@ -58,7 +58,7 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     public void When_ProcessFailedByIncumbent_With_EhrExtract_Expect_NotProcessed() {
         sendNackToQueue();
 
-        await().until(this::isEhrRequestNegativeAckUnknown);
+        await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
 
         sendEhrExtractToQueue();
 
@@ -77,7 +77,7 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
 
         sendNackToQueue();
 
-        await().until(this::isEhrRequestNegativeAckUnknown);
+        await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
 
         sendCopcToQueue();
 
@@ -152,11 +152,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     @SneakyThrows
     private String parseMessageToString(InboundMessage inboundMessage) {
         return objectMapper.writeValueAsString(inboundMessage);
-    }
-
-    private boolean isEhrRequestNegativeAckUnknown() {
-        var migrationStatusLog = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId());
-        return migrationStatusLog != null && EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN.equals(migrationStatusLog.getMigrationStatus());
     }
 
     private boolean isContinueRequestAccepted() {
