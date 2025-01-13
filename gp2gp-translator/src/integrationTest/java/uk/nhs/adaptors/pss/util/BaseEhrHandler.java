@@ -10,6 +10,9 @@ import static uk.nhs.adaptors.pss.util.JsonPathIgnoreGeneratorUtil.generateJsonP
 
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -28,19 +31,26 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.springframework.web.client.RestTemplate;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.common.util.fhir.FhirParser;
 import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
+import uk.nhs.adaptors.pss.mhsmock.model.Request;
+import uk.nhs.adaptors.pss.mhsmock.model.RequestJournal;
 
 @Getter
 public abstract class BaseEhrHandler {
     public static final boolean OVERWRITE_EXPECTED_JSON = false;
+    private static final String REQUEST_JOURNAL_PATH = "/__admin/requests";
+    private static final String ACK_INTERACTION_ID = "MCCI_IN010000UK13";
+    private final RestTemplate restTemplate = new RestTemplate();
 
     private List<String> ignoredJsonPaths;
     private static final int NHS_NUMBER_MIN_MAX_LENGTH = 10;
@@ -76,6 +86,8 @@ public abstract class BaseEhrHandler {
     @Qualifier("jmsTemplatePssQueue")
     @Autowired
     private JmsTemplate pssJmsTemplate;
+    @Value("${mhs.url}")
+    private String mhsMockHost;
 
     @BeforeEach
     public void setUp() {
@@ -163,5 +175,37 @@ public abstract class BaseEhrHandler {
         return readResourceAsString(json)
             .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
             .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
+    }
+
+    protected boolean hasNackBeenSentWithCode(String code) {
+        ArrayList<Request> requests = new ArrayList<>(getMhsRequestsForConversation());
+
+        if (requests.isEmpty()) {
+            return false;
+        }
+
+        requests.sort(Comparator.comparing(Request::getLoggedDate).reversed());
+
+        var mostRecentRequest = requests.getFirst();
+
+        return mostRecentRequest.getHeaders().getInteractionId().equals(ACK_INTERACTION_ID)
+            && mostRecentRequest.getBody()
+                .contains("<acknowledgement typeCode=\\\"AE\\\">")
+            && mostRecentRequest.getBody()
+                .contains("<code code=\\\"" + code + "\\\" codeSystem=\\\"2.16.840.1.113883.2.1.3.2.4.17.101\\\"");
+    }
+
+    private List<Request> getMhsRequestsForConversation() {
+        var requestJournal = restTemplate.getForObject(mhsMockHost + REQUEST_JOURNAL_PATH, RequestJournal.class);
+
+        if (requestJournal == null) {
+            return Collections.emptyList();
+        }
+
+        return requestJournal.getRequests().stream()
+            .map(RequestJournal.RequestEntry::getRequest)
+            .filter(request -> request.getHeaders().getCorrelationId() != null
+                && request.getHeaders().getCorrelationId().equals(getConversationId()))
+            .toList();
     }
 }
