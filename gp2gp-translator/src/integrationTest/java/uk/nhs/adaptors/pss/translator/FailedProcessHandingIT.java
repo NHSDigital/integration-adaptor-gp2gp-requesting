@@ -166,14 +166,6 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
         return inboundMessage;
     }
 
-    private void sendInboundMessageToQueue(String json) {
-        var jsonMessage = readResourceAsString(json)
-            .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
-            .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
-        getMhsJmsTemplate().send(session -> session.createTextMessage(jsonMessage));
-    }
-
-
     @SneakyThrows
     private String parseMessageToString(InboundMessage inboundMessage) {
         return objectMapper.writeValueAsString(inboundMessage);

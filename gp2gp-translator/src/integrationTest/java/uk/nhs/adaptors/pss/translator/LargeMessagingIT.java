@@ -182,22 +182,13 @@ public final class LargeMessagingIT extends BaseEhrHandler {
         );
     }
 
-    private void sendInboundMessageToQueue(String json) {
-        var jsonMessage = readResourceAsString(json)
-            .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
-            .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
-        getMhsJmsTemplate().send(session -> session.createTextMessage(jsonMessage));
-    }
-
     private boolean hasContinueMessageBeenReceived() {
         var migrationStatusLog = getMigrationStatusLogService().getLatestMigrationStatusLog(getConversationId());
         return CONTINUE_REQUEST_ACCEPTED.equals(migrationStatusLog.getMigrationStatus());
     }
 
     private ArrayList<String> sendInboundMessageToQueueAndExtractMids(String filename) {
-        var jsonMessage = readResourceAsString(filename)
-            .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
-            .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
+        var jsonMessage = fetchMessageInJsonFormat(filename);
 
         getMhsJmsTemplate().send(session -> session.createTextMessage(jsonMessage));
 

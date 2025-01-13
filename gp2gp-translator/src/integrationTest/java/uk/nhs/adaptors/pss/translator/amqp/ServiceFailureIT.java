@@ -21,7 +21,6 @@ import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSIN
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_GENERAL_FAILURE;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.REQUEST_RECEIVED;
 import static uk.nhs.adaptors.common.enums.QueueMessageType.TRANSFER_REQUEST;
-import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.List;
 import ca.uhn.fhir.parser.DataFormatException;
 import org.apache.qpid.jms.message.JmsTextMessage;
 import org.jdbi.v3.core.ConnectionException;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -417,17 +415,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
     private WebClientResponseException getInternalServerErrorException() {
         return new WebClientResponseException(
             INTERNAL_SERVER_ERROR.value(), INTERNAL_SERVER_ERROR.getReasonPhrase(), httpHeaders, STUB_BODY.getBytes(UTF_8), UTF_8);
-    }
-
-    private void sendInboundMessageToQueue(String json) {
-        var jsonMessage = fetchMessageInJsonFormat(json);
-        getMhsJmsTemplate().send(session -> session.createTextMessage(jsonMessage));
-    }
-
-    private @NotNull String fetchMessageInJsonFormat(String json) {
-        return readResourceAsString(json)
-            .replace(NHS_NUMBER_PLACEHOLDER, getPatientNhsNumber())
-            .replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
     }
 
     private boolean hasContinueMessageBeenReceived() {
