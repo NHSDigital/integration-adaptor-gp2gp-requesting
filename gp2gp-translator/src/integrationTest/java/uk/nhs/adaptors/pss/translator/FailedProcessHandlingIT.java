@@ -29,7 +29,7 @@ import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 @SpringBootTest
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
-public class FailedProcessHandingIT extends BaseEhrHandler {
+public class FailedProcessHandlingIT extends BaseEhrHandler {
 
     private static final String NACK_PAYLOAD_PATH = "/xml/MCCI_IN010000UK13/payload_part.xml";
     private static final String NACK_EBXML_PATH = "/xml/MCCI_IN010000UK13/ebxml_part.xml";
