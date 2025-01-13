@@ -9,29 +9,20 @@ import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSIN
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_TIMEOUT;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
-import uk.nhs.adaptors.pss.mhsmock.model.Request;
-import uk.nhs.adaptors.pss.mhsmock.model.RequestJournal;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
@@ -48,9 +39,6 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
     private static final String CONVERSATION_ID_PLACEHOLDER = "{{conversationId}}";
     private static final String NACK_TYPE_CODE = "AE";
 
-    private static final String REQUEST_JOURNAL_PATH = "/__admin/requests";
-    private static final String ACK_INTERACTION_ID = "MCCI_IN010000UK13";
-
     private static final String UNEXPECTED_CONDITION_CODE = "99";
     private static final String LARGE_MESSAGE_TIMEOUT_CODE = "25";
     private static final String EHR_GENERAL_PROCESSING_ERROR_CODE = "30";
@@ -66,11 +54,6 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    @Value("${mhs.url}")
-    private String mhsMockHost;
-
     @Test
     public void When_ProcessFailedByIncumbent_With_EhrExtract_Expect_NotProcessed() {
         sendNackToQueue();
@@ -79,7 +62,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
 
         sendEhrExtractToQueue();
 
-        await().until(() -> nackSentWithCode(UNEXPECTED_CONDITION_CODE));
+        await().until(() -> hasNackBeenSentWithCode(UNEXPECTED_CONDITION_CODE));
 
         var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
 
@@ -98,7 +81,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
 
         sendCopcToQueue();
 
-        await().until(() -> nackSentWithCode(EHR_NACK_UNKNOWN));
+        await().until(() -> hasNackBeenSentWithCode(EHR_NACK_UNKNOWN));
 
         var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
 
@@ -111,7 +94,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
 
         sendEhrExtractToQueue();
 
-        await().until(() -> nackSentWithCode(UNEXPECTED_CONDITION_CODE));
+        await().until(() -> hasNackBeenSentWithCode(UNEXPECTED_CONDITION_CODE));
 
         var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
 
@@ -137,7 +120,7 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
 
         sendCopcToQueue();
 
-        await().until(() -> nackSentWithCode(nackCode));
+        await().until(() -> hasNackBeenSentWithCode(nackCode));
 
         var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
 
@@ -181,35 +164,4 @@ public class FailedProcessHandingIT extends BaseEhrHandler {
         return migrationStatusLog != null && CONTINUE_REQUEST_ACCEPTED.equals(migrationStatusLog.getMigrationStatus());
     }
 
-    private boolean nackSentWithCode(String code) {
-        ArrayList<Request> requests = new ArrayList<>(getMhsRequestsForConversation());
-
-        if (requests.isEmpty()) {
-            return false;
-        }
-
-        requests.sort(Comparator.comparing(Request::getLoggedDate).reversed());
-
-        var mostRecentRequest = requests.getFirst();
-
-        return mostRecentRequest.getHeaders().getInteractionId().equals(ACK_INTERACTION_ID)
-            && mostRecentRequest.getBody()
-                .contains("<acknowledgement typeCode=\\\"AE\\\">")
-            && mostRecentRequest.getBody()
-                .contains("<code code=\\\"" + code + "\\\" codeSystem=\\\"2.16.840.1.113883.2.1.3.2.4.17.101\\\"");
-    }
-
-    private List<Request> getMhsRequestsForConversation() {
-        var requestJournal = restTemplate.getForObject(mhsMockHost + REQUEST_JOURNAL_PATH, RequestJournal.class);
-
-        if (requestJournal == null) {
-            return Collections.emptyList();
-        }
-
-        return requestJournal.getRequests().stream()
-            .map(RequestJournal.RequestEntry::getRequest)
-            .filter(request -> request.getHeaders().getCorrelationId() != null
-                && request.getHeaders().getCorrelationId().equals(getConversationId()))
-            .toList();
-    }
 }
