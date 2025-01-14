@@ -18,6 +18,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.jetbrains.annotations.NotNull;
@@ -44,12 +45,17 @@ import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
 import uk.nhs.adaptors.pss.mhsmock.model.Request;
 import uk.nhs.adaptors.pss.mhsmock.model.RequestJournal;
+import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 
 @Getter
 public abstract class BaseEhrHandler {
     public static final boolean OVERWRITE_EXPECTED_JSON = false;
     private static final String REQUEST_JOURNAL_PATH = "/__admin/requests";
     private static final String ACK_INTERACTION_ID = "MCCI_IN010000UK13";
+    private static final String NACK_PAYLOAD_PATH = "/xml/MCCI_IN010000UK13/payload_part.xml";
+    private static final String NACK_EBXML_PATH = "/xml/MCCI_IN010000UK13/ebxml_part.xml";
+    private static final String NACK_TYPE_CODE_PLACEHOLDER = "{{typeCode}}";
+    private static final String NACK_TYPE_CODE = "AE";
     private final RestTemplate restTemplate = new RestTemplate();
 
     private List<String> ignoredJsonPaths;
@@ -88,6 +94,9 @@ public abstract class BaseEhrHandler {
     private JmsTemplate pssJmsTemplate;
     @Value("${mhs.url}")
     private String mhsMockHost;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -207,5 +216,24 @@ public abstract class BaseEhrHandler {
             .filter(request -> request.getHeaders().getCorrelationId() != null
                 && request.getHeaders().getCorrelationId().equals(getConversationId()))
             .toList();
+    }
+
+    protected void sendNackToQueue() {
+        var inboundMessage = createNackMessage();
+        mhsJmsTemplate.send(session -> session.createTextMessage(parseMessageToString(inboundMessage)));
+    }
+
+    private InboundMessage createNackMessage() {
+        var inboundMessage = new InboundMessage();
+        var payload = readResourceAsString(NACK_PAYLOAD_PATH).replace(NACK_TYPE_CODE_PLACEHOLDER, NACK_TYPE_CODE);
+        var ebxml = readResourceAsString(NACK_EBXML_PATH).replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
+        inboundMessage.setPayload(payload);
+        inboundMessage.setEbXML(ebxml);
+        return inboundMessage;
+    }
+
+    @SneakyThrows
+    private String parseMessageToString(InboundMessage inboundMessage) {
+        return objectMapper.writeValueAsString(inboundMessage);
     }
 }
