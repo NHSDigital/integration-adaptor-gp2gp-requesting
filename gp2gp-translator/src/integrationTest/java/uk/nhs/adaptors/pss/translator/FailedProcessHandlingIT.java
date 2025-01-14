@@ -7,23 +7,16 @@ import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCE
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_TIMEOUT;
-import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
-import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
 @SpringBootTest
@@ -31,13 +24,8 @@ import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 @DirtiesContext
 public class FailedProcessHandlingIT extends BaseEhrHandler {
 
-    private static final String NACK_PAYLOAD_PATH = "/xml/MCCI_IN010000UK13/payload_part.xml";
-    private static final String NACK_EBXML_PATH = "/xml/MCCI_IN010000UK13/ebxml_part.xml";
     private static final String EHR_MESSAGE_EXTRACT_PATH = "/json/LargeMessage/Scenario_3/uk06.json";
     private static final String COPC_MESSAGE_PATH = "/json/LargeMessage/Scenario_3/copc.json";
-    private static final String NACK_TYPE_CODE_PLACEHOLDER = "{{typeCode}}";
-    private static final String CONVERSATION_ID_PLACEHOLDER = "{{conversationId}}";
-    private static final String NACK_TYPE_CODE = "AE";
 
     private static final String UNEXPECTED_CONDITION_CODE = "99";
     private static final String LARGE_MESSAGE_TIMEOUT_CODE = "25";
@@ -46,13 +34,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
 
     @Autowired
     private MigrationStatusLogService migrationStatusLogService;
-
-    @Qualifier("jmsTemplateMhsQueue")
-    @Autowired
-    private JmsTemplate mhsJmsTemplate;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     public void When_ProcessFailedByIncumbent_With_EhrExtract_Expect_NotProcessed() {
@@ -127,11 +108,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
         assertThat(migrationStatus).isEqualTo(preCopcMigrationStatus);
     }
 
-    private void sendNackToQueue() {
-        var inboundMessage = createNackMessage();
-        mhsJmsTemplate.send(session -> session.createTextMessage(parseMessageToString(inboundMessage)));
-    }
-
     private void sendEhrExtractToQueue() {
         sendInboundMessageToQueue(EHR_MESSAGE_EXTRACT_PATH);
     }
@@ -140,17 +116,4 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(COPC_MESSAGE_PATH);
     }
 
-    private InboundMessage createNackMessage() {
-        var inboundMessage = new InboundMessage();
-        var payload = readResourceAsString(NACK_PAYLOAD_PATH).replace(NACK_TYPE_CODE_PLACEHOLDER, NACK_TYPE_CODE);
-        var ebxml = readResourceAsString(NACK_EBXML_PATH).replace(CONVERSATION_ID_PLACEHOLDER, getConversationId());
-        inboundMessage.setPayload(payload);
-        inboundMessage.setEbXML(ebxml);
-        return inboundMessage;
-    }
-
-    @SneakyThrows
-    private String parseMessageToString(InboundMessage inboundMessage) {
-        return objectMapper.writeValueAsString(inboundMessage);
-    }
 }
