@@ -28,7 +28,7 @@ import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ExtendWith({SpringExtension.class})
-@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
+@DirtiesContext
 @AutoConfigureMockMvc
 public final class LargeMessagingIT extends BaseEhrHandler {
 
