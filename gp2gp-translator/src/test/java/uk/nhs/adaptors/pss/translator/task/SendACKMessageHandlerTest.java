@@ -116,6 +116,6 @@ public class SendACKMessageHandlerTest {
     public void When_PrepareAndSendRequest_Expect_MessageBuilderCalledWithCorrectParams() {
         messageHandler.prepareAndSendMessage(messageData);
 
-        verify(messageService).buildAckMessage(eq(messageData), eq(TEST_MESSAGE_ID.toUpperCase()));
+        verify(messageService).buildAckMessage(messageData, TEST_MESSAGE_ID.toUpperCase());
     }
 }

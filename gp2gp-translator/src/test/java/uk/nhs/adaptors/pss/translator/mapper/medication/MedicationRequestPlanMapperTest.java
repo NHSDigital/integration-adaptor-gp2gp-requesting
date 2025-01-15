@@ -619,9 +619,9 @@ class MedicationRequestPlanMapperTest {
         assertMetaSecurityIsNotPresent(request.getMeta(), META_PROFILE);
 
         verify(confidentialityService).createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            eq(Optional.empty()),
-            eq(Optional.empty())
+            META_PROFILE,
+            Optional.empty(),
+            Optional.empty()
         );
     }
 
