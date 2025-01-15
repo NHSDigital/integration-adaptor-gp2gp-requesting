@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+* In the event of patient migration request which has failed, the adaptor would previously reject an XML Electronic
+  Health Record which had been resent to it.
+  Now the adaptor will instead accept the resent EHR and perform the translation to FHIR.
 * When sending a negative acknowledgement to the sending system in the event of a failure, include the textual
   description of the reason, e.g. "EHR Extract message not well-formed or not able to be processed".
   This behaviour while not required by the spec, has been implemented by other GP2GP systems, and is expected to be

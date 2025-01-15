@@ -36,21 +36,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     private MigrationStatusLogService migrationStatusLogService;
 
     @Test
-    public void When_ProcessFailedByIncumbent_With_EhrExtract_Expect_NotProcessed() {
-        sendNackToQueue();
-
-        await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
-
-        sendEhrExtractToQueue();
-
-        await().until(() -> hasNackBeenSentWithCode(UNEXPECTED_CONDITION_CODE));
-
-        var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
-
-        assertThat(migrationStatus).isEqualTo(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN);
-    }
-
-    @Test
     public void When_ProcessFailedByIncumbent_With_CopcMessage_Expect_NotProcessed() {
         sendEhrExtractToQueue();
 
@@ -67,19 +52,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
         var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
 
         assertThat(migrationStatus).isEqualTo(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN);
-    }
-
-    @Test
-    public void When_ProcessFailedByNME_With_EhrExtract_Expect_NotProcessed() {
-        migrationStatusLogService.addMigrationStatusLog(EHR_GENERAL_PROCESSING_ERROR, getConversationId(), null, "99");
-
-        sendEhrExtractToQueue();
-
-        await().until(() -> hasNackBeenSentWithCode(UNEXPECTED_CONDITION_CODE));
-
-        var migrationStatus = migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus();
-
-        assertThat(migrationStatus).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test

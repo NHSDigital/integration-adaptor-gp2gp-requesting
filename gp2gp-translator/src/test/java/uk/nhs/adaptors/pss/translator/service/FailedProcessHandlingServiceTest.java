@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import org.hl7.v3.COPCIN000001UK01Message;
 import org.hl7.v3.II;
-import org.hl7.v3.RCMRIN030000UKMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,8 +39,6 @@ public class FailedProcessHandlingServiceTest {
     private MigrationStatusLogService migrationStatusLogService;
     @Mock
     private SendNACKMessageHandler sendNACKMessageHandler;
-    @Mock
-    private RCMRIN030000UKMessage ehrExtractMessage;
     @Mock
     private COPCIN000001UK01Message copcMessage;
     @Mock
@@ -84,19 +81,6 @@ public class FailedProcessHandlingServiceTest {
         boolean result = failedProcessHandlingService.hasProcessFailed(conversationId);
 
         assertThat(result).isTrue();
-    }
-
-    @Test
-    public void When_HandleFailedProcess_With_EhrExtract_Expect_UnexpectedCondition() {
-        String conversationId = UUID.randomUUID().toString();
-
-        when(ehrExtractMessage.getId()).thenReturn(mockId);
-        when(nackAckPreparationService.prepareNackMessageData(UNEXPECTED_CONDITION, ehrExtractMessage, conversationId))
-            .thenReturn(messageData);
-
-        failedProcessHandlingService.handleFailedProcess(ehrExtractMessage, conversationId);
-
-        verify(sendNACKMessageHandler).prepareAndSendMessage(messageData);
     }
 
     @ParameterizedTest
