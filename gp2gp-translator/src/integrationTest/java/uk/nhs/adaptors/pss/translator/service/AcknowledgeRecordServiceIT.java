@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.common.enums.ConfirmationResponse;
 import uk.nhs.adaptors.common.model.AcknowledgeRecordMessage;
@@ -29,6 +30,7 @@ import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
+@DirtiesContext
 public class AcknowledgeRecordServiceIT {
 
     public static final int SIZE_22_MB = 22 * 1024 * 1024;

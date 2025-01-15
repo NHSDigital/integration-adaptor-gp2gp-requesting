@@ -43,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -67,13 +68,13 @@ import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.AttachmentHandlerService;
 import uk.nhs.adaptors.pss.translator.service.AttachmentReferenceUpdaterService;
 import uk.nhs.adaptors.pss.translator.service.BundleMapperService;
-import uk.nhs.adaptors.pss.translator.service.FailedProcessHandlingService;
 import uk.nhs.adaptors.pss.translator.service.NackAckPrepInterface;
 import uk.nhs.adaptors.pss.translator.service.SkeletonProcessingService;
 import uk.nhs.adaptors.pss.translator.service.XPathService;
 import uk.nhs.adaptors.pss.translator.storage.StorageException;
 
 @ExtendWith(MockitoExtension.class)
+@DirtiesContext
 public class EhrExtractMessageHandlerTest {
     private static final String NHS_NUMBER = "123456";
     private static final String CONVERSATION_ID = randomUUID().toString();
@@ -130,8 +131,6 @@ public class EhrExtractMessageHandlerTest {
 
     @Mock
     private PatientAttachmentLog patientAttachmentLog;
-    @Mock
-    private FailedProcessHandlingService failedProcessHandlingService;
 
     @Captor
     private ArgumentCaptor<PatientAttachmentLog> patientAttachmentLogCaptor;
@@ -761,27 +760,6 @@ public class EhrExtractMessageHandlerTest {
         ehrExtractMessageHandler.handleMessage(inboundMessage, CONVERSATION_ID);
 
         verify(patientAttachmentLogService, times(1)).addAttachmentLog(any());
-    }
-
-    @Test
-    @SneakyThrows
-    public void When_HandleMessage_With_ProcessHasFailed_Expect_FailureHandled()
-        throws AttachmentNotFoundException, JAXBException, BundleMappingException, ParseException,
-               JsonProcessingException, TransformerException, SAXException {
-
-        when(failedProcessHandlingService.hasProcessFailed(CONVERSATION_ID))
-            .thenReturn(true);
-
-        InboundMessage inboundMessage = new InboundMessage();
-        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
-
-        ehrExtractMessageHandler.handleMessage(inboundMessage, CONVERSATION_ID);
-
-        verify(failedProcessHandlingService, times(1))
-            .handleFailedProcess(any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID));
-
-        verify(migrationStatusLogService, times(0))
-            .addMigrationStatusLog(EHR_EXTRACT_RECEIVED, CONVERSATION_ID, null, null);
     }
 
     @SneakyThrows

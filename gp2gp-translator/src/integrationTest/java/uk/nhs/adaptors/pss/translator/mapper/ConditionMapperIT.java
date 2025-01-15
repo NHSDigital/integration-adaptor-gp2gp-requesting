@@ -22,12 +22,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import lombok.SneakyThrows;
 
 @SpringBootTest
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
+@DirtiesContext
 public class ConditionMapperIT {
 
     private static final String CONDITION_RESOURCES_BASE = "xml/condition/";
