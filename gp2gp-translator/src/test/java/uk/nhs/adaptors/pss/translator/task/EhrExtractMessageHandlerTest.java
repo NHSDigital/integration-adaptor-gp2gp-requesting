@@ -43,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -73,6 +74,7 @@ import uk.nhs.adaptors.pss.translator.service.XPathService;
 import uk.nhs.adaptors.pss.translator.storage.StorageException;
 
 @ExtendWith(MockitoExtension.class)
+@DirtiesContext
 public class EhrExtractMessageHandlerTest {
     private static final String NHS_NUMBER = "123456";
     private static final String CONVERSATION_ID = randomUUID().toString();

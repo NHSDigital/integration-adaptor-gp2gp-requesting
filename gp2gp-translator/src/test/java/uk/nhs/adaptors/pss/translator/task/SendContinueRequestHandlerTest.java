@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
@@ -37,6 +38,7 @@ import java.nio.charset.Charset;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
+@DirtiesContext
 public class SendContinueRequestHandlerTest {
 
     private static final String NHS_NUMBER = "9446363101";
