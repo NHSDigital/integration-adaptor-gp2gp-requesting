@@ -118,7 +118,7 @@ public class SendNACKMessageHandlerTest {
     public void When_PrepareAndSendRequest_Expect_MessageBuilderCalledWithCorrectParams() {
         messageHandler.prepareAndSendMessage(messageData);
 
-        verify(messageService).buildNackMessage(eq(messageData), eq(TEST_MESSAGE_ID.toUpperCase()));
+        verify(messageService).buildNackMessage(messageData, TEST_MESSAGE_ID.toUpperCase());
     }
 
 }

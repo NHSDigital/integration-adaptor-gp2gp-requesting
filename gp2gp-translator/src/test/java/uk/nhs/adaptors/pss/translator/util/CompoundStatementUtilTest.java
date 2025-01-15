@@ -47,7 +47,7 @@ public class CompoundStatementUtilTest {
             .extractResourcesFromCompound(compoundStatement,
                 RCMRMT030101UKComponent02::hasCompoundStatement);
 
-        assertThat(mappedValues.size()).isEqualTo(EXPECTED_DISPLAYED_NAMES.size());
+        assertThat(mappedValues).hasSameSizeAs(EXPECTED_DISPLAYED_NAMES);
 
         var displayNames = mappedValues
             .stream()

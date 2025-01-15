@@ -82,9 +82,4 @@ public class AcknowledgeRecordServiceIT {
         return objectMapper.writeValueAsString(inboundMessage);
     }
 
-    private String sendInboundMessageAndWaitForBundle(String inputFilePath) {
-        final var inboundMessage = parseMessageToString(createInboundMessage(inputFilePath));
-        return inboundMessage;
-    }
-
 }

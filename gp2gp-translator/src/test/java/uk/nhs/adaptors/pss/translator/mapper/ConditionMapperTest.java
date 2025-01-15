@@ -372,7 +372,7 @@ class ConditionMapperTest {
 
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
-        assertThat(conditions).hasSize(0);
+        assertThat(conditions).isEmpty();
     }
 
     private void addMedicationRequestsToBundle(Bundle bundle) {

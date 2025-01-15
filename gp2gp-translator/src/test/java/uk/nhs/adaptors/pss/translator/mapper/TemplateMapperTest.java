@@ -38,9 +38,6 @@ public class TemplateMapperTest {
     private static final String PATIENT_ID = "9A5D5A78-1F63-434C-9637-1D7E7843341B";
     private static final String ENCOUNTER_ID = "TEST_ID_MATCHING_ENCOUNTER";
     private static final String CODING_DISPLAY_MOCK = "Test Display";
-    private static final String QUESTIONNAIRE_SUFFIX = "-QRSP";
-    private static final String QUESTIONNAIRE_META = "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC"
-        + "-QuestionnaireResponse-1";
     private static final String OBSERVATION_META = "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1";
     private static final String IDENTIFIER = "https://PSSAdaptor/TESTPRACTISECODE";
     private static final String SNOMED_SYSTEM = "http://snomed.info/sct";

@@ -172,7 +172,7 @@ public class AcknowledgeMessageHandlingIT {
         var inboundMessage = new InboundMessage();
 
         String payload = null;
-        if (reasonCode == null || reasonCode.length() == 0) {
+        if (reasonCode == null || reasonCode.isEmpty()) {
             payload = readResourceAsString(PAYLOAD_PART_PATH);
         } else {
             payload = readResourceAsString(PAYLOAD_PART_PATH_WITH_ERROR_REASON);
