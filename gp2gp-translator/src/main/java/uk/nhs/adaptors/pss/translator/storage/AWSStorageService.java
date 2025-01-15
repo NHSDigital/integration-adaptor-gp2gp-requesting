@@ -4,53 +4,42 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.time.Instant;
-import java.util.Date;
+import java.time.Duration;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.util.IOUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+@Slf4j
 public class AWSStorageService implements StorageService {
 
     private static final long SIXY_MINUTES = 1000 * 60 * 60;
-    private final AmazonS3 s3Client;
+    private final S3Client s3Client;
     private final String bucketName;
 
-    public AWSStorageService(StorageServiceConfiguration configuration) {
-
-        var clientBuilder = AmazonS3ClientBuilder.standard();
-
-        if (accessKeyProvided(configuration)) {
-
-            AWSCredentials credentials = new BasicAWSCredentials(
-                configuration.getAccountReference(),
-                configuration.getAccountSecret()
-            );
-
-            clientBuilder
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(configuration.getRegion());
-        }
-
-        bucketName = configuration.getContainerName();
-        s3Client = clientBuilder.build();
+    public AWSStorageService(S3Client s3client, StorageServiceConfiguration configuration) {
+        this.bucketName = configuration.getContainerName();
+        this.s3Client = s3client;
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
 
         try {
-            com.amazonaws.services.s3.model.ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(fileAsString.length);
-            InputStream inputStream = new ByteArrayInputStream(fileAsString);
+            final var putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(filename).build();
+            InputStream is = new ByteArrayInputStream(fileAsString);
 
-            s3Client.putObject(bucketName, filename, inputStream, metadata);
+            s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromInputStream(is, fileAsString.length));
         } catch (Exception e) {
             throw new StorageException("Error occurred uploading to S3 Bucket", e);
         }
@@ -58,7 +47,7 @@ public class AWSStorageService implements StorageService {
 
     public byte[] downloadFile(String filename) throws StorageException {
         try {
-            S3ObjectInputStream stream = downloadFileToStream(filename);
+            var stream = downloadFileToStream(filename);
             return IOUtils.toByteArray(stream);
         } catch (IOException e) {
             throw new StorageException("Error occurred downloading from S3 Bucket", e);
@@ -66,25 +55,46 @@ public class AWSStorageService implements StorageService {
     }
 
     public void deleteFile(String filename) {
-        s3Client.deleteObject(bucketName, filename);
+
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+            .bucket(bucketName)
+            .key(filename)
+            .build();
+
+        s3Client.deleteObject(deleteRequest);
+        LOGGER.info("{} was successfully deleted", filename);
     }
 
     public String getFileLocation(String filename) {
-        // https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html
-        // sharing file location from AWS is not straightforward as files are private by default
-        Date expiration = new Date();
-        long expTimeMillis = Instant.now().toEpochMilli();
-        expTimeMillis += SIXY_MINUTES;
-        expiration.setTime(expTimeMillis);
 
-        URL url = s3Client.generatePresignedUrl(bucketName, filename, expiration);
-        return url.toString();
+        Duration expiration = Duration.ofMinutes(SIXY_MINUTES);
+
+        try (S3Presigner presigner = S3Presigner.builder()
+                                           .credentialsProvider(DefaultCredentialsProvider.create())
+                                           .build()) {
+
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(filename)
+                .build();
+
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .getObjectRequest(getObjectRequest)
+                .signatureDuration(expiration)
+                .build();
+
+            URL presignedUrl = presigner.presignGetObject(presignRequest).url();
+            return presignedUrl.toString();
+        } catch (Exception e) {
+            LOGGER.error("An exception occurred while presigning a URL", e);
+            return null;
+        }
     }
 
-    private S3ObjectInputStream downloadFileToStream(String filename) throws StorageException {
+    private ResponseInputStream<GetObjectResponse> downloadFileToStream(String filename) throws StorageException {
         try {
-            S3Object s3Object = s3Client.getObject(bucketName, filename);
-            return s3Object.getObjectContent();
+            final var request = GetObjectRequest.builder().bucket(bucketName).key(filename).build();
+            return s3Client.getObject(request);
         } catch (Exception exception) {
             throw new StorageException("Error occurred downloading from S3 Bucket", exception);
         }
