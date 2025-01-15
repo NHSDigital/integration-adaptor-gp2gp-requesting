@@ -8,9 +8,12 @@ import java.time.Duration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -26,9 +29,22 @@ public class AWSStorageService implements StorageService {
     private final S3Client s3Client;
     private final String bucketName;
 
-    public AWSStorageService(S3Client s3client, StorageServiceConfiguration configuration) {
+    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration) {
+
+        if (accessKeyProvided(configuration)) {
+            AwsBasicCredentials credentials = AwsBasicCredentials.create(
+                configuration.getAccountReference(),
+                configuration.getAccountSecret());
+
+            this.s3Client = S3Client.builder()
+                .region(Region.of(configuration.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
+        } else {
+            this.s3Client = s3Client;
+        }
+
         this.bucketName = configuration.getContainerName();
-        this.s3Client = s3client;
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
@@ -105,7 +121,6 @@ public class AWSStorageService implements StorageService {
         if (configuration.getAccountSecret() == null || configuration.getAccountSecret().isBlank()) {
             return false;
         }
-
         return configuration.getAccountReference() != null && !configuration.getAccountReference().isBlank();
     }
 }
