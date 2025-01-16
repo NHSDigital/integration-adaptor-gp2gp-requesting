@@ -69,7 +69,7 @@ class AWSStorageServiceTest {
     }
 
     @Test
-    void downloadFromStorageTest() throws IOException {
+    void downloadFromStorageTest() {
 
         String fileContent = "dummy-content";
         s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),

@@ -34,14 +34,13 @@ public class AWSStorageService implements StorageService {
     public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration) {
 
         if (accessKeyProvided(configuration)) {
-            AwsBasicCredentials credentials = AwsBasicCredentials.create(
-                configuration.getAccountReference(),
-                configuration.getAccountSecret());
+            AwsBasicCredentials credentials = AwsBasicCredentials.create(configuration.getAccountReference(),
+                                                                         configuration.getAccountSecret());
 
             this.s3Client = S3Client.builder()
-                .region(Region.of(configuration.getRegion()))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build();
+                                    .region(Region.of(configuration.getRegion()))
+                                    .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                                    .build();
         } else {
             this.s3Client = s3Client;
         }
@@ -54,10 +53,7 @@ public class AWSStorageService implements StorageService {
         try {
             final var putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(filename).build();
             InputStream is = new ByteArrayInputStream(fileAsString);
-
-            s3Client.putObject(
-                putObjectRequest,
-                RequestBody.fromInputStream(is, fileAsString.length));
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(is, fileAsString.length));
         } catch (Exception e) {
             throw new StorageException("Error occurred uploading to S3 Bucket", e);
         }
@@ -75,10 +71,9 @@ public class AWSStorageService implements StorageService {
     public void deleteFile(String filename) {
 
         DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-            .bucket(bucketName)
-            .key(filename)
-            .build();
-
+                                                               .bucket(bucketName)
+                                                               .key(filename)
+                                                               .build();
         s3Client.deleteObject(deleteRequest);
         LOGGER.info("{} was successfully deleted", filename);
     }
@@ -88,8 +83,8 @@ public class AWSStorageService implements StorageService {
         Duration expiration = Duration.ofMinutes(SIXTY_MINUTES);
 
         try (S3Presigner presigner = S3Presigner.builder()
-                                           .credentialsProvider(DefaultCredentialsProvider.create())
-                                           .build()) {
+                                                .credentialsProvider(DefaultCredentialsProvider.create())
+                                                .build()) {
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                                                                 .bucket(bucketName)
