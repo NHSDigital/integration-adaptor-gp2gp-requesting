@@ -14,13 +14,9 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -62,8 +58,6 @@ class AWSStorageServiceTest {
     @Test
     void uploadToStorageTest() throws IOException {
         String uploadContent = "upload-content";
-        InputStream inputStream = new ByteArrayInputStream(uploadContent.getBytes(StandardCharsets.UTF_8));
-        long streamLength = inputStream.available();
 
         awsStorageService.uploadFile(FILE_NAME, uploadContent.getBytes(StandardCharsets.UTF_8));
 
@@ -78,9 +72,8 @@ class AWSStorageServiceTest {
     void downloadFromStorageTest() throws IOException {
 
         String fileContent = "dummy-content";
-        s3Client.putObject(
-            PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-            RequestBody.fromString(fileContent));
+        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
+                           RequestBody.fromString(fileContent));
 
         byte[] response = awsStorageService.downloadFile(FILE_NAME);
         String downloadedContent = new String(response, StandardCharsets.UTF_8);
@@ -93,9 +86,8 @@ class AWSStorageServiceTest {
     void deleteFileTest() {
 
         String fileContent = "dummy-content";
-        s3Client.putObject(
-            PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-            RequestBody.fromString(fileContent));
+        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
+                           RequestBody.fromString(fileContent));
 
         awsStorageService.deleteFile(FILE_NAME);
 
@@ -108,9 +100,8 @@ class AWSStorageServiceTest {
     void getFileLocationTest() {
 
         String fileContent = "dummy-content";
-        s3Client.putObject(
-            PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-            RequestBody.fromString(fileContent));
+        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
+                           RequestBody.fromString(fileContent));
 
         String response = awsStorageService.getFileLocation(FILE_NAME);
 
