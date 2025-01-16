@@ -105,6 +105,15 @@ class AWSStorageServiceTest {
     }
 
     @Test
-    void getFileLocation() {
+    void getFileLocationTest() {
+
+        String fileContent = "dummy-content";
+        s3Client.putObject(
+            PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
+            RequestBody.fromString(fileContent));
+
+        String response = awsStorageService.getFileLocation(FILE_NAME);
+
+        assertNotNull(response);
     }
 }

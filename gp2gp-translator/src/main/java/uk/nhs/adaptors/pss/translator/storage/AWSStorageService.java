@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Duration;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -23,9 +24,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Slf4j
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "S3Client is immutable and thread-safe.")
 public class AWSStorageService implements StorageService {
 
-    private static final long SIXY_MINUTES = 1000 * 60 * 60;
+    private static final long SIXTY_MINUTES = 60;
     private final S3Client s3Client;
     private final String bucketName;
 
@@ -83,21 +85,21 @@ public class AWSStorageService implements StorageService {
 
     public String getFileLocation(String filename) {
 
-        Duration expiration = Duration.ofMinutes(SIXY_MINUTES);
+        Duration expiration = Duration.ofMinutes(SIXTY_MINUTES);
 
         try (S3Presigner presigner = S3Presigner.builder()
                                            .credentialsProvider(DefaultCredentialsProvider.create())
                                            .build()) {
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(filename)
-                .build();
+                                                                .bucket(bucketName)
+                                                                .key(filename)
+                                                                .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .getObjectRequest(getObjectRequest)
-                .signatureDuration(expiration)
-                .build();
+                                                                            .getObjectRequest(getObjectRequest)
+                                                                            .signatureDuration(expiration)
+                                                                            .build();
 
             URL presignedUrl = presigner.presignGetObject(presignRequest).url();
             return presignedUrl.toString();
