@@ -4,7 +4,6 @@ import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -29,6 +28,8 @@ class AWSStorageServiceTest {
     public static final int PORT = 9090;
     private static final String BUCKET_NAME = "s3bucket";
     private static final String FILE_NAME = "test-file.txt";
+    public static final String ACCESS_KEY = "accessKey";
+    public static final String SECRET_KEY = "secretKey";
 
     private static S3Mock s3Mock;
     private static AWSStorageService awsStorageService;
@@ -45,22 +46,22 @@ class AWSStorageServiceTest {
         s3Client = S3Client.builder()
             .endpointOverride(URI.create("http://localhost:" + PORT))
             .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create("accessKey", "secretKey")))
+                AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)))
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .region(Region.EU_WEST_2)
             .build();
 
         config = new StorageServiceConfiguration();
         config.setContainerName(BUCKET_NAME);
+        config.setRegion(Region.EU_WEST_2.toString());
+        config.setAccountSecret(SECRET_KEY);
+        config.setAccountReference(ACCESS_KEY);
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
         awsStorageService = new AWSStorageService(s3Client,
                                                   config,
-                                                  S3Presigner.builder()
-                                                             .credentialsProvider(DefaultCredentialsProvider.create())
-                                                             .region(Region.EU_WEST_2)
-                                                             .build());
+                                                  S3Presigner.builder().region(Region.EU_WEST_2));
     }
 
     @Test

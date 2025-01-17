@@ -10,6 +10,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -31,22 +32,23 @@ public class AWSStorageService implements StorageService {
     private final String bucketName;
     private final S3Presigner s3Presigner;
 
-    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration, S3Presigner presigner) {
+    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration, S3Presigner.Builder presignerBuilder) {
 
         if (accessKeyProvided(configuration)) {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(configuration.getAccountReference(),
                                                                          configuration.getAccountSecret());
-
+            StaticCredentialsProvider staticCredentialsProvider = StaticCredentialsProvider.create(credentials);
             this.s3Client = S3Client.builder()
                                     .region(Region.of(configuration.getRegion()))
-                                    .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                                    .credentialsProvider(staticCredentialsProvider)
                                     .build();
+            this.s3Presigner = presignerBuilder.credentialsProvider(staticCredentialsProvider).build();
         } else {
             this.s3Client = s3Client;
+            this.s3Presigner = presignerBuilder.credentialsProvider(DefaultCredentialsProvider.create()).build();
         }
 
         this.bucketName = configuration.getContainerName();
-        this.s3Presigner = presigner;
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
