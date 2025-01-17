@@ -3,7 +3,6 @@ package uk.nhs.adaptors.pss.translator;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_TIMEOUT;
@@ -39,11 +38,11 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     public void When_ProcessFailedByIncumbent_With_CopcMessage_Expect_NotProcessed() {
         sendEhrExtractToQueue();
 
-        await().until(() -> isMigrationStatus(CONTINUE_REQUEST_ACCEPTED));
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.CONTINUE_REQUEST_ACCEPTED));
 
         sendNackToQueue();
 
-        await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
 
         sendCopcToQueue();
 
@@ -67,7 +66,7 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     private void whenCopcSentExpectNackCode(MigrationStatus preCopcMigrationStatus, String nackCode) {
         sendEhrExtractToQueue();
 
-        await().until(() -> isMigrationStatus(CONTINUE_REQUEST_ACCEPTED));
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.CONTINUE_REQUEST_ACCEPTED));
 
         migrationStatusLogService.addMigrationStatusLog(preCopcMigrationStatus, getConversationId(), null, null);
 

@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -51,7 +52,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
     public void handleUk06WithCidAttachment() throws JSONException {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_1/uk06.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario1.json");
     }
@@ -61,7 +62,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
         // NIAD-2789: EMIS can send inline attachments where the attachment description contains ONLY a filename.
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_12/uk06.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario1.json");
     }
@@ -70,7 +71,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
     public void handleUk06WithCompressedCidAttachmement() throws JSONException {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_2/uk06.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario2.json");
     }
@@ -83,7 +84,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_3/copc.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario3.json");
     }
@@ -96,7 +97,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_5/copc.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario5.json");
     }
@@ -104,7 +105,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
     @Test
     public void handleUk06WithSkeletonAsEntireRCMRInEHR() throws JSONException {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_10/uk06.json");
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario10.json");
     }
@@ -117,7 +118,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_11/copc.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle("/json/LargeMessage/expectedBundleScenario11.json");
     }
@@ -133,7 +134,7 @@ public final class LargeMessagingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(scenarioDirectory + "copc0.json");
         sendInboundMessageToQueue(scenarioDirectory + "copc1.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(expectedBundleName);
     }
@@ -150,7 +151,8 @@ public final class LargeMessagingIT extends BaseEhrHandler {
 
         sendCOPCMessagesToQueue("/json/LargeMessage/multiple-large-copc-messages/copc.json", ids);
 
-        await().atMost(Duration.ofMinutes(1L)).until(this::isEhrMigrationCompleted);
+        await().atMost(Duration.ofMinutes(1L))
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
     }
 
     @Test
@@ -164,7 +166,8 @@ public final class LargeMessagingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(testDirectory + "copc1.json");
         sendInboundMessageToQueue(testDirectory + "copc2.json");
 
-        await().atMost(Duration.ofMinutes(1L)).until(this::isEhrMigrationCompleted);
+        await().atMost(Duration.ofMinutes(1L))
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
     }
 
     private static Stream<Arguments> ehrAndCopcMessageResourceFiles() {

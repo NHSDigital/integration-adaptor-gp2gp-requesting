@@ -223,7 +223,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -245,7 +245,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -268,7 +268,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
         await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
-            .until(this::isEhrMigrationCompleted);
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -291,7 +291,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
         await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
-            .until(this::isEhrMigrationCompleted);
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -320,7 +320,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -342,7 +342,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
@@ -365,7 +365,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
         await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
-            .until(this::isEhrMigrationCompleted);
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         verifyBundle(JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON);
     }
