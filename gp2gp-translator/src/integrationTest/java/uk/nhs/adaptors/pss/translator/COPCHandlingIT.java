@@ -20,7 +20,6 @@ import static org.awaitility.Awaitility.await;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_MESSAGE_PROCESSING;
-import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void handleCOPCAndSaveMessageIdInDatabase() {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_3/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_3/copc.json");
 
@@ -62,7 +61,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void handleCOPCMessageWithMissingAttachment() {
         sendInboundMessageToQueue("/json/LargeMessage/NewError/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue("/json/LargeMessage/NewError/copc_error_missing_attachment.json");
 
@@ -77,7 +76,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void When_HandleCopc_With_DecodedLargeAttachment_Expect_FragmentsMerged() {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc_index.json");
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc0.json");
@@ -105,7 +104,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void When_HandleCopc_With_EncodedLargeAttachment_Expect_FragmentsMerged() {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_4/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_4/copc_index.json");
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_4/copc0.json");
@@ -133,7 +132,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void When_HandleCopc_With_DecodedLargeAttachmentAndOutOfOrder_Expect_FragmentsMerged() {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc0.json");
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc1.json");
@@ -162,7 +161,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
     public void When_HandleCOPC_With_ManifestWithDecodedInlineFragment_Expect_FragmentsMerged() {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message-with-cid/uk06.json");
 
-        await().until(this::hasContinueMessageBeenReceived);
+        awaitUntilMigrationStatusIsCopcMessageProcessing();
 
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message-with-cid/copc_index.json");
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message-with-cid/copc0.json");
@@ -194,8 +193,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         assertThat(mergedAttachmentLog.getUploaded()).isTrue();
     }
 
-    private boolean hasContinueMessageBeenReceived() {
-        var migrationStatusLog = getMigrationStatusLogService().getLatestMigrationStatusLog(getConversationId());
-        return CONTINUE_REQUEST_ACCEPTED.equals(migrationStatusLog.getMigrationStatus());
+    private void awaitUntilMigrationStatusIsCopcMessageProcessing() {
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.CONTINUE_REQUEST_ACCEPTED));
     }
 }
