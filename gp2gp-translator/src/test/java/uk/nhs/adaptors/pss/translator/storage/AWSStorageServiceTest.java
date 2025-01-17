@@ -4,6 +4,7 @@ import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -14,6 +15,8 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +55,12 @@ class AWSStorageServiceTest {
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
-        awsStorageService = new AWSStorageService(s3Client, config);
+        awsStorageService = new AWSStorageService(s3Client,
+                                                  config,
+                                                  S3Presigner.builder()
+                                                             .credentialsProvider(DefaultCredentialsProvider.create())
+                                                             .region(Region.EU_WEST_2)
+                                                             .build());
     }
 
     @Test
@@ -107,4 +115,5 @@ class AWSStorageServiceTest {
 
         assertNotNull(response);
     }
+
 }

@@ -10,7 +10,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -30,8 +29,9 @@ public class AWSStorageService implements StorageService {
     private static final long SIXTY_MINUTES = 60;
     private final S3Client s3Client;
     private final String bucketName;
+    private final S3Presigner s3Presigner;
 
-    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration) {
+    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration, S3Presigner presigner) {
 
         if (accessKeyProvided(configuration)) {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(configuration.getAccountReference(),
@@ -46,6 +46,7 @@ public class AWSStorageService implements StorageService {
         }
 
         this.bucketName = configuration.getContainerName();
+        this.s3Presigner = presigner;
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
@@ -82,9 +83,7 @@ public class AWSStorageService implements StorageService {
 
         Duration expiration = Duration.ofMinutes(SIXTY_MINUTES);
 
-        try (S3Presigner presigner = S3Presigner.builder()
-                                                .credentialsProvider(DefaultCredentialsProvider.create())
-                                                .build()) {
+        try (s3Presigner) {
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                                                                 .bucket(bucketName)
@@ -96,7 +95,7 @@ public class AWSStorageService implements StorageService {
                                                                             .signatureDuration(expiration)
                                                                             .build();
 
-            URL presignedUrl = presigner.presignGetObject(presignRequest).url();
+            URL presignedUrl = s3Presigner.presignGetObject(presignRequest).url();
             return presignedUrl.toString();
         } catch (Exception e) {
             LOGGER.error("An exception occurred while presigning a URL", e);
