@@ -1,9 +1,7 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
 import io.findify.s3mock.S3Mock;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -34,10 +32,10 @@ class AWSStorageServiceTest {
     public static final String ACCESS_KEY = "accessKey";
     public static final String SECRET_KEY = "secretKey";
 
-    private static S3Mock s3Mock;
-    private static AWSStorageService awsStorageService;
-    private static StorageServiceConfiguration config;
-    private static S3Client s3Client;
+    private S3Mock s3Mock;
+    private AWSStorageService awsStorageService;
+    private StorageServiceConfiguration config;
+    private S3Client s3Client;
 
     @BeforeEach
     void setUp() {
