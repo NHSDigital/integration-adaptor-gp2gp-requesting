@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_ACCEPTED;
-import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_TRANSLATED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.MIGRATION_COMPLETED;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 import static uk.nhs.adaptors.pss.util.JsonPathIgnoreGeneratorUtil.generateJsonPathIgnores;
@@ -110,11 +109,6 @@ public abstract class BaseEhrHandler {
     protected void startPatientMigrationJourney() {
         patientMigrationRequestDao.addNewRequest(patientNhsNumber, conversationId, losingODSCode, winingODSCode);
         migrationStatusLogService.addMigrationStatusLog(EHR_EXTRACT_REQUEST_ACCEPTED, conversationId, null, null);
-    }
-
-    protected boolean isEhrExtractTranslated() {
-        var migrationStatusLog = migrationStatusLogService.getLatestMigrationStatusLog(conversationId);
-        return EHR_EXTRACT_TRANSLATED.equals(migrationStatusLog.getMigrationStatus());
     }
 
     protected boolean isEhrMigrationCompleted() {
