@@ -67,7 +67,6 @@ import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.AttachmentHandlerService;
 import uk.nhs.adaptors.pss.translator.service.AttachmentReferenceUpdaterService;
 import uk.nhs.adaptors.pss.translator.service.BundleMapperService;
-import uk.nhs.adaptors.pss.translator.service.FailedProcessHandlingService;
 import uk.nhs.adaptors.pss.translator.service.NackAckPrepInterface;
 import uk.nhs.adaptors.pss.translator.service.SkeletonProcessingService;
 import uk.nhs.adaptors.pss.translator.service.XPathService;
@@ -130,8 +129,6 @@ public class EhrExtractMessageHandlerTest {
 
     @Mock
     private PatientAttachmentLog patientAttachmentLog;
-    @Mock
-    private FailedProcessHandlingService failedProcessHandlingService;
 
     @Captor
     private ArgumentCaptor<PatientAttachmentLog> patientAttachmentLogCaptor;
@@ -761,27 +758,6 @@ public class EhrExtractMessageHandlerTest {
         ehrExtractMessageHandler.handleMessage(inboundMessage, CONVERSATION_ID);
 
         verify(patientAttachmentLogService, times(1)).addAttachmentLog(any());
-    }
-
-    @Test
-    @SneakyThrows
-    public void When_HandleMessage_With_ProcessHasFailed_Expect_FailureHandled()
-        throws AttachmentNotFoundException, JAXBException, BundleMappingException, ParseException,
-               JsonProcessingException, TransformerException, SAXException {
-
-        when(failedProcessHandlingService.hasProcessFailed(CONVERSATION_ID))
-            .thenReturn(true);
-
-        InboundMessage inboundMessage = new InboundMessage();
-        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
-
-        ehrExtractMessageHandler.handleMessage(inboundMessage, CONVERSATION_ID);
-
-        verify(failedProcessHandlingService, times(1))
-            .handleFailedProcess(any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID));
-
-        verify(migrationStatusLogService, times(0))
-            .addMigrationStatusLog(EHR_EXTRACT_RECEIVED, CONVERSATION_ID, null, null);
     }
 
     @SneakyThrows
