@@ -5,7 +5,6 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
@@ -121,7 +120,7 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
         public void When_ProcessFailedByIncumbent_Expect_Processed() {
             sendNackToQueue();
 
-            await().until(() -> isMigrationStatus(EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
+            await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.EHR_EXTRACT_REQUEST_NEGATIVE_ACK_UNKNOWN));
 
             sendEhrExtractToMhsQueue();
 

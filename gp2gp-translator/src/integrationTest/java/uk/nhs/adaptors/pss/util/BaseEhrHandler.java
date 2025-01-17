@@ -116,11 +116,6 @@ public abstract class BaseEhrHandler {
         return MIGRATION_COMPLETED.equals(migrationStatusLog.getMigrationStatus());
     }
 
-    protected boolean isMigrationStatus(MigrationStatus migrationStatus) {
-        var migrationStatusLog = migrationStatusLogService.getLatestMigrationStatusLog(conversationId);
-        return migrationStatus.equals(migrationStatusLog.getMigrationStatus());
-    }
-
     @NotNull
     protected ObjectAssert<MigrationStatus> assertThatMigrationStatus() {
         return assertThat(migrationStatusLogService.getLatestMigrationStatusLog(getConversationId()).getMigrationStatus());
