@@ -43,7 +43,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_3/copc.json");
 
         // ideally we should be checking for processing message here, but can fail due to database timing issues.
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         var migrationStatusLogs = getMigrationStatusLogService().getMigrationStatusLogs(getConversationId());
 
@@ -82,7 +82,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc0.json");
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc1.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         var copc1Log = patientAttachmentLogService
             .findAttachmentLog("bb100d3c-cdce-4f04-b41f-972da0ddb6a9", getConversationId());
@@ -110,7 +110,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_4/copc0.json");
         sendInboundMessageToQueue("/json/LargeMessage/Scenario_4/copc1.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         var copc1Log = patientAttachmentLogService
             .findAttachmentLog("24AED038-FF3E-466D-820A-AE1B334D68EE", getConversationId());
@@ -139,7 +139,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message/copc_index.json");
 
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         var copc1Log = patientAttachmentLogService
             .findAttachmentLog("bb100d3c-cdce-4f04-b41f-972da0ddb6a9", getConversationId());
@@ -166,7 +166,7 @@ public class COPCHandlingIT extends BaseEhrHandler {
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message-with-cid/copc_index.json");
         sendInboundMessageToQueue(DECODED_MESSAGES_DIRECTORY + "index-message-with-cid/copc0.json");
 
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         List<PatientAttachmentLog> attachmentLogs = patientAttachmentLogService.findAttachmentLogs(getConversationId());
 

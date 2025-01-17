@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
+import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
@@ -159,7 +160,7 @@ public class E2EMappingIT extends BaseEhrHandler {
     private String sendInboundMessageAndWaitForBundle(String inputFilePath) {
         final var inboundMessage = parseMessageToString(createInboundMessage(inputFilePath));
         mhsJmsTemplate.send(session -> session.createTextMessage(inboundMessage));
-        await().until(this::isEhrMigrationCompleted);
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         var patientMigrationRequest = patientMigrationRequestDao.getMigrationRequest(getConversationId());
         return patientMigrationRequest.getBundleResource();

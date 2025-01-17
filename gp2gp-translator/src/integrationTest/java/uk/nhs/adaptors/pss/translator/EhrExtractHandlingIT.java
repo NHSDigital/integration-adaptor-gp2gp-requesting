@@ -108,7 +108,8 @@ public class EhrExtractHandlingIT extends BaseEhrHandler  {
         sendEhrExtractToMhsQueue();
 
         // wait until EHR extract is translated to bundle resource and saved to the DB
-        waitAtMost(Duration.ofSeconds(WAITING_TIME)).until(this::isEhrMigrationCompleted);
+        waitAtMost(Duration.ofSeconds(WAITING_TIME))
+            .untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
         // verify generated bundle resource
         verifyBundle("/json/expectedBundle.json");
