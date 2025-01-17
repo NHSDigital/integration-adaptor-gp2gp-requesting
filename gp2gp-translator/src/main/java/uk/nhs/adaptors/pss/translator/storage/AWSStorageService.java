@@ -32,21 +32,28 @@ public class AWSStorageService implements StorageService {
     private final String bucketName;
     private final S3Presigner s3Presigner;
 
-    public AWSStorageService(S3Client s3Client, StorageServiceConfiguration configuration, S3Presigner.Builder presignerBuilder) {
+    public AWSStorageService(S3Client s3Client,
+                             StorageServiceConfiguration configuration,
+                             S3Presigner.Builder presignerBuilder) {
 
+        AwsBasicCredentials credentials = null;
+        StaticCredentialsProvider credentialsProvider = null;
         if (accessKeyProvided(configuration)) {
-            AwsBasicCredentials credentials = AwsBasicCredentials.create(configuration.getAccountReference(),
-                                                                         configuration.getAccountSecret());
-            StaticCredentialsProvider staticCredentialsProvider = StaticCredentialsProvider.create(credentials);
-            this.s3Client = S3Client.builder()
-                                    .region(Region.of(configuration.getRegion()))
-                                    .credentialsProvider(staticCredentialsProvider)
-                                    .build();
-            this.s3Presigner = presignerBuilder.credentialsProvider(staticCredentialsProvider).build();
-        } else {
-            this.s3Client = s3Client;
-            this.s3Presigner = presignerBuilder.credentialsProvider(DefaultCredentialsProvider.create()).build();
+            credentials = AwsBasicCredentials.create(configuration.getAccountReference(), configuration.getAccountSecret());
+            credentialsProvider = StaticCredentialsProvider.create(credentials);
         }
+
+        this.s3Client = (credentialsProvider != null)
+                        ? S3Client.builder()
+                            .region(Region.of(configuration.getRegion()))
+                            .credentialsProvider(credentialsProvider)
+                            .build()
+                        : s3Client;
+
+        this.s3Presigner = presignerBuilder
+            .region(Region.of(configuration.getRegion()))
+            .credentialsProvider(credentialsProvider != null ? credentialsProvider : DefaultCredentialsProvider.create())
+            .build();
 
         this.bucketName = configuration.getContainerName();
     }

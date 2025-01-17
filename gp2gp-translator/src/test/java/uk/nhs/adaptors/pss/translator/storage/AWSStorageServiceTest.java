@@ -1,7 +1,10 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
 import io.findify.s3mock.S3Mock;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -36,8 +39,8 @@ class AWSStorageServiceTest {
     private static StorageServiceConfiguration config;
     private static S3Client s3Client;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
 
         s3Mock = new S3Mock.Builder().withPort(PORT).withInMemoryBackend().build();
         s3Mock.start();
@@ -54,14 +57,15 @@ class AWSStorageServiceTest {
         config = new StorageServiceConfiguration();
         config.setContainerName(BUCKET_NAME);
         config.setRegion(Region.EU_WEST_2.toString());
-        config.setAccountSecret(SECRET_KEY);
-        config.setAccountReference(ACCESS_KEY);
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
-        awsStorageService = new AWSStorageService(s3Client,
-                                                  config,
-                                                  S3Presigner.builder().region(Region.EU_WEST_2));
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder());
+    }
+
+    @AfterEach
+    void tearDown() {
+        s3Mock.stop();
     }
 
     @Test
@@ -107,7 +111,10 @@ class AWSStorageServiceTest {
 
     @Test
     void getFileLocationTest() {
+        config.setAccountReference(ACCESS_KEY);
+        config.setAccountSecret(SECRET_KEY);
 
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder());
         String fileContent = "dummy-content";
         s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
                            RequestBody.fromString(fileContent));
