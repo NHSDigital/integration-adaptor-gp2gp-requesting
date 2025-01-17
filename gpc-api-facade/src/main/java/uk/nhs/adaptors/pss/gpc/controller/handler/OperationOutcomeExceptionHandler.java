@@ -143,7 +143,7 @@ public class OperationOutcomeExceptionHandler extends ResponseEntityExceptionHan
     }
 
     private ResponseEntity<Object> errorResponse(HttpHeaders headers, HttpStatusCode status, OperationOutcome operationOutcome) {
-        headers = HttpHeaders.writableHttpHeaders(headers);
+        headers = new HttpHeaders(headers);
         headers.put(CONTENT_TYPE, singletonList(APPLICATION_FHIR_JSON_VALUE));
         String content = fhirParser.encodeToJson(operationOutcome);
         return new ResponseEntity<>(content, headers, status);
