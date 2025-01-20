@@ -1,2 +1,2 @@
-rootProject.name = 'patient-switching-adaptor'
+rootProject.name = 'gp2gp-fhir-request-adaptor'
 include 'schema', 'common', 'db-connector', 'gpc-api-facade', 'gp2gp-translator', 'smoke-tests'
