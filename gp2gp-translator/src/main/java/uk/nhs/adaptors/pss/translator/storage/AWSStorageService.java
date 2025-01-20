@@ -43,17 +43,16 @@ public class AWSStorageService implements StorageService {
             credentialsProvider = StaticCredentialsProvider.create(credentials);
         }
 
-        this.s3Client = (credentialsProvider != null)
-                        ? S3Client.builder()
-                            .region(Region.of(configuration.getRegion()))
-                            .credentialsProvider(credentialsProvider)
-                            .build()
-                        : s3Client;
+        this.s3Client = (credentialsProvider == null)
+                        ? s3Client : S3Client.builder()
+                                             .region(Region.of(configuration.getRegion()))
+                                             .credentialsProvider(credentialsProvider)
+                                             .build();
 
         this.s3Presigner = presignerBuilder
-            .region(Region.of(configuration.getRegion()))
-            .credentialsProvider(credentialsProvider != null ? credentialsProvider : DefaultCredentialsProvider.create())
-            .build();
+                .region(Region.of(configuration.getRegion()))
+                .credentialsProvider(credentialsProvider == null ? DefaultCredentialsProvider.create() : credentialsProvider)
+                .build();
 
         this.bucketName = configuration.getContainerName();
     }
