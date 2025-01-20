@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -107,7 +108,7 @@ public class AWSStorageService implements StorageService {
             return presignedUrl.toString();
         } catch (Exception e) {
             LOGGER.error("An exception occurred while presigning a URL", e);
-            return null;
+            throw S3Exception.builder().message(e.getMessage()).cause(e.getCause()).build();
         }
     }
 
