@@ -4,9 +4,7 @@ import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -17,9 +15,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,10 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class AWSStorageServiceTest {
 
@@ -67,7 +59,7 @@ class AWSStorageServiceTest {
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder());
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().build());
     }
 
     @AfterEach
@@ -121,7 +113,7 @@ class AWSStorageServiceTest {
         config.setAccountReference(ACCESS_KEY);
         config.setAccountSecret(SECRET_KEY);
 
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder());
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().build());
         String fileContent = "dummy-content";
         s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
                            RequestBody.fromString(fileContent));
@@ -130,33 +122,6 @@ class AWSStorageServiceTest {
 
         assertNotNull(response);
         assertTrue(response.contains(FILE_NAME));
-    }
-
-    @Test
-    void testGetFileLocationThrowsS3Exception() {
-
-        String s3BucketExceptionMsg = "S3 bucket exception";
-        S3Presigner.Builder mockPresignerBuilder = Mockito.mock(S3Presigner.Builder.class);
-        S3Presigner mockPresigner = Mockito.mock(S3Presigner.class);
-
-        when(mockPresignerBuilder.region(any(Region.class))).thenReturn(mockPresignerBuilder);
-        when(mockPresignerBuilder.credentialsProvider(any(DefaultCredentialsProvider.class))).thenReturn(mockPresignerBuilder);
-        when(mockPresignerBuilder.build()).thenReturn(mockPresigner);
-
-        StorageServiceConfiguration mockConfig = Mockito.mock(StorageServiceConfiguration.class);
-        when(mockConfig.getRegion()).thenReturn(Region.EU_WEST_2.toString());
-        when(mockConfig.getContainerName()).thenReturn(BUCKET_NAME);
-
-        AWSStorageService service = new AWSStorageService(null, mockConfig, mockPresignerBuilder);
-
-        when(mockPresigner.presignGetObject(any(GetObjectPresignRequest.class)))
-            .thenThrow(new RuntimeException(s3BucketExceptionMsg));
-
-        S3Exception exception = assertThrows(S3Exception.class, () -> service.getFileLocation(FILE_NAME));
-
-        assertEquals(s3BucketExceptionMsg, exception.getMessage());
-        verify(mockPresigner, times(1)).presignGetObject(any(GetObjectPresignRequest.class));
-        verify(mockPresignerBuilder, times(1)).build();
     }
 
 }

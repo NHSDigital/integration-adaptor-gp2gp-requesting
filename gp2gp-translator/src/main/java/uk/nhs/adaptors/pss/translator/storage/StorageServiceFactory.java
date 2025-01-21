@@ -19,7 +19,7 @@ public class StorageServiceFactory implements FactoryBean<StorageService> {
         StorageService storageService = null;
         switch (StorageServiceOptionsEnum.enumOf(configuration.getType())) {
             case S3:
-                storageService = new AWSStorageService(S3Client.builder().build(), configuration, S3Presigner.builder());
+                storageService = new AWSStorageService(S3Client.builder().build(), configuration, S3Presigner.builder().build());
                 break;
             case AZURE:
                 storageService = new AzureStorageService(configuration);
