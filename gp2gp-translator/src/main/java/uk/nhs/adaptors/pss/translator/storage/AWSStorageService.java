@@ -31,9 +31,9 @@ public class AWSStorageService implements StorageService {
     private final String bucketName;
     private final S3Presigner s3Presigner;
 
-    public AWSStorageService(S3Client s3Client,
+    public AWSStorageService(final S3Client s3Client,
                              StorageServiceConfiguration configuration,
-                             S3Presigner s3Presigner) {
+                             final S3Presigner s3Presigner) {
 
         if (accessKeyProvided(configuration)) {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(configuration.getAccountReference(),

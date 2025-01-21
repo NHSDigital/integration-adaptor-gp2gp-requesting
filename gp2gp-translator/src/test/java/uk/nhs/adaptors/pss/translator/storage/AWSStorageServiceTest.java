@@ -59,7 +59,7 @@ class AWSStorageServiceTest {
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().build());
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().region(Region.EU_WEST_2).build());
     }
 
     @AfterEach
