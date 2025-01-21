@@ -26,6 +26,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -128,6 +129,7 @@ class AWSStorageServiceTest {
         String response = awsStorageService.getFileLocation(FILE_NAME);
 
         assertNotNull(response);
+        assertTrue(response.contains("test-file.txt"));
     }
 
     @Test
