@@ -129,7 +129,7 @@ class AWSStorageServiceTest {
         String response = awsStorageService.getFileLocation(FILE_NAME);
 
         assertNotNull(response);
-        assertTrue(response.contains("test-file.txt"));
+        assertTrue(response.contains(FILE_NAME));
     }
 
     @Test
