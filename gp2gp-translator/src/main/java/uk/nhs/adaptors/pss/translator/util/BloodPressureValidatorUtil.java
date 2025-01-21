@@ -35,6 +35,7 @@ public class BloodPressureValidatorUtil {
     private static final List<String> DIASTOLIC_5 = Arrays.asList("407557002", "2159158013");
 
     private static final List<List<List<String>>> VALID_BLOOD_PRESSURE_TRIPLES = Arrays.asList(
+        Arrays.asList(HEADER_1, Arrays.asList("163030003"), Arrays.asList("163031004")),
         Arrays.asList(HEADER_1, SYSTOLIC_1, DIASTOLIC_1),
         Arrays.asList(HEADER_1, SYSTOLIC_2, DIASTOLIC_2),
         Arrays.asList(HEADER_2, SYSTOLIC_1, DIASTOLIC_1),
