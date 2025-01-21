@@ -61,16 +61,6 @@ public class E2EMappingIT extends BaseEhrHandler {
         );
     }
 
-    @Override
-    @BeforeEach
-    public void setUp() {
-        setPatientNhsNumber(generatePatientNhsNumber());
-        setConversationId(generateConversationId().toUpperCase());
-        setLosingODSCode("B83002");
-        setWiningODSCode("C81007");
-        startPatientMigrationJourney();
-    }
-
     @Test
     public void handlePWTP2EhrExtractFromQueue() throws JSONException {
         sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP2.xml");
