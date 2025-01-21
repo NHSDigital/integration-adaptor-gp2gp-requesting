@@ -113,7 +113,7 @@ class AWSStorageServiceTest {
         config.setAccountReference(ACCESS_KEY);
         config.setAccountSecret(SECRET_KEY);
 
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().build());
+        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().region(Region.EU_WEST_2).build());
         String fileContent = "dummy-content";
         s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
                            RequestBody.fromString(fileContent));
