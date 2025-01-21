@@ -1,4 +1,4 @@
-name: "GP2GP Sending Adaptor Build Workflow"
+name: "Build"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
