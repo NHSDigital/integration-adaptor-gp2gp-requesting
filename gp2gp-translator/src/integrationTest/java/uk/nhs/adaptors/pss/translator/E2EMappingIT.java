@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
-import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.IdGeneratorService;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
@@ -46,9 +44,6 @@ public class E2EMappingIT extends BaseEhrHandler {
     @Qualifier("jmsTemplateMhsQueue")
     @Autowired
     private JmsTemplate mhsJmsTemplate;
-
-    @Autowired
-    private PatientMigrationRequestDao patientMigrationRequestDao;
 
     @MockBean
     private IdGeneratorService idGeneratorService;
@@ -78,92 +73,72 @@ public class E2EMappingIT extends BaseEhrHandler {
 
     @Test
     public void handlePWTP2EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP2-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP2.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP2.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP2-output.json");
     }
 
     @Test
     public void handlePWTP3EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP3-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP3.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP3.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP3-output.json");
     }
 
     @Test
     public void handlePWTP4EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP4-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP4.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP4.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP4-output.json");
     }
 
     @Test
     public void handlePWTP5EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP5-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP5.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP5.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP5-output.json");
     }
 
     @Test
     public void handlePWTP6EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP6-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP6.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP6.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP6-output.json");
     }
 
     @Test
     public void handlePWTP7visEhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP7_vis-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP7_vis.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP7_vis.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP7_vis-output.json");
     }
 
     @Test
     public void handlePWTP9EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP9-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP9.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP9.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP9-output.json");
     }
 
     @Test
     public void handlePWTP10EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP10-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP10.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP10.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP10-output.json");
     }
 
     @Test
     public void handlePWTP11EhrExtractFromQueue() throws JSONException {
-        final var expectedBundle = readResourceAsString(OUTPUT_RESOURCE_PATH + "PWTP11-output.json");
+        sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP11.xml");
 
-        final var actualBundle = sendInboundMessageAndWaitForBundle(INPUT_RESOURCE_PATH + "PWTP11.xml");
-
-        JSONAssert.assertEquals(expectedBundle, actualBundle, true);
+        verifyBundle(OUTPUT_RESOURCE_PATH + "PWTP11-output.json");
     }
 
-    private String sendInboundMessageAndWaitForBundle(String inputFilePath) {
+    private void sendInboundMessageAndWaitForBundle(String inputFilePath) {
         final var inboundMessage = parseMessageToString(createInboundMessage(inputFilePath));
         mhsJmsTemplate.send(session -> session.createTextMessage(inboundMessage));
-        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
 
-        var patientMigrationRequest = patientMigrationRequestDao.getMigrationRequest(getConversationId());
-        return patientMigrationRequest.getBundleResource();
+        await().untilAsserted(() -> assertThatMigrationStatus().isEqualTo(MigrationStatus.MIGRATION_COMPLETED));
     }
 
     private InboundMessage createInboundMessage(String payloadPartPath) {

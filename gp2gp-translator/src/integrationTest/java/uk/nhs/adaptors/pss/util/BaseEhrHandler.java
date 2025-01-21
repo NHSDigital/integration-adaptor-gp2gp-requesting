@@ -58,7 +58,7 @@ public abstract class BaseEhrHandler {
     private static final String NACK_TYPE_CODE = "AE";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private List<String> ignoredJsonPaths;
+    private List<String> ignoredJsonPaths = List.of();
     private static final int NHS_NUMBER_MIN_MAX_LENGTH = 10;
 
     @Getter
