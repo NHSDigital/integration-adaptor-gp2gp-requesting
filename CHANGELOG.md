@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.0.9] - 2025-01-22 
+
 ### Fixed
 
 * In the event of patient migration request which has failed, the adaptor would previously reject an XML Electronic
