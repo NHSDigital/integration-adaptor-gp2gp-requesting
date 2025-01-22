@@ -27,7 +27,7 @@
       },
       "identifier": [ {
         "system": "https://fhir.nhs.uk/Id/ods-organization-code",
-        "value": "B83002"
+        "value": "D5445"
       } ]
     }
   }, {
@@ -74,7 +74,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "7626FAAD-8562-478D-B79C-598520953E86"
       } ],
       "status": "finished",
@@ -139,7 +139,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "B88EECC1-8DA9-48F9-981F-8D31C517A693"
       } ],
       "status": "finished",
@@ -204,7 +204,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "874B1B6E-3E3A-4B01-8B63-A013289D0C0D"
       } ],
       "status": "finished",
@@ -269,7 +269,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "468CA880-E3C3-481F-8563-EC49164041AF"
       } ],
       "status": "finished",
@@ -334,7 +334,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "63A51966-6F41-4073-B63C-555819925A6C"
       } ],
       "status": "finished",
@@ -399,7 +399,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "3379F855-BCF0-471B-808A-8C583BC6D2BE"
       } ],
       "status": "finished",
@@ -464,7 +464,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "9235E217-C0BD-45CB-9DB8-7FD623B1F6DC"
       } ],
       "status": "finished",
@@ -529,7 +529,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "F06C1B87-349B-4078-9D04-854DAF101FD0"
       } ],
       "status": "finished",
@@ -594,7 +594,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "DFF5DD05-D49D-43CE-8523-57DA869AE9F5"
       } ],
       "status": "finished",
@@ -659,7 +659,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "1E6B588E-A505-42D6-9415-160728F0BE46"
       } ],
       "status": "finished",
@@ -724,7 +724,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Encounter-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "6A296C88-9DAF-41D4-928F-6AF5610156DE"
       } ],
       "status": "finished",
@@ -2019,7 +2019,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Location-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "00000000-0000-0000-0000-000000000001"
       } ],
       "status": "active",
@@ -2033,7 +2033,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ReferralRequest-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "E63AF323-919F-4D5F-9A1D-BA933BC230BC"
       } ],
       "status": "unknown",
@@ -2092,7 +2092,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ReferralRequest-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "D0D2E88B-FE92-4530-9D42-87AC1DFB9967"
       } ],
       "status": "unknown",
@@ -2146,7 +2146,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ReferralRequest-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "06B05AF1-0CF1-4522-8040-249701DD3253"
       } ],
       "status": "unknown",
@@ -2200,7 +2200,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ReferralRequest-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "4587024A-E3BF-46DB-A2CA-0CEB2F8A38A8"
       } ],
       "status": "unknown",
@@ -2281,7 +2281,7 @@
         }
       } ],
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "20EA99AA-A461-48B1-BF08-ABA346CD8D96"
       } ],
       "status": "completed",
@@ -2332,7 +2332,7 @@
         }
       } ],
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "20EA99AA-A461-48B1-BF08-ABA346CD8D96-MS"
       } ],
       "basedOn": [ {
@@ -2363,7 +2363,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "8D61D723-D51D-44FB-B814-0EB69DB1D6F4"
       } ],
       "status": "final",
@@ -2421,7 +2421,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "74433F1B-C580-43C2-B0E8-D690DC8D8E4C"
       } ],
       "status": "final",
@@ -2462,7 +2462,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "FF289064-24ED-4BE5-97DD-C4E814CDFCDC"
       } ],
       "status": "final",
@@ -2506,7 +2506,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "DB7F434E-F9B5-466F-88AB-36D74B7CD1B8"
       } ],
       "status": "final",
@@ -2549,7 +2549,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "3EB77233-752C-46E1-A097-9EF61FAB4C8F"
       } ],
       "status": "final",
@@ -2592,7 +2592,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "3968ECB2-FE41-4292-9C40-986C66DC74B3"
       } ],
       "status": "final",
@@ -2650,7 +2650,7 @@
         }
       } ],
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "EEA84B2E-0638-4296-803E-C9B19C0BA2C4"
       } ],
       "clinicalStatus": "active",
@@ -2716,7 +2716,7 @@
         }
       } ],
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "6B4838A3-F022-4B59-AA32-506D22BA7FCB"
       } ],
       "clinicalStatus": "active",
@@ -2798,7 +2798,7 @@
         }
       } ],
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "96D70C9E-C6D8-41B3-8A28-939FFF191BE9"
       } ],
       "clinicalStatus": "active",
@@ -2853,7 +2853,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "BFBF038A-F142-4C67-B05B-D155E2C89990"
       } ],
       "status": "current",
@@ -2907,7 +2907,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "8B172D18-7ED2-4EA4-81C7-E879C0718813"
       } ],
       "status": "current",
@@ -2961,7 +2961,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "6DC83A17-4DFD-4C1C-A452-45F8F8A8FBA1"
       } ],
       "status": "current",
@@ -3015,7 +3015,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "16CADEB3-BDB7-4FBE-8771-E9FC19108A2B"
       } ],
       "status": "current",
@@ -3069,7 +3069,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "A72548B7-18AC-4A77-B5C5-C6B34D253529"
       } ],
       "status": "current",
@@ -3123,7 +3123,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "3B24F143-B01E-4F02-BCD4-D9AD16323E98"
       } ],
       "status": "current",
@@ -3177,7 +3177,7 @@
         "profile": [ "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1" ]
       },
       "identifier": [ {
-        "system": "https://PSSAdaptor/B83002",
+        "system": "https://PSSAdaptor/D5445",
         "value": "799F9158-3CFF-4908-BFB1-CD76049D3A37"
       } ],
       "status": "current",

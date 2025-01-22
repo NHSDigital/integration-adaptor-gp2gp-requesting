@@ -58,7 +58,7 @@ public abstract class BaseEhrHandler {
     private static final String NACK_TYPE_CODE = "AE";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private List<String> ignoredJsonPaths;
+    private List<String> ignoredJsonPaths = List.of();
     private static final int NHS_NUMBER_MIN_MAX_LENGTH = 10;
 
     @Getter
@@ -67,10 +67,11 @@ public abstract class BaseEhrHandler {
     @Getter
     protected static final String CONVERSATION_ID_PLACEHOLDER = "{{conversationId}}";
 
-    @Getter @Setter
-    private String losingODSCode = "D5445";
-    @Getter @Setter
-    private String winingODSCode = "ABC";
+    @Getter
+    private final String losingODSCode = "D5445";
+    @Getter
+    private final String winingODSCode = "ABC";
+
     @Getter @Setter
     private String patientNhsNumber;
     @Getter @Setter
@@ -105,7 +106,7 @@ public abstract class BaseEhrHandler {
         startPatientMigrationJourney();
     }
 
-    protected void startPatientMigrationJourney() {
+    private void startPatientMigrationJourney() {
         patientMigrationRequestDao.addNewRequest(patientNhsNumber, conversationId, losingODSCode, winingODSCode);
         migrationStatusLogService.addMigrationStatusLog(EHR_EXTRACT_REQUEST_ACCEPTED, conversationId, null, null);
     }
