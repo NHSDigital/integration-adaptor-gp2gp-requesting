@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -108,7 +109,7 @@ public class EHRTimeoutHandlerIT {
         String winningOdsCode = "A0378";
         String nhsNumber = "9446363101";
         String persistDuration = "PT4H";
-        String conversationId = UUID.randomUUID().toString();
+        String conversationId = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
         InboundMessage inboundMessage = createInboundMessage();
 
         when(sdsService.getPersistDurationFor(any(), any(), any())).thenReturn(Duration.parse(persistDuration));
