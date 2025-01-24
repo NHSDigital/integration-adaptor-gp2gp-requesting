@@ -12,6 +12,7 @@ import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.model.MigrationStatusLog;
 
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Service
@@ -24,7 +25,7 @@ public class MigrationStatusLogService {
 
     public void addMigrationStatusLog(MigrationStatus migrationStatus, String conversationId, String messageId, String gp2gpErrorCode) {
 
-        int migrationRequestId = patientMigrationRequestDao.getMigrationRequestId(conversationId);
+        int migrationRequestId = patientMigrationRequestDao.getMigrationRequestId(conversationId.toUpperCase(Locale.ROOT));
         migrationStatusLogDao.addMigrationStatusLog(
             migrationStatus,
             dateUtils.getCurrentOffsetDateTime(),
