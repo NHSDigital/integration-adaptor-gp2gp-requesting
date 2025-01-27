@@ -98,7 +98,7 @@ public class PatientTransferServiceTest {
         OffsetDateTime now = OffsetDateTime.now();
         when(dateUtils.getCurrentOffsetDateTime()).thenReturn(now);
         when(patientMigrationRequestDao.getMigrationRequest(CONVERSATION_ID)).thenReturn(null);
-        when(patientMigrationRequestDao.getMigrationRequestId(CONVERSATION_ID)).thenReturn(migrationRequestId);
+        when(patientMigrationRequestDao.getMigrationRequestId(UUID.fromString(CONVERSATION_ID))).thenReturn(migrationRequestId);
         when(mdcService.getConversationId()).thenReturn(CONVERSATION_ID);
 
         MigrationStatusLog patientMigrationRequest = service.handlePatientMigrationRequest(parameters, HEADERS);
@@ -125,7 +125,7 @@ public class PatientTransferServiceTest {
         OffsetDateTime now = OffsetDateTime.now();
         when(dateUtils.getCurrentOffsetDateTime()).thenReturn(now);
         when(patientMigrationRequestDao.getMigrationRequest(CONVERSATION_ID)).thenReturn(null);
-        when(patientMigrationRequestDao.getMigrationRequestId(CONVERSATION_ID)).thenReturn(migrationRequestId);
+        when(patientMigrationRequestDao.getMigrationRequestId(UUID.fromString(CONVERSATION_ID))).thenReturn(migrationRequestId);
         when(mdcService.getConversationId()).thenReturn(CONVERSATION_ID.toLowerCase(Locale.ROOT));
 
         MigrationStatusLog patientMigrationRequest = service.handlePatientMigrationRequest(parameters, HEADERS);

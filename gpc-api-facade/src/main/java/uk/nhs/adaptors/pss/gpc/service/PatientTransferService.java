@@ -9,6 +9,7 @@ import static uk.nhs.adaptors.pss.gpc.util.fhir.ParametersUtils.getNhsNumberFrom
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import org.hl7.fhir.dstu3.model.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class PatientTransferService {
             var patientNhsNumber = getNhsNumberFromParameters(parameters).get().getValue();
             patientMigrationRequestDao.addNewRequest(patientNhsNumber, conversationId, headers.get(TO_ODS), headers.get(FROM_ODS));
 
-            int addedId = patientMigrationRequestDao.getMigrationRequestId(conversationId);
+            int addedId = patientMigrationRequestDao.getMigrationRequestId(UUID.fromString(conversationId));
             migrationStatusLogDao.addMigrationStatusLog(REQUEST_RECEIVED, dateUtils.getCurrentOffsetDateTime(), addedId, null, null);
 
             var pssMessage = createTransferRequestMessage(patientNhsNumber, headers, conversationId);

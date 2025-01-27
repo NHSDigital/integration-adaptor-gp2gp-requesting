@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ public class MigrationStatusLogServiceTest {
         String nhsNumber = "123456";
         OffsetDateTime now = OffsetDateTime.now();
 
-        when(patientMigrationRequestDao.getMigrationRequestId(nhsNumber)).thenReturn(MIGRATION_REQUEST_ID);
+        when(patientMigrationRequestDao.getMigrationRequestId(UUID.fromString(nhsNumber))).thenReturn(MIGRATION_REQUEST_ID);
         when(dateUtils.getCurrentOffsetDateTime()).thenReturn(now);
 
         migrationStatusLogService.addMigrationStatusLog(MigrationStatus.MIGRATION_COMPLETED, nhsNumber, null, null);
