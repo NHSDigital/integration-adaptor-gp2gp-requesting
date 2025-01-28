@@ -24,6 +24,7 @@ import static uk.nhs.adaptors.common.enums.QueueMessageType.TRANSFER_REQUEST;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 
 import ca.uhn.fhir.parser.DataFormatException;
 import org.apache.qpid.jms.message.JmsTextMessage;
@@ -78,6 +79,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
     public static final String JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON = "/json/LargeMessage/Scenario_3/copc.json";
     public static final String JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON = "/json/LargeMessage/expectedBundleScenario3.json";
     public static final int RECEIVE_TIMEOUT_LIMIT = 50;
+    private String conversationId;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -117,11 +119,12 @@ public class ServiceFailureIT extends BaseEhrHandler {
             "entry[*].resource.content[0].attachment.url",
             "entry[*].resource.description"
         ));
+        conversationId = generateConversationId().toUpperCase(Locale.ROOT);
     }
 
     @Test
     public void When_SendingInitialRequest_WithMhsOutboundServerError_Expect_MigrationLogHasRequestError() {
-        var conversationId = generateConversationId();
+
         var patientNhsNumber = generatePatientNhsNumber();
 
         doThrow(getInternalServerErrorException())
@@ -201,7 +204,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
     @Test
     public void When_SendingInitialRequest_WithMhsWebClientRequestException_Expect_MigrationCompletesWhenMhsRecovers()
         throws JSONException {
-        var conversationId = generateConversationId();
+
         var patientNhsNumber = generatePatientNhsNumber();
 
         doThrow(WebClientRequestException.class)
@@ -298,7 +301,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
     @Test
     public void When_SendingInitialRequest_WithDBConnectionException_Expect_MigrationCompletesWhenMhsRecovers() throws JSONException {
-        var conversationId = generateConversationId();
+
         var patientNhsNumber = generatePatientNhsNumber();
 
         doThrow(ConnectionException.class)
