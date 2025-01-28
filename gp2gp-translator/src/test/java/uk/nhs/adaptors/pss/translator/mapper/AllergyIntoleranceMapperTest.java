@@ -380,7 +380,7 @@ class AllergyIntoleranceMapperTest {
                 any(String.class), any(Optional.class), any(Optional.class)
             )).thenReturn(stubbedMeta);
 
-        final RCMRMT030101UKEhrComposition ehrComposition = TestUtility.GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKEhrComposition ehrComposition = TestUtility.getEhrComposition(ehrExtract);
         final List<AllergyIntolerance> allergyIntolerance = allergyIntoleranceMapper
             .mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
