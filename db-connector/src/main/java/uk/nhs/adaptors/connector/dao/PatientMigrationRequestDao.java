@@ -1,6 +1,8 @@
 package uk.nhs.adaptors.connector.dao;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindList;
@@ -24,7 +26,12 @@ public interface PatientMigrationRequestDao {
 
     @SqlQuery("select_patient_migration_request_id")
     @UseClasspathSqlLocator
+    @Deprecated
     int getMigrationRequestId(@Bind("conversationId") String conversationId);
+
+    default int getMigrationRequestId(@Bind("conversationId") UUID conversationId) {
+        return this.getMigrationRequestId(conversationId.toString().toUpperCase(Locale.ROOT));
+    }
 
     @SqlUpdate("save_bundle_resource_and_inbound_message_data")
     @UseClasspathSqlLocator
