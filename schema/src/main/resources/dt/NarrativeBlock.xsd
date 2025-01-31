@@ -34,7 +34,6 @@
 		<xs:attribute name="styleCode" type="xs:NMTOKENS"/>
 		<xs:attribute name="mediaType" type="xs:string" fixed="text/x-hl7-title+xml"/>
 	</xs:complexType>
-	<!--<xs:element name="text" type="StrucDoc.Text"/>-->
 	<xs:complexType name="StrucDoc.Br"/>
 	<xs:complexType name="StrucDoc.Caption" mixed="true">
 		<xs:choice minOccurs="0" maxOccurs="unbounded">

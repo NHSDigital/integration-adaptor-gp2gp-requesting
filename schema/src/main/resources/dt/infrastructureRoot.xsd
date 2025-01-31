@@ -19,9 +19,6 @@
 	</xs:complexType>
 	<xs:group name="InfrastructureRootElements">
 		<xs:sequence>
-			<!--<xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="typeId" type="all.InfrastructureRoot.typeId" minOccurs="0"/>
-			<xs:element name="templateId" type="all.InfrastructureRoot.templateId" minOccurs="0" maxOccurs="unbounded"/>-->
 		</xs:sequence>
 	</xs:group>
 	<xs:attributeGroup name="InfrastructureRootAttributes">
