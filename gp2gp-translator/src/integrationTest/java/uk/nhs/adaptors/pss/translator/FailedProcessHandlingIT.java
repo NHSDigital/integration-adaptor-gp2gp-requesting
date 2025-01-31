@@ -26,7 +26,6 @@ public class FailedProcessHandlingIT extends BaseEhrHandler {
     private static final String EHR_MESSAGE_EXTRACT_PATH = "/json/LargeMessage/Scenario_3/uk06.json";
     private static final String COPC_MESSAGE_PATH = "/json/LargeMessage/Scenario_3/copc.json";
 
-    private static final String UNEXPECTED_CONDITION_CODE = "99";
     private static final String LARGE_MESSAGE_TIMEOUT_CODE = "25";
     private static final String EHR_GENERAL_PROCESSING_ERROR_CODE = "30";
     private static final String EHR_NACK_UNKNOWN = "99";
