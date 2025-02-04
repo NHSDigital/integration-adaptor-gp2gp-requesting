@@ -47,6 +47,7 @@ This is a __required__ prerequisite for both requesting and sending adaptors.
 1. For the translator container, specify the `MHS_BASE_URL` variable pointing to the MHS Outbound adaptor created above,
    and `PS_DAISY_CHAINING_ACTIVE` to "true".
 1. Configure the attachment storage options for the requesting adaptor.
+1. Configure the migration timeout options, specifying both the `SDS_BASE_URL` and `SDS_API_KEY`.
 1. Make a HTTP request to the facade container, using a test NHS Number.
    Contact the NIA Support team (niasupport@nhs.net) for more details on this.
 1. Look at the MHS Outbound logs, to see if the outbound request is sent successfully.
