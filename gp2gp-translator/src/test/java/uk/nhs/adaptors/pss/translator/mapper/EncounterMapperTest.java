@@ -3,9 +3,11 @@ package uk.nhs.adaptors.pss.translator.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.isNull;
 
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -420,8 +422,7 @@ public class EncounterMapperTest {
     public void testValidEncounterWithFlatConsultationWithLinkSet() {
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
             .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull()))
-            .thenReturn(getList());
+        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_FLAT_ENCOUNTER_WITH_LINK_SET_XML);
 
@@ -561,8 +562,7 @@ public class EncounterMapperTest {
     public void testEncounterWithMappedResourcesWithFlatConsultation() {
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
             .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull()))
-            .thenReturn(getList());
+        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_FLAT_ENCOUNTER_WITH_RESOURCES_XML);
 
@@ -590,6 +590,32 @@ public class EncounterMapperTest {
         verify(resourceReferenceUtil, atLeast(1))
             .extractChildReferencesFromEhrComposition(any(), any());
         verifyCreateMetaAndAddSecurityCalled(1, Optional.empty());
+    }
+
+    @Test
+    public void testEncounterWithMappedResourcesWithFlatConsultationThatItReturnsRelatedProblemsForConditions() {
+        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
+            .thenReturn(getList());
+        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
+        doAnswer(invocation -> {
+            List<Reference> list = invocation.getArgument(1);
+            list.add(new Reference("Observation/4971E81B-693C-11EE-9D98-00155D78C707"));
+            list.add(new Reference("Condition/4971E81C-693C-11EE-9D98-00155D78C707"));
+            list.add(new Reference("Observation/4971E81D-693C-11EE-9D98-00155D78C707"));
+            list.add(new Reference("Condition/4971E81E-693C-11EE-9D98-00155D78C707"));
+            list.add(new Reference("Condition/4971E81E-693C-11EE-9D98-00155D78C707"));
+            return null;
+        }).when(resourceReferenceUtil).extractChildReferencesFromEhrComposition(
+            any(RCMRMT030101UKEhrComposition.class),
+            anyList());
+
+        var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_FLAT_ENCOUNTER_WITH_RESOURCES_XML);
+
+        Map<String, List<? extends DomainResource>> mappedResources = encounterMapper.mapEncounters(
+            ehrExtract, patient, PRACTISE_CODE, entryLocations);
+
+        assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
+        assertThat(mappedResources.get(TOPIC_KEY).getFirst().getExtension()).hasSize(2);
     }
 
     @ParameterizedTest
