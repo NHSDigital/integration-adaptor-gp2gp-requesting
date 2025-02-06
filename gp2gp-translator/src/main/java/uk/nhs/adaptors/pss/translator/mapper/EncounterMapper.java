@@ -51,7 +51,6 @@ import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
 import uk.nhs.adaptors.pss.translator.util.ResourceReferenceUtil;
-
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
 
 @Service
@@ -157,12 +156,18 @@ public class EncounterMapper {
 
     private List<Extension> getRelatedProblemsForFlatStructuredConsultation(List<Reference> entryReferences) {
 
-        Set conditionIds = entryReferences.stream().map(reference -> reference.getReference().split("/"))
-            .filter(parts -> CONDITION.equals(parts[0]))
-            .map(parts -> parts[1])
-            .collect(Collectors.toSet());
+        Set<String> conditionIds = splitAndExtractConditionIds(entryReferences);
 
         return buildRelatedProblemExtensionsForConditions(conditionIds);
+    }
+
+    private Set<String> splitAndExtractConditionIds(List<Reference> entryReferences) {
+        Set<String> conditionIds = entryReferences.stream()
+                                                  .map(reference -> reference.getReference().split("/"))
+                                                  .filter(parts -> CONDITION.equals(parts[0]))
+                                                  .map(parts -> parts[1])
+                                                  .collect(Collectors.toSet());
+        return conditionIds;
     }
 
     private List<Extension> getRelatedProblemsForStructuredConsultation(RCMRMT030101UKCompoundStatement topicCompoundStatement,

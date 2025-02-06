@@ -2,6 +2,7 @@ package uk.nhs.adaptors.pss.translator.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -616,6 +617,8 @@ public class EncounterMapperTest {
 
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(TOPIC_KEY).getFirst().getExtension()).hasSize(2);
+        assertEquals(RELATED_PROBLEM_EXT_URL, mappedResources.get(TOPIC_KEY).getFirst().getExtension().get(0).getUrl());
+        assertEquals(RELATED_PROBLEM_EXT_URL, mappedResources.get(TOPIC_KEY).getFirst().getExtension().get(1).getUrl());
     }
 
     @ParameterizedTest
