@@ -598,13 +598,14 @@ public class EncounterMapperTest {
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
             .thenReturn(getList());
         when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
+        String conditionTopicListEntry = "Condition/4971E81E-693C-11EE-9D98-00155D78C707";
         doAnswer(invocation -> {
             List<Reference> list = invocation.getArgument(1);
             list.add(new Reference("Observation/4971E81B-693C-11EE-9D98-00155D78C707"));
             list.add(new Reference("Condition/4971E81C-693C-11EE-9D98-00155D78C707"));
             list.add(new Reference("Observation/4971E81D-693C-11EE-9D98-00155D78C707"));
-            list.add(new Reference("Condition/4971E81E-693C-11EE-9D98-00155D78C707"));
-            list.add(new Reference("Condition/4971E81E-693C-11EE-9D98-00155D78C707"));
+            list.add(new Reference(conditionTopicListEntry));
+            list.add(new Reference(conditionTopicListEntry));
             return null;
         }).when(resourceReferenceUtil).extractChildReferencesFromEhrComposition(
             any(RCMRMT030101UKEhrComposition.class),
@@ -618,7 +619,9 @@ public class EncounterMapperTest {
         assertThat(mappedResources.get(TOPIC_KEY).size()).isOne();
         assertThat(mappedResources.get(TOPIC_KEY).getFirst().getExtension()).hasSize(2);
         assertEquals(RELATED_PROBLEM_EXT_URL, mappedResources.get(TOPIC_KEY).getFirst().getExtension().get(0).getUrl());
-        assertEquals(RELATED_PROBLEM_EXT_URL, mappedResources.get(TOPIC_KEY).getFirst().getExtension().get(1).getUrl());
+        assertEquals(conditionTopicListEntry,
+                     ((Reference) mappedResources.get(TOPIC_KEY).getFirst().getExtension().get(0).getExtension().getFirst()
+                         .getValue()).getReference());
     }
 
     @ParameterizedTest
