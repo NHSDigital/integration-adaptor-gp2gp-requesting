@@ -162,12 +162,11 @@ public class EncounterMapper {
     }
 
     private Set<String> splitAndExtractConditionIds(List<Reference> entryReferences) {
-        Set<String> conditionIds = entryReferences.stream()
+        return entryReferences.stream()
                                                   .map(reference -> reference.getReference().split("/"))
                                                   .filter(parts -> CONDITION.equals(parts[0]))
                                                   .map(parts -> parts[1])
                                                   .collect(Collectors.toSet());
-        return conditionIds;
     }
 
     private List<Extension> getRelatedProblemsForStructuredConsultation(RCMRMT030101UKCompoundStatement topicCompoundStatement,
