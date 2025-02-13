@@ -4,6 +4,35 @@ The below instructions assume you will be using a single message broker for all 
 
 ### Setting up the MHS adaptor
 
+```mermaid
+C4Container
+title MHS Adaptor container diagram
+
+Enterprise_Boundary(nme, "New Market Entrant") {
+  Container_Boundary(c1, "MHS Adaptor") {
+    ContainerDb(mhs_database, "Database", "Dynamo/Mongo", "Stores details of messages sent/received")
+    Container(mhs_inbound, "MHS Inbound", "Docker Container, Python", "Acts as a Message Handling System")
+    Container(mhs_outbound, "MHS Outbound", "Docker Container, Python", "Proxies messages to Spine")
+    ContainerQueue(mhs_queue, "MHS Inbound Queue", "AMQP 1.0", "Stores incoming messages from Spine")
+
+    Rel(mhs_inbound, mhs_database, "")
+    Rel(mhs_outbound, mhs_database, "")
+    Rel(mhs_inbound, mhs_queue, "Stores inbound messages to")
+  }
+}
+
+Enterprise_Boundary(nhs_england, "NHS England") {
+  System_Ext(sds_fhir_api, "SDS FHIR API", "Spine Directory Service API")
+  System_Ext(spine_forward_reliable, "NHS Spine", "Spine reliable messaging endpoint")
+}
+
+Rel(mhs_outbound, sds_fhir_api, "Queries endpoint", "sync, HTTPS")
+Rel(mhs_outbound, spine_forward_reliable, "Sends messages to", "sync, HTTPS")
+Rel(spine_forward_reliable, mhs_inbound, "Sends messages to", "sync, HTTPS")
+
+UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
+```
+
 This is a __required__ prerequisite for both requesting and sending adaptors. 
 
 1. Identify a HSCN IP address(es) which can be used for the GP2GP process, and made available to the machine running the MHS Inbound.
@@ -40,6 +69,41 @@ This is a __required__ prerequisite for both requesting and sending adaptors.
 
 ### Requesting adaptor
 
+
+```mermaid
+C4Container
+title GP2GP FHIR Request Adaptor container diagram
+
+Enterprise_Boundary(nme, "New Market Entrant") {
+  Container_Boundary(c1, "MHS Adaptor") {
+    Container(mhs_outbound, "MHS Outbound", "Docker Container, Python", "Proxies messages to Spine")
+    ContainerQueue(mhs_queue, "MHS Inbound Queue", "AMQP 1.0", "Stores incoming messages from Spine")
+  }
+
+  Container_Boundary(c2, "GP2GP FHIR Request Adaptor") {
+    Container(gp2gp_fhir_request_translator, "Translator", "Docker Container, Java", "")
+    Container(gp2gp_fhir_request_facade, "Facade", "Docker Container, Java", "Provides HTTP API for the adaptor")
+    ContainerDb(gp2gp_fhir_request_database, "Database", "PostgreSQL", "Stores GP2GP requests")
+    ContainerQueue(gp2gp_fhir_request_queue, "PSS Queue", "AMQP 1.0", "Stores messages from facade to translator")
+
+    Rel(gp2gp_fhir_request_facade, gp2gp_fhir_request_queue, "Sends work")
+    Rel(gp2gp_fhir_request_translator, gp2gp_fhir_request_queue, "Fetches work")
+    Rel(gp2gp_fhir_request_translator, gp2gp_fhir_request_database, "")
+    Rel(gp2gp_fhir_request_facade, gp2gp_fhir_request_database, "")
+  }
+}
+
+Enterprise_Boundary(nhs_england, "NHS England") {
+  System_Ext(sds_fhir_api, "SDS FHIR API", "Spine Directory Service API")
+}
+
+Rel(gp2gp_fhir_request_translator, mhs_outbound, "Sends EhrRequest using", "sync, HTTP")
+Rel(gp2gp_fhir_request_translator, mhs_queue, "Fetches EhrExtract from", "async, AMQP")
+Rel(gp2gp_fhir_request_translator, sds_fhir_api, "Looks up timeout values using", "sync, HTTPS")
+
+UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
+```
+
 1. Spin up a Postgres database, and run the [application schema migration script,
    followed by with the SNOMED import script](OPERATING.md#database-requirements).
 1. Spin up the PS Adaptor facade and translator, specifying `PS_DB_URL` to point at the database,
@@ -57,6 +121,37 @@ This is a __required__ prerequisite for both requesting and sending adaptors.
 1. Query the PS Adaptor again to see if your patient has been returned.
 
 ### Sending adaptor
+
+```mermaid
+C4Container
+title GP2GP FHIR Send Adaptor container diagram
+
+Enterprise_Boundary(nme, "New Market Entrant") {
+  Container_Boundary(c1, "MHS Adaptor") {
+    Container(mhs_outbound, "MHS Outbound", "Docker Container, Python", "Proxies messages to Spine")
+    ContainerQueue(mhs_queue, "MHS Inbound Queue", "AMQP 1.0", "Stores incoming messages from Spine")
+  }
+
+  Container_Boundary(c3, "GP2GP FHIR Send Adaptor") {
+    Container(gp2gp_fhir_send_adaptor, "GP2GP", "Docker Container, Java", "")
+    Container(gpc_consumer_adaptor, "GP Connect Consumer", "Docker Container, Java", "Proxies GP Connect HTTP requests")
+    ContainerDb(gp2gp_fhir_send_database, "Database", "MongoDB", "Stores outgoing GP2GP transfers")
+
+    Rel(gp2gp_fhir_send_adaptor, gpc_consumer_adaptor, "Requests Patient GP Connect record", "sync, HTTP")
+    Rel(gp2gp_fhir_send_adaptor, gp2gp_fhir_send_database, "")
+  }
+}
+
+Enterprise_Boundary(nhs_england, "NHS England") {
+  System_Ext(spine_secure_proxy, "Spine Secure Proxy", "Spine Secure Proxy")
+}
+
+Rel(gp2gp_fhir_send_adaptor, mhs_outbound, "Sends EhrExtract using", "sync, HTTP")
+Rel(gp2gp_fhir_send_adaptor, mhs_queue, "Fetches EhrRequest from", "async, AMQP")
+Rel(gpc_consumer_adaptor, spine_secure_proxy, "Forwards GP Connect HTTP requests, "sync, HTTPS")
+
+UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
+```
 
 1. Before testing a sending scenario you will need a working [GP Connect Access Record] implementation.
 1. Spin up the GP Connect Consumer adaptor.
