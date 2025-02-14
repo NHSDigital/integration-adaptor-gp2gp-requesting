@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-* Fixed: Resolved an issue where the receiving adapter did not add a NOPAT entry into Condition when an observationStatement was referenced from linkSet.
+* Resolved an issue where the receiving adapter did not add a NOPAT entry into Condition when an observationStatement was referenced from linkSet.
 
 ## [3.0.9] - 2025-01-22 
 
