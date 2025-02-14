@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.DomainResource;
@@ -50,7 +51,6 @@ import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.DateFormatUtil;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
 import uk.nhs.adaptors.pss.translator.util.ResourceReferenceUtil;
-
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
 
 @Service
@@ -76,6 +76,7 @@ public class EncounterMapper {
     private static final String IDENTIFIER_EXTERNAL = "2.16.840.1.113883.2.1.4.5.3";
     private static final String RELATED_PROBLEM_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-RelatedProblemHeader-1";
     private static final String RELATED_PROBLEM_TARGET_URL = "target";
+    public static final String CONDITION = "Condition";
 
     private final CodeableConceptMapper codeableConceptMapper;
     private final ConsultationListMapper consultationListMapper;
@@ -86,8 +87,8 @@ public class EncounterMapper {
             RCMRMT030101UKEhrExtract ehrExtract,
             Patient patient,
             String practiceCode,
-            List<Location> entryLocations
-    ) {
+            List<Location> entryLocations) {
+
         List<Encounter> encounters = new ArrayList<>();
         List<ListResource> consultations = new ArrayList<>();
         List<ListResource> topics = new ArrayList<>();
@@ -116,12 +117,11 @@ public class EncounterMapper {
         map.put(CONSULTATION_KEY, consultations);
         map.put(TOPIC_KEY, topics);
         map.put(CATEGORY_KEY, categories);
-
         return map;
     }
 
     private void generateFlatConsultation(ListResource consultation, List<ListResource> topics,
-        RCMRMT030101UKEhrComposition ehrComposition) {
+                                          RCMRMT030101UKEhrComposition ehrComposition) {
 
         var topic = consultationListMapper.mapToTopic(consultation, null);
 
@@ -130,6 +130,10 @@ public class EncounterMapper {
         entryReferences.forEach(reference -> addEntry(topic, reference));
 
         consultation.addEntry(new ListEntryComponent(new Reference(topic)));
+
+        List<Extension> relatedProblems = getRelatedProblemsForFlatStructuredConsultation(entryReferences);
+        relatedProblems.forEach(topic::addExtension);
+
         topics.add(topic);
     }
 
@@ -150,8 +154,23 @@ public class EncounterMapper {
         });
     }
 
+    private List<Extension> getRelatedProblemsForFlatStructuredConsultation(List<Reference> entryReferences) {
+
+        Set<String> conditionIds = splitAndExtractConditionIds(entryReferences);
+
+        return buildRelatedProblemExtensionsForConditions(conditionIds);
+    }
+
+    private Set<String> splitAndExtractConditionIds(List<Reference> entryReferences) {
+        return entryReferences.stream()
+                                                  .map(reference -> reference.getReference().split("/"))
+                                                  .filter(parts -> CONDITION.equals(parts[0]))
+                                                  .map(parts -> parts[1])
+                                                  .collect(Collectors.toSet());
+    }
+
     private List<Extension> getRelatedProblemsForStructuredConsultation(RCMRMT030101UKCompoundStatement topicCompoundStatement,
-        RCMRMT030101UKEhrComposition ehrComposition) {
+                                                                        RCMRMT030101UKEhrComposition ehrComposition) {
 
         var components = topicCompoundStatement.getComponent().stream()
             .map(RCMRMT030101UKComponent02::getCompoundStatement)
@@ -160,7 +179,6 @@ public class EncounterMapper {
             .toList();
 
         return buildRelatedProblemExtensions(getLinkSetNamedStatementIds(components), getLinkSets(ehrComposition));
-
     }
 
     private Set<String> getLinkSetNamedStatementIds(List<? extends LinkableComponent> components) {
@@ -186,6 +204,20 @@ public class EncounterMapper {
         return statementIds;
     }
 
+    @SuppressWarnings("checkstyle:Indentation")
+    private List<Extension> buildRelatedProblemExtensionsForConditions(Set<String> conditionIds) {
+
+        List<Extension> extensions = new ArrayList<>();
+        conditionIds.forEach(conditionId -> {
+             var extension = new Extension(RELATED_PROBLEM_URL);
+             extension.addExtension(new Extension(RELATED_PROBLEM_TARGET_URL,
+                                                  new Reference(new IdType(ResourceType.Condition.name(), conditionId))));
+             extensions.add(extension);
+             }
+        );
+        return extensions;
+    }
+
     private List<Extension> buildRelatedProblemExtensions(Set<String> statementIds, List<RCMRMT030101UKLinkSet> linkSets) {
 
         List<Extension> extensions = new ArrayList<>();
@@ -193,8 +225,7 @@ public class EncounterMapper {
         for (var linkSet : linkSets) {
             var conditionNamed = linkSet.getConditionNamed();
 
-            if (conditionNamed != null
-                && statementIds.contains(conditionNamed.getNamedStatementRef().getId().getRoot())) {
+            if (conditionNamed != null && statementIds.contains(conditionNamed.getNamedStatementRef().getId().getRoot())) {
 
                 var extension = new Extension(RELATED_PROBLEM_URL);
 

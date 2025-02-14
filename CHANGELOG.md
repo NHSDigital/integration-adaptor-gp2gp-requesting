@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-
 * Resolved an issue where the receiving adapter did not add a NOPAT entry into Condition when an observationStatement was referenced from linkSet.
+
+### Added
+* the relatedProblemHeader extension is populated in the GP Connect Topic List when mapping an ehrComposition with a flat structure
 
 ## [3.0.9] - 2025-01-22 
 
