@@ -332,11 +332,11 @@ class ConditionMapperTest {
     @Test
     void When_Condition_With_NopatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
         final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-        final RCMRMT030101UKEhrExtract ehrExtract =
-            unmarshallEhrExtract("linkset_valid_nopat_confidentiality_code.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_nopat_confidentiality_code.xml");
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
+            confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
         )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
@@ -346,13 +346,13 @@ class ConditionMapperTest {
 
         final CV linksetConfidentialityCode = confidentialityCodeCaptor
             .getAllValues()
-            .getFirst() // linkSet.getConfidentialityCode()
+            .get(1) // linkSet.getConfidentialityCode()
             .orElseThrow();
 
         assertAllConditionsHaveMeta(conditions, metaWithSecurity);
         assertAll(
             () -> assertThat(linksetConfidentialityCode.getCode()).isEqualTo(NOPAT),
-            () -> assertThat(confidentialityCodeCaptor.getAllValues().get(1)).isNotPresent()
+            () -> assertThat(confidentialityCodeCaptor.getAllValues().get(2)).isNotPresent()
         );
     }
 
@@ -365,6 +365,7 @@ class ConditionMapperTest {
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
             confidentialityCodeCaptor.capture(),
+            confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
         )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
 
@@ -373,7 +374,7 @@ class ConditionMapperTest {
 
         final CV ehrCompositionConfidentialityCode = confidentialityCodeCaptor
             .getAllValues()
-            .get(1) // ehrComposition.getConfidentialityCode()
+            .get(2) // ehrComposition.getConfidentialityCode()
             .orElseThrow();
 
         assertAllConditionsHaveMeta(conditions, metaWithSecurity);
@@ -497,6 +498,7 @@ class ConditionMapperTest {
 
         Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
+            confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
         )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
