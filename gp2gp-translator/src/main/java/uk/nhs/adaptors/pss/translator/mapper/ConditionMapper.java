@@ -101,6 +101,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
                     .map(linkSet -> getCondition(
                         patient,
                         encounters,
+                        ehrExtract,
                         composition,
                         linkSet,
                         practiceCode
@@ -108,13 +109,18 @@ public class ConditionMapper extends AbstractMapper<Condition> {
             .toList();
     }
 
-    private Condition getCondition(Patient patient, List<Encounter> encounters, RCMRMT030101UKEhrComposition composition,
-                                   RCMRMT030101UKLinkSet linkSet, String practiceCode) {
+    private Condition getCondition(Patient patient, List<Encounter> encounters, RCMRMT030101UKEhrExtract ehrExtract,
+                                   RCMRMT030101UKEhrComposition composition, RCMRMT030101UKLinkSet linkSet, String practiceCode) {
 
         String id = linkSet.getId().getRoot();
 
+        var referencedObservationStatement = getObservationStatementById(
+            ehrExtract,
+            linkSet.getConditionNamed().getNamedStatementRef().getId().getRoot());
+
         final Meta meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             META_PROFILE,
+            referencedObservationStatement.flatMap(RCMRMT030101UKObservationStatement::getConfidentialityCode),
             linkSet.getConfidentialityCode(),
             composition.getConfidentialityCode()
         );

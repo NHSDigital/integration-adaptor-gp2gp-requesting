@@ -1,0 +1,66 @@
+<EhrExtract xmlns="urn:hl7-org:v3" classCode="EXTRACT" moodCode="EVN">
+    <availabilityTime value="20101209114846"/>
+    <component typeCode="COMP">
+        <ehrFolder classCode="FOLDER" moodCode="EVN">
+            <component typeCode="COMP">
+                <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                    <id root="EHR_COMPOSITION_ENCOUNTER_ID"/>
+                    <Participant2 typeCode="PRF" contextControlCode="OP">
+                        <agentRef classCode="AGNT">
+                            <id root="ASSERTER_ID"/>
+                        </agentRef>
+                    </Participant2>
+                    <component typeCode="COMP">
+                        <LinkSet classCode="OBS" moodCode="EVN">
+                            <id root="LINKSET_ID"/>
+                            <code code="394774009" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Active problem">
+                                <originalText>Active Problem, Significant</originalText>
+                                <qualifier inverted="false">
+                                    <name code="386134007" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Significant" />
+                                </qualifier>
+                            </code>
+                            <statusCode code="COMPLETE"/>
+                            <effectiveTime>
+                                <low value="20101209000000"/>
+                                <high value="20101209000000"/>
+                            </effectiveTime>
+                            <availabilityTime value="20101209114846"/>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="STATEMENT_REF_ID"/>
+                                </statementRef>
+                            </component>
+                            <component typeCode="COMP">
+                                <statementRef classCode="OBS" moodCode="EVN">
+                                    <id root="STATEMENT_REF_ID_1"/>
+                                </statementRef>
+                            </component>
+                            <conditionNamed typeCode="NAME" inversionInd="true">
+                                <namedStatementRef classCode="OBS" moodCode="EVN">
+                                    <id root="NAMED_STATEMENT_REF_ID"/>
+                                </namedStatementRef>
+                            </conditionNamed>
+                        </LinkSet>
+                    </component>
+                    <component typeCode="COMP">
+                        <ObservationStatement classCode="OBS" moodCode="EVN">
+                            <id root="NAMED_STATEMENT_REF_ID"/>
+                            <code code="360300017" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"
+                                  displayName="Test display">
+                            </code>
+                            <statusCode code="COMPLETE" />
+                            <effectiveTime>
+                              <center nullFlavor="NI" />
+                            </effectiveTime>
+                            <availabilityTime value="202012010000" />
+                            <confidentialityCode
+                              code="NOPAT"
+                              codeSystem="2.16.840.1.113883.4.642.3.47"
+                              displayName="no disclosure to patient, family or caregivers without attending provider's authorization" />
+                        </ObservationStatement>
+                    </component>
+                </ehrComposition>
+            </component>
+        </ehrFolder>
+    </component>
+</EhrExtract>
