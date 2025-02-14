@@ -108,6 +108,26 @@ class ConditionMapperTest {
     }
 
     @Test
+    void testConditionIsMappedCorrectlyWithNamedStatementRefPointingtoObservationStatementNopat() {
+        final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference_to_nopat_observation.xml");
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+            eq(META_PROFILE),
+            confidentialityCodeCaptor.capture(),
+            confidentialityCodeCaptor.capture(),
+            confidentialityCodeCaptor.capture()
+            )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+
+        assertAllConditionsHaveMeta(conditions, metaWithSecurity);
+        assertAll(
+            () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst()).isPresent(),
+            () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst().get().getCode()).isEqualTo(NOPAT));
+    }
+
+    @Test
     void testConditionIsMappedCorrectlyNoReferences() {
         when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
 
