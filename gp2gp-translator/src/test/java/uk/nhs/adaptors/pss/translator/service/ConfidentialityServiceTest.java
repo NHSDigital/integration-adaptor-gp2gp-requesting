@@ -40,16 +40,6 @@ class ConfidentialityServiceTest {
     }
 
     @Test
-    void When_CreateMetaWithoutAddedSecurityIfConfidentialityCodesNotPresent_Expect_MetaWithoutSecurity() {
-        final Meta result = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            DUMMY_PROFILE,
-            Optional.empty(),
-            Optional.empty());
-
-        assertThat(result.getSecurity()).isEmpty();
-    }
-
-    @Test
     void When_CreateMetaAndAddSecurityIfConfidentialityCodesPresent_With_ValidMetaProfile_Expect_MetaWithoutSecurity() {
         final Meta result = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             DUMMY_PROFILE

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Optional;
 
 import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.generateMeta;
@@ -21,7 +20,7 @@ public class ConfidentialityService {
 
     @SafeVarargs
     public final Meta createMetaAndAddSecurityIfConfidentialityCodesPresent(String metaProfile, Optional<CV>... cvs) {
-        return Arrays.stream(cvs).filter(Objects::nonNull).flatMap(Optional::stream).anyMatch(this::isNopat)
+        return Arrays.stream(cvs).flatMap(Optional::stream).anyMatch(this::isNopat)
             ? generateMeta(metaProfile).setSecurity(Collections.singletonList(CONFIDENTIALITY_CODING))
             : generateMeta(metaProfile);
     }
