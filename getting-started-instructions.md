@@ -110,7 +110,7 @@ UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
    and the broker related environment variables.
 1. For the translator container, specify the `MHS_BASE_URL` variable pointing to the MHS Outbound adaptor created above,
    and `PS_DAISY_CHAINING_ACTIVE` to "true".
-1. Configure the attachment storage options for the requesting adaptor.
+1. Configure the [attachment storage options](OPERATING.md#attachment-storage) for the requesting adaptor.
 1. Configure the migration timeout options, specifying both the `SDS_BASE_URL` and `SDS_API_KEY`.
 1. Make a HTTP request to the facade container, using a test NHS Number.
    Contact the NIA Support team (niasupport@nhs.net) for more details on this.
@@ -161,8 +161,9 @@ UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 1. Spin up the GP2GP Adaptor and configure the `GP2GP_GPC_GET_URL` variable to point to the GP Connect Consumer adaptor
    above.
    Specify the `GP2GP_MHS_OUTBOUND_URL` to point at the MHS Outbound created above,
-   `GP2GP_MHS_INBOUND_QUEUE` to the value "gp2gpInboundQueue", and the Mongo DB variables as required.
+   `GP2GP_MHS_INBOUND_QUEUE` to the value "gp2gpInboundQueue", and the [Mongo DB variables][database_configuration_options] as required.
 1. Contact the NIA Support team (niasupport@nhs.net) with details of a test patient registered to your GP Surgery,
    who will then test that your adaptor is set up correctly and able to send the patients medical record over spine.
 
+[database_configuration_options]: https://github.com/NHSDigital/integration-adaptor-gp2gp-sending/blob/main/OPERATING.md#database-configuration-options
 [GP Connect Access Record]: https://digital.nhs.uk/services/gp-connect/gp-connect-in-your-organisation/gp-connect-access-record
