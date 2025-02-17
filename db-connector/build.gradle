@@ -30,7 +30,7 @@ dependencies {
     implementation project(':common')
     implementation 'org.postgresql:postgresql:42.7.5'
     implementation 'org.jdbi:jdbi3-core:3.47.0'
-    implementation 'org.jdbi:jdbi3-sqlobject:3.47.0'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.48.0'
     implementation 'org.jdbi:jdbi3-postgres:3.47.0'
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.31.0'
