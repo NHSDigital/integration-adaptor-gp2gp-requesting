@@ -39,10 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -93,16 +93,16 @@ public class ServiceFailureIT extends BaseEhrHandler {
     @Mock
     private HttpHeaders httpHeaders;
 
-    @SpyBean
+    @MockitoSpyBean
     private MhsClientService mhsClientService;
-    @SpyBean
+    @MockitoSpyBean
     private SendContinueRequestHandler sendContinueRequestHandler;
 
-    @SpyBean
+    @MockitoSpyBean
     private SendACKMessageHandler sendACKMessageHandler;
-    @SpyBean
+    @MockitoSpyBean
     private SendNACKMessageHandler sendNACKMessageHandler;
-    @SpyBean
+    @MockitoSpyBean
     private MhsDlqPublisher mhsDlqPublisher;
 
     @BeforeEach
