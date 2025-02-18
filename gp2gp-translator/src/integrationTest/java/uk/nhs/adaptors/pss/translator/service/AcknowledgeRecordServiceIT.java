@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.common.enums.ConfirmationResponse;
 import uk.nhs.adaptors.common.model.AcknowledgeRecordMessage;
@@ -38,7 +38,7 @@ public class AcknowledgeRecordServiceIT {
     @Autowired
     private AcknowledgeRecordService acknowledgeRecordService;
 
-    @MockBean
+    @MockitoBean
     private NackAckPrepInterface nackAckPrepInterface;
 
     private static final String CONVERSATION_ID_VALUE = UUID.randomUUID().toString();
