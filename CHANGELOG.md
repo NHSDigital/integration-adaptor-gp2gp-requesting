@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.0.10] - 2025-02-28
+
 ### Fixed
 * Resolved an issue where the receiving adapter did not add a NOPAT entry into Condition when an observationStatement was referenced from linkSet.
 
