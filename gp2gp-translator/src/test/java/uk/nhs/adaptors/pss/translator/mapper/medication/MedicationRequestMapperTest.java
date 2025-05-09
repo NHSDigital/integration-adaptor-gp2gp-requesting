@@ -25,6 +25,7 @@ import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.hl7.v3.RCMRMT030101UKMedicationStatement;
 import org.hl7.v3.RCMRMT030101UKPrescribe;
+import org.hl7.v3.TS;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,7 @@ import static org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispen
 import static org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestIntent;
 import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +55,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
-
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -126,6 +129,7 @@ public class MedicationRequestMapperTest {
     void beforeEach() {
         setupCommonStubs();
     }
+
 
     @Test
     public void When_MappingMedicationStatement_Expect_CorrectMappersToBeCalled() {
@@ -448,6 +452,29 @@ public class MedicationRequestMapperTest {
         @BeforeEach
         void beforeEach() {
             setupMultipleOrdersToOnePlanStubs(ACUTE_PRESCRIPTION_EXTENSION, MedicationStatementStatus.ACTIVE, true);
+        }
+
+        @Test
+        void subsequentIssuesOfMedicationRequestPlanAuthoredOnFieldPopulatedByEhrSupplyPrescribe() {
+
+            ArrayList<DomainResource> resources =  new ArrayList<>();
+            MedicationRequest plan = buildMedicationRequestPlan(ACUTE_PRESCRIPTION_EXTENSION);
+            TS ts = new TS();
+            ts.setValue("20250505");
+            plan.getDispenseRequest().setValidityPeriod(new Period().setStartElement(DateFormatUtil.parseToDateTimeType(ts.getValue())));
+
+            List<MedicationRequest> orders = new ArrayList<>();
+            orders.add(buildMedicationRequestOrder(EARLIEST_ORDER_ID, "20240101", "20240505"));
+            orders.add(buildMedicationRequestOrder(LATEST_ORDER_ID, "20250101", "20250505"));
+            List<MedicationStatement> medicationStatements = new ArrayList<>();
+            medicationStatements.add(buildMedicationStatement(MedicationStatementStatus.COMPLETED));
+
+            medicationRequestMapper.generateResourcesIfMoreThanOneOrdersFound(resources, plan, orders, medicationStatements);
+
+            assertThat(resources).isNotEmpty();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedAuthoredOnDate = formatter.format(((MedicationRequest) resources.get(0)).getAuthoredOn());
+            assertEquals("2025-05-05", formattedAuthoredOnDate);
         }
 
         @Test
