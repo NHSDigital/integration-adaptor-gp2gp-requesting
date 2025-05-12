@@ -478,6 +478,21 @@ public class MedicationRequestMapperTest {
         }
 
         @Test
+        void subsequentIssuesOfMedicationRequestPlanAreNotDuplicatedIfThereIsOnlyOneMedciationRequestOrder() {
+
+            ArrayList<DomainResource> resources =  new ArrayList<>();
+            MedicationRequest plan = buildMedicationRequestPlan(ACUTE_PRESCRIPTION_EXTENSION);
+
+            List<MedicationRequest> orders = new ArrayList<>();
+            orders.add(buildMedicationRequestOrder(EARLIEST_ORDER_ID, "20240101", "20240505"));
+            List<MedicationStatement> medicationStatements = new ArrayList<>();
+
+            medicationRequestMapper.generateResourcesIfMoreThanOneOrdersFound(resources, plan, orders, medicationStatements);
+
+            assertThat(resources).isEmpty();
+        }
+
+        @Test
         void expectAdditionalPlanCreated() {
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
