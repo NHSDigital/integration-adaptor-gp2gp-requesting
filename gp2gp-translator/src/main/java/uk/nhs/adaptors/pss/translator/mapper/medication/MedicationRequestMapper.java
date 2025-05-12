@@ -101,8 +101,6 @@ public class MedicationRequestMapper extends AbstractMapper<DomainResource> {
 
             // the index starts at one as the earliest order remains referenced to the original plan
             for (var index = 1; index < orders.size(); index++) {
-                var ts = new TS();
-                ts.setValue("20250505");
                 var duplicatedPlan = duplicateOrderBasedOnSharedAcutePlan(plan, orders, index);
                 var duplicatedMedicationStatement = duplicateMedicationStatementForOrderBasedOnSharedAcutePlan(
                     medicationStatements,
