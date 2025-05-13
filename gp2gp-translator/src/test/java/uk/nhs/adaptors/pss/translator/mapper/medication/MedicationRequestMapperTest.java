@@ -438,6 +438,7 @@ public class MedicationRequestMapperTest {
     @DisplayName("WhenTwoEhrSupplyPrescribeReferenceOneAcuteEhrSupplyAuthorise")
     class TwoEhrSupplyPrescribeReferenceOneAcuteEhrSupplyAuthorise {
 
+        public static final int RESOURCES_WITH_DUPLICATED_ORDERS = 9;
         private static RCMRMT030101UKEhrExtract ehrExtract;
 
         @BeforeAll
@@ -559,6 +560,7 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedPlanAuthoredOnIsSetFromTheValidityPeriodStartOfTheLatestOrder() {
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
@@ -568,7 +570,7 @@ public class MedicationRequestMapperTest {
             var generatedPlanAuthoredOn = getMedicationRequestById(resources, GENERATED_PLAN_ID)
                 .getAuthoredOn();
 
-            assertThat(resources).hasSize(9);
+            assertThat(resources).hasSize(RESOURCES_WITH_DUPLICATED_ORDERS);
             assertThat(generatedPlanAuthoredOn).isEqualTo(latestOrderValidityPeriodStart);
         }
 
