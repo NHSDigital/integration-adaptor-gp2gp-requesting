@@ -83,18 +83,17 @@ public class MedicationRequestMapper extends AbstractMapper<DomainResource> {
         }
     }
 
-    protected void generateResourcesForMultipleOrdersLinkedToASingleAcutePlan(ArrayList<DomainResource> resources) {
+    private void generateResourcesForMultipleOrdersLinkedToASingleAcutePlan(ArrayList<DomainResource> resources) {
         var acutePlans = getAcutePlans(resources);
         var medicationStatements = getMedicationStatements(resources);
         var ordersGroupedByAcutePlan = getOrdersGroupedByReferencedAcutePlan(resources, acutePlans);
 
-        ordersGroupedByAcutePlan
-            .forEach((plan, orders) -> {
-                generateResourcesIfMoreThanOneOrdersFound(resources, plan, orders, medicationStatements);
-            });
+        ordersGroupedByAcutePlan.forEach(
+            (plan, orders) -> generateResourcesIfMoreThanOneOrderFound(resources, plan, orders, medicationStatements)
+        );
     }
 
-    protected void generateResourcesIfMoreThanOneOrdersFound(ArrayList<DomainResource> resources, MedicationRequest plan,
+    private void generateResourcesIfMoreThanOneOrderFound(ArrayList<DomainResource> resources, MedicationRequest plan,
                                                            List<MedicationRequest> orders, List<MedicationStatement> medicationStatements) {
         if (orders.size() > 1) {
             sortOrdersByValidityPeriodStart(orders);
@@ -134,10 +133,10 @@ public class MedicationRequestMapper extends AbstractMapper<DomainResource> {
         var previousOrderBasedOn = orders.get(index - 1).getBasedOn();
         var previousBasedOnReference = getMedicationRequestBasedOnReference(previousOrderBasedOn);
         previousBasedOnReference.ifPresent(duplicatedPlan::setPriorPrescription);
-        duplicatedPlan.setAuthoredOn(duplicatedPlan.getDispenseRequest().getValidityPeriod().getStart());
 
         var validityPeriod = orders.get(index).getDispenseRequest().getValidityPeriod();
         duplicatedPlan.getDispenseRequest().setValidityPeriod(validityPeriod);
+        duplicatedPlan.setAuthoredOn(validityPeriod.getStart());
 
         LOGGER.info(
             "Generated MedicationRequest(Plan) with Id: {} for MedicationRequest(Order) with Id: {}",
