@@ -568,6 +568,7 @@ public class MedicationRequestMapperTest {
             var generatedPlanAuthoredOn = getMedicationRequestById(resources, GENERATED_PLAN_ID)
                 .getAuthoredOn();
 
+            assertThat(resources).hasSize(9);
             assertThat(generatedPlanAuthoredOn).isEqualTo(latestOrderValidityPeriodStart);
         }
 
