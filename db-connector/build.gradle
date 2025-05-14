@@ -3,7 +3,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.liquibase:liquibase-gradle-plugin:2.2.2"
+        classpath "org.liquibase:liquibase-gradle-plugin:3.0.2"
+        classpath 'org.liquibase:liquibase-core:4.31.0'
     }
 }
 
@@ -33,6 +34,7 @@ dependencies {
     implementation 'org.jdbi:jdbi3-sqlobject:3.49.0'
     implementation 'org.jdbi:jdbi3-postgres:3.47.0'
 
+    liquibaseRuntime 'org.apache.commons:commons-lang3:3.14.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.31.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:4.0.0'
     liquibaseRuntime 'info.picocli:picocli:4.7.6'
@@ -74,14 +76,14 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 liquibase {
     activities {
         setup {
-            changeLogFile 'changelog/setup/db.changelog-setup.xml'
+            changelogFile 'changelog/setup/db.changelog-setup.xml'
             url System.getenv('PS_DB_URL') + '/postgres'
             username System.getenv('PS_DB_OWNER_NAME')
             password System.getenv('POSTGRES_PASSWORD')
         }
 
         main {
-            changeLogFile 'changelog/db.changelog-master.xml'
+            changelogFile 'changelog/db.changelog-master.xml'
             url System.getenv('PS_DB_URL') + '/patient_switching'
             username System.getenv('PS_DB_OWNER_NAME')
             password System.getenv('POSTGRES_PASSWORD')
