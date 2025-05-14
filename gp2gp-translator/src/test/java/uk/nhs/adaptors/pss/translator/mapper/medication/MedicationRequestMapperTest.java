@@ -127,6 +127,7 @@ public class MedicationRequestMapperTest {
         setupCommonStubs();
     }
 
+
     @Test
     public void When_MappingMedicationStatement_Expect_CorrectMappersToBeCalled() {
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("ehrExtract1.xml");
@@ -437,6 +438,7 @@ public class MedicationRequestMapperTest {
     @DisplayName("WhenTwoEhrSupplyPrescribeReferenceOneAcuteEhrSupplyAuthorise")
     class TwoEhrSupplyPrescribeReferenceOneAcuteEhrSupplyAuthorise {
 
+        public static final int RESOURCES_WITH_DUPLICATED_ORDERS = 9;
         private static RCMRMT030101UKEhrExtract ehrExtract;
 
         @BeforeAll
@@ -554,6 +556,22 @@ public class MedicationRequestMapperTest {
             assertThat(generatedPlanValidityPeriod)
                 .usingRecursiveComparison()
                 .isEqualTo(latestOrderValidityPeriod);
+        }
+
+        @Test
+        void expectGeneratedPlanAuthoredOnIsSetFromTheValidityPeriodStartOfTheLatestOrder() {
+
+            var resources = medicationRequestMapper
+                .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
+
+            var latestOrderValidityPeriodStart = getMedicationRequestById(resources, LATEST_ORDER_ID)
+                .getDispenseRequest().getValidityPeriod().getStart();
+
+            var generatedPlanAuthoredOn = getMedicationRequestById(resources, GENERATED_PLAN_ID)
+                .getAuthoredOn();
+
+            assertThat(resources).hasSize(RESOURCES_WITH_DUPLICATED_ORDERS);
+            assertThat(generatedPlanAuthoredOn).isEqualTo(latestOrderValidityPeriodStart);
         }
 
         @Test

@@ -122,7 +122,7 @@
                                     <id root="0151D924-FD16-4B03-AF77-C9E97D9F44B2"/>
                                     <code code="9bG5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Prescription by another organisation"/>
                                     <statusCode code="COMPLETE"/>
-                                    <availabilityTime value="20240726"/>
+                                    <availabilityTime value="20240101"/>
                                     <quantity unit="1" value="28">
                                         <translation value="28">
                                             <originalText>tablet</originalText>
@@ -193,7 +193,7 @@
                                     <id root="063A3D85-CB38-4DBE-BE4C-B3AC9A34CBF2"/>
                                     <code code="9bG0.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="NHS prescription"/>
                                     <statusCode code="COMPLETE"/>
-                                    <availabilityTime value="20240726"/>
+                                    <availabilityTime value="20240102"/>
                                     <quantity unit="1" value="28">
                                         <translation value="28">
                                             <originalText>tablet</originalText>

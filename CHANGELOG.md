@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+* Adjusted MedicationRequestPlan date to use ehrSupplyPrescribe for acute re-issues, maintaining ehrSupplyAuthorise for originals.
+
 ## [3.0.10] - 2025-02-28
 
 ### Fixed
