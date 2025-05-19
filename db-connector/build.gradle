@@ -30,7 +30,7 @@ repositories {
 dependencies {
     implementation project(':common')
     implementation 'org.postgresql:postgresql:42.7.5'
-    implementation 'org.jdbi:jdbi3-core:3.47.0'
+    implementation 'org.jdbi:jdbi3-core:3.49.4'
     implementation 'org.jdbi:jdbi3-sqlobject:3.49.0'
     implementation 'org.jdbi:jdbi3-postgres:3.47.0'
 
