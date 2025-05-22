@@ -15,7 +15,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.4.1'
     testImplementation 'org.postgresql:postgresql:42.7.5'
-    testImplementation ('org.apache.qpid:qpid-jms-client:2.6.1') {
+    testImplementation ('org.apache.qpid:qpid-jms-client:2.7.0') {
         exclude group: 'io.netty', module: 'netty-codec-http'
     }
 
