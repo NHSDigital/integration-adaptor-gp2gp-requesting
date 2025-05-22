@@ -147,17 +147,22 @@ public class EHRTimeoutHandler {
             ZonedDateTime currentTime = ZonedDateTime.now(messageTimestamp.getZone());
             long numberCOPCMessages = patientAttachmentLogService.countAttachmentsForMigrationRequest(migrationRequest.getId());
 
-            if (numberCOPCMessages > 0) {
-                Duration copcPersistDuration = persistDurationService.getPersistDurationFor(migrationRequest, COPC_MESSAGE_NAME);
-
-                timeout = (timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds())
-                    + (timeoutProperties.getCopcWeighting() * numberCOPCMessages * copcPersistDuration.getSeconds());
-
-                LOGGER.debug("Large message timeout calculated as [{}] seconds", timeout);
+            // Can override the timeout calculation by providing a value in seconds.
+            if (timeoutProperties.getMigrationTimeoutOverride() > 0) {
+                timeout = timeoutProperties.getMigrationTimeoutOverride();
             } else {
-                timeout = timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds();
+                if (numberCOPCMessages > 0) {
+                    Duration copcPersistDuration = persistDurationService.getPersistDurationFor(migrationRequest, COPC_MESSAGE_NAME);
 
-                LOGGER.debug("Non large message timeout calculated as [{}] seconds", timeout);
+                    timeout = (timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds())
+                            + (timeoutProperties.getCopcWeighting() * numberCOPCMessages * copcPersistDuration.getSeconds());
+
+                    LOGGER.debug("Large message timeout calculated as [{}] seconds", timeout);
+                } else {
+                    timeout = timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds();
+
+                    LOGGER.debug("Non large message timeout calculated as [{}] seconds", timeout);
+                }
             }
 
             ZonedDateTime timeoutDateTime = messageTimestamp.plusSeconds(timeout);

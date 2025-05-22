@@ -60,5 +60,6 @@ timeout:
   copcWeighting: ${TIMEOUT_COPC_WEIGHTING:1}
   cronTime: ${TIMEOUT_CRON_TIME:0 0 */2 * * *}
   sdsPollFrequency: ${TIMEOUT_SDS_POLL_FREQUENCY:3}
+  migrationTimeoutOverride: 0
 
 
