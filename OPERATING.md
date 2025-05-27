@@ -65,7 +65,10 @@ updated is configurable via the environment variable `TIMEOUT_SDS_POLL_FREQUENCY
 
 The adaptor checks incomplete transfers periodically, at a default frequency of every six hours. However, this is configurable via the environment variable `TIMEOUT_CRON_TIME`.
 
-For more configuration see the [Migration timeout variables](#migration-timeout-variables) section.
+Should you wish to specify a maximum timeout period (in seconds), thus bypassing the above logic, you may specify the 
+value in the `migrationTimeoutOverride` environment variable.
+
+For more configuration options see the [Migration timeout variables](#migration-timeout-variables) section.
 
 ## Adaptor behavior during dependent component downtime
 
@@ -390,6 +393,7 @@ The following variables are used determine if a [migration has timed out](#timeo
     defined in terms of the number of times a migration has been identified by the timeout cron, default = `3`
   - `TIMEOUT_EHR_EXTRACT_WEIGHTING`: The weighting factor A, to account transmission delays and volume throughput times of the RCMR_IN030000UK06 message, default = `1`
   - `TIMEOUT_COPC_WEIGHTING`: The weighting factor B, to account transmission delays and volume throughput times of the COPC_IN000001UK01 message, default = `1`
+  - `TIMEOUT_MIGRATION_TIME_OUTOVERRIDE`: Number of seconds after which the timeout is triggered, overriding the standard timeout logic, default = `0` (meaning disabled) 
 
 [spring-cron-expression]: https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions
 [mhs-adaptor]: https://github.com/nhsconnect/integration-adaptor-mhs/
