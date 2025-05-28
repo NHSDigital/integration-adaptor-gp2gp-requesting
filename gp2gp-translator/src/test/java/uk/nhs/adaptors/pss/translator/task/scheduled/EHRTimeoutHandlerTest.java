@@ -89,6 +89,8 @@ public class EHRTimeoutHandlerTest {
     private static final ZonedDateTime TEN_DAYS_AGO = ZonedDateTime.of(LocalDateTime.now().minusDays(10), ZoneId.systemDefault());
     private static final ZonedDateTime TEN_DAYS_TIME = ZonedDateTime.of(LocalDateTime.now().plusDays(10), ZoneId.systemDefault());
     private static final long TEN_DAYS = 10;
+    private static final int SIXTY_SECONDS = 60;
+    private static final int ONE_SECOND = 1;
     private static final String INBOUND_MESSAGE_STRING = "test inbound Message";
     private static final String INBOUND_MESSAGE_STRING_TWO = "test inbound Message 2";
     private static final String EBXML_STRING = "test ebXML";
@@ -434,7 +436,7 @@ public class EHRTimeoutHandlerTest {
         when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
 
         // Simulate a message timestamp older than the override timeout (should trigger NACK)
-        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + 1);
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + ONE_SECOND);
 
         when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
 
@@ -451,7 +453,7 @@ public class EHRTimeoutHandlerTest {
         when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
 
         // Simulate a message timestamp within the override timeout (should NOT trigger NACK)
-        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds - 60);
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds - SIXTY_SECONDS);
 
         callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId);
 
