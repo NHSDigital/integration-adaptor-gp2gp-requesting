@@ -427,7 +427,7 @@ public class EHRTimeoutHandlerTest {
     }
 
     @Test
-    public void When_MigrationTimeoutOverrideIsSet_Then_TimeoutIsDeterminedByOverride() {
+    public void When_MigrationTimeoutOverrideIsSet_Expect_TimeoutIsDeterminedByOverride() {
         String conversationId = UUID.randomUUID().toString();
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
@@ -444,7 +444,7 @@ public class EHRTimeoutHandlerTest {
     }
 
     @Test
-    public void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Then_NoNackSent() {
+    public void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Expect_NoNackSent() {
         String conversationId = UUID.randomUUID().toString();
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
