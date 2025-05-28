@@ -431,7 +431,7 @@ public class EHRTimeoutHandlerTest {
         String conversationId = UUID.randomUUID().toString();
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
-        when(timeoutProperties.getMigrationTimeoutOverride()).thenReturn(overrideTimeoutSeconds);
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
 
         // Simulate a message timestamp older than the override timeout (should trigger NACK)
         ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + 1);
@@ -448,7 +448,7 @@ public class EHRTimeoutHandlerTest {
         String conversationId = UUID.randomUUID().toString();
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
-        when(timeoutProperties.getMigrationTimeoutOverride()).thenReturn(overrideTimeoutSeconds);
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
 
         // Simulate a message timestamp within the override timeout (should NOT trigger NACK)
         ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds - 60);

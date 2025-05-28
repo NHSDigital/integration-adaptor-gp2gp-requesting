@@ -393,7 +393,7 @@ The following variables are used determine if a [migration has timed out](#timeo
     defined in terms of the number of times a migration has been identified by the timeout cron, default = `3`
   - `TIMEOUT_EHR_EXTRACT_WEIGHTING`: The weighting factor A, to account transmission delays and volume throughput times of the RCMR_IN030000UK06 message, default = `1`
   - `TIMEOUT_COPC_WEIGHTING`: The weighting factor B, to account transmission delays and volume throughput times of the COPC_IN000001UK01 message, default = `1`
-  - `TIMEOUT_MIGRATION_TIME_OUTOVERRIDE`: Number of seconds after which the timeout is triggered, overriding the standard timeout logic, default = `0` (meaning disabled) 
+  - `MIGRATION_TIMEOUT_OVERRIDE`: Overwrite the existing timeout logic with fixed 48 hour maximum timeout period. Default = false  
 
 [spring-cron-expression]: https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions
 [mhs-adaptor]: https://github.com/nhsconnect/integration-adaptor-mhs/

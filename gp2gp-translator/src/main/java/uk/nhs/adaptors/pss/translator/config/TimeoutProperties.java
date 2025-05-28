@@ -14,5 +14,5 @@ public class TimeoutProperties {
     private int ehrExtractWeighting;
     private int copcWeighting;
     private int sdsPollFrequency;
-    private long migrationTimeoutOverride;
+    private boolean migrationTimeoutOverride;
 }

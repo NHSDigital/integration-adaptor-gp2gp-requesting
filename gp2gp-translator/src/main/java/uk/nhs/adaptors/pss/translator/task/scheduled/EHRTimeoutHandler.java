@@ -60,6 +60,7 @@ public class EHRTimeoutHandler {
 
     private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK06";
     private static final String COPC_MESSAGE_NAME = "COPC_IN000001UK01";
+    private static final Integer MAX_TIMEOUT_OVERWRITE = 172800;
     private final PersistDurationService persistDurationService;
     private final PatientMigrationRequestService migrationRequestService;
     private final MDCService mdcService;
@@ -148,8 +149,9 @@ public class EHRTimeoutHandler {
             long numberCOPCMessages = patientAttachmentLogService.countAttachmentsForMigrationRequest(migrationRequest.getId());
 
             // Can override the timeout calculation by providing a value in seconds.
-            if (timeoutProperties.getMigrationTimeoutOverride() > 0) {
-                timeout = timeoutProperties.getMigrationTimeoutOverride();
+            if (timeoutProperties.isMigrationTimeoutOverride()) {
+                timeout = MAX_TIMEOUT_OVERWRITE;
+                LOGGER.info("Migration Request timeout overwritten to 48 hours");
             } else {
                 if (numberCOPCMessages > 0) {
                     Duration copcPersistDuration = persistDurationService.getPersistDurationFor(migrationRequest, COPC_MESSAGE_NAME);
