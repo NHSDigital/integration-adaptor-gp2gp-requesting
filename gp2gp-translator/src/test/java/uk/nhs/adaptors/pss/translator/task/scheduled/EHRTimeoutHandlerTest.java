@@ -86,6 +86,7 @@ public class EHRTimeoutHandlerTest {
 
     private static final int EHR_EXTRACT_PERSIST_DURATION = 7;
     private static final int COPC_PERSIST_DURATION = 4;
+    private static final int ATTACHMENT_COUNT_THREE = 3;
     private static final ZonedDateTime TEN_DAYS_AGO = ZonedDateTime.of(LocalDateTime.now().minusDays(10), ZoneId.systemDefault());
     private static final ZonedDateTime TEN_DAYS_TIME = ZonedDateTime.of(LocalDateTime.now().plusDays(10), ZoneId.systemDefault());
     private static final long TEN_DAYS = 10;
@@ -459,6 +460,23 @@ public class EHRTimeoutHandlerTest {
 
         verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
     }
+
+    @Test
+    public void When_MigrationTimeoutOverrideIsFalse_WithAttachments_Expect_WeightedTimeoutCalculationAndNackSent() {
+        String conversationId = UUID.randomUUID().toString();
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusDays(TEN_DAYS);
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(false);
+        when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
+        when(patientAttachmentLogService.countAttachmentsForMigrationRequest(mockRequest.getId())).thenReturn(2L);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 2, conversationId);
+
+        verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
+        verify(timeoutProperties, times(1)).getEhrExtractWeighting();
+        verify(timeoutProperties, times(1)).getCopcWeighting();
+    }
+
 
     private void callCheckForTimeoutsWithOneRequest(MigrationStatus migrationStatus, ZonedDateTime requestTimestamp,
         long numberOfAttachments, String conversationId) {
