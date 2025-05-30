@@ -86,9 +86,12 @@ public class EHRTimeoutHandlerTest {
 
     private static final int EHR_EXTRACT_PERSIST_DURATION = 7;
     private static final int COPC_PERSIST_DURATION = 4;
+    private static final int ATTACHMENT_COUNT_THREE = 3;
     private static final ZonedDateTime TEN_DAYS_AGO = ZonedDateTime.of(LocalDateTime.now().minusDays(10), ZoneId.systemDefault());
     private static final ZonedDateTime TEN_DAYS_TIME = ZonedDateTime.of(LocalDateTime.now().plusDays(10), ZoneId.systemDefault());
     private static final long TEN_DAYS = 10;
+    private static final int SIXTY_SECONDS = 60;
+    private static final int ONE_SECOND = 1;
     private static final String INBOUND_MESSAGE_STRING = "test inbound Message";
     private static final String INBOUND_MESSAGE_STRING_TWO = "test inbound Message 2";
     private static final String EBXML_STRING = "test ebXML";
@@ -425,6 +428,55 @@ public class EHRTimeoutHandlerTest {
                                                                         null,
                                                                         UNEXPECTED_CONDITION_CODE);
     }
+
+    @Test
+    public void When_MigrationTimeoutOverrideIsSet_Expect_TimeoutIsDeterminedByOverride() {
+        String conversationId = UUID.randomUUID().toString();
+        long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
+
+        // Simulate a message timestamp older than the override timeout (should trigger NACK)
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + ONE_SECOND);
+
+        when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId);
+
+        verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
+    }
+
+    @Test
+    public void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Expect_NoNackSent() {
+        String conversationId = UUID.randomUUID().toString();
+        long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
+
+        // Simulate a message timestamp within the override timeout (should NOT trigger NACK)
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds - SIXTY_SECONDS);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId);
+
+        verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
+    }
+
+    @Test
+    public void When_MigrationTimeoutOverrideIsFalse_WithAttachments_Expect_WeightedTimeoutCalculationAndNackSent() {
+        String conversationId = UUID.randomUUID().toString();
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusDays(TEN_DAYS);
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(false);
+        when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
+        when(patientAttachmentLogService.countAttachmentsForMigrationRequest(mockRequest.getId())).thenReturn(2L);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 2, conversationId);
+
+        verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
+        verify(timeoutProperties, times(1)).getEhrExtractWeighting();
+        verify(timeoutProperties, times(1)).getCopcWeighting();
+    }
+
 
     private void callCheckForTimeoutsWithOneRequest(MigrationStatus migrationStatus, ZonedDateTime requestTimestamp,
         long numberOfAttachments, String conversationId) {
