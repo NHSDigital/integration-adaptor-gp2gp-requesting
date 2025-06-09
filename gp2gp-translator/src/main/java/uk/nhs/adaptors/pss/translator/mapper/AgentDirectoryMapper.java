@@ -120,14 +120,19 @@ public class AgentDirectoryMapper {
             return List.of(humanName);
         }
 
-        if (hasNoFamilyName(name)) {
-            var text = StringUtils.join(new String[] {name.getPrefix(), name.getGiven()}, ' ');
-            humanName.setText(text);
+        if (StringUtils.isBlank(name.getFamily())) {
+            setTextFromAvailableNameFields(name, humanName);
             return List.of(humanName);
         }
 
         setHumanNameValuesFromName(name, humanName);
         return List.of(humanName);
+    }
+
+    private static void setTextFromAvailableNameFields(PN name, HumanName humanName) {
+        var requiresSeparator = StringUtils.isNotBlank(name.getPrefix()) && StringUtils.isNotBlank(name.getGiven());
+        var text = StringUtils.join(name.getPrefix(), (requiresSeparator ? " " : ""), name.getGiven());
+        humanName.setText(text);
     }
 
     private void setHumanNameValuesFromName(PN name, HumanName humanName) {
@@ -142,11 +147,6 @@ public class AgentDirectoryMapper {
         if (prefix != null) {
             humanName.getPrefix().add(prefix);
         }
-    }
-
-    private static boolean hasNoFamilyName(PN name) {
-        return name.getFamily() == null
-            && (name.getPrefix() != null || name.getGiven() != null);
     }
 
     private static boolean hasNoName(PN name) {
