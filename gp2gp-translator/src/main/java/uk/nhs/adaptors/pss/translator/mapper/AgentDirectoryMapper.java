@@ -113,39 +113,47 @@ public class AgentDirectoryMapper {
     }
 
     private List<HumanName> getPractitionerName(PN name) {
-        var nameList = new ArrayList<HumanName>();
         var humanName = new HumanName().setUse(NameUse.OFFICIAL);
-        nameList.add(humanName);
 
         if (hasNoName(name)) {
             humanName.setText(UNKNOWN);
-            return nameList;
+            return List.of(humanName);
         }
 
-        if (StringUtils.isNotBlank(name.getFamily())) {
-            humanName.setFamily(name.getFamily());
-
-            var given = getPractitionerGiven(name.getGiven());
-            if (given != null) {
-                humanName.getGiven().add(given);
-            }
-
-            var prefix = getPractitionerPrefix(name.getPrefix());
-            if (prefix != null) {
-                humanName.getPrefix().add(prefix);
-            }
-        } else {
-            String[] details = new String[] { name.getPrefix(), name.getGiven() };
-            var text = StringUtils.join(details, ' ');
-
+        if (hasNoFamilyName(name)) {
+            var text = StringUtils.join(new String[] { name.getPrefix(), name.getGiven() }, ' ');
             humanName.setText(text);
+            return List.of(humanName);
         }
 
-        return nameList;
+        setHumanNameValuesFromName(name, humanName);
+        return List.of(humanName);
+    }
+
+    private void setHumanNameValuesFromName(PN name, HumanName humanName) {
+        humanName.setFamily(name.getFamily());
+
+        var given = getPractitionerGiven(name.getGiven());
+        if (given != null) {
+            humanName.getGiven().add(given);
+        }
+
+        var prefix = getPractitionerPrefix(name.getPrefix());
+        if (prefix != null) {
+            humanName.getPrefix().add(prefix);
+        }
+    }
+
+    private static boolean hasNoFamilyName(PN name) {
+        return name.getFamily() == null
+            && (name.getPrefix() != null || name.getGiven() != null);
     }
 
     private static boolean hasNoName(PN name) {
-        return name == null || (name.getFamily() == null && name.getGiven() == null && name.getPrefix() == null);
+        return name == null
+            || (StringUtils.isBlank(name.getFamily())
+                && StringUtils.isBlank(name.getGiven())
+                && StringUtils.isBlank(name.getPrefix()));
     }
 
     private StringType getPractitionerGiven(String given) {
