@@ -121,7 +121,7 @@ public class AgentDirectoryMapper {
         }
 
         if (hasNoFamilyName(name)) {
-            var text = StringUtils.join(new String[] { name.getPrefix(), name.getGiven() }, ' ');
+            var text = StringUtils.join(new String[] {name.getPrefix(), name.getGiven()}, ' ');
             humanName.setText(text);
             return List.of(humanName);
         }
