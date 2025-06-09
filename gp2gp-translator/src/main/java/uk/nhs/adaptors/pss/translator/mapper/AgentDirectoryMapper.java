@@ -117,28 +117,35 @@ public class AgentDirectoryMapper {
         var humanName = new HumanName().setUse(NameUse.OFFICIAL);
         nameList.add(humanName);
 
-        if (name == null) {
-            humanName.setFamily(UNKNOWN);
+        if (hasNoName(name)) {
+            humanName.setText(UNKNOWN);
             return nameList;
         }
 
-        humanName.setFamily(getPractitionerFamily(name.getFamily()));
+        if (StringUtils.isNotBlank(name.getFamily())) {
+            humanName.setFamily(name.getFamily());
 
-        var given = getPractitionerGiven(name.getGiven());
-        if (given != null) {
-            humanName.getGiven().add(given);
-        }
+            var given = getPractitionerGiven(name.getGiven());
+            if (given != null) {
+                humanName.getGiven().add(given);
+            }
 
-        var prefix = getPractitionerPrefix(name.getPrefix());
-        if (prefix != null) {
-            humanName.getPrefix().add(prefix);
+            var prefix = getPractitionerPrefix(name.getPrefix());
+            if (prefix != null) {
+                humanName.getPrefix().add(prefix);
+            }
+        } else {
+            String[] details = new String[] { name.getPrefix(), name.getGiven() };
+            var text = StringUtils.join(details, ' ');
+
+            humanName.setText(text);
         }
 
         return nameList;
     }
 
-    private String getPractitionerFamily(String family) {
-        return StringUtils.isNotEmpty(family) ? family : UNKNOWN;
+    private static boolean hasNoName(PN name) {
+        return name == null || (name.getFamily() == null && name.getGiven() == null && name.getPrefix() == null);
     }
 
     private StringType getPractitionerGiven(String given) {
