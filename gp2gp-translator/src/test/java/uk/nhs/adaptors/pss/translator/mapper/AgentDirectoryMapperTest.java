@@ -59,6 +59,7 @@ public class AgentDirectoryMapperTest {
         assertEquals(PRACT_META_PROFILE, practitioner.getMeta().getProfile().getFirst().getValue());
         assertEquals(NameUse.OFFICIAL, practitioner.getNameFirstRep().getUse());
         assertEquals("Test", practitioner.getNameFirstRep().getFamily());
+        assertThat(practitioner.getNameFirstRep().getText()).isNull();
 
         var organization = (Organization) mappedAgents.get(1);
         assertEquals("94F00D99-0601-4A8E-AD1D-1B564307B0A6-ORG", organization.getId());
@@ -100,6 +101,7 @@ public class AgentDirectoryMapperTest {
         assertEquals(PRACT_META_PROFILE, practitioner.getMeta().getProfile().getFirst().getValue());
         assertEquals(NameUse.OFFICIAL, practitioner.getNameFirstRep().getUse());
         assertEquals("Test", practitioner.getNameFirstRep().getFamily());
+        assertThat(practitioner.getNameFirstRep().getText()).isNull();
 
         var organization = (Organization) mappedAgents.get(1);
         assertEquals("94F00D99-0601-4A8E-AD1D-1B564307B0A6-ORG", organization.getId());
@@ -128,6 +130,7 @@ public class AgentDirectoryMapperTest {
         assertEquals(PRACT_META_PROFILE, practitioner.getMeta().getProfile().getFirst().getValue());
         assertEquals(NameUse.OFFICIAL, practitioner.getNameFirstRep().getUse());
         assertEquals("Test", practitioner.getNameFirstRep().getFamily());
+        assertThat(practitioner.getNameFirstRep().getText()).isNull();
 
         var organization = (Organization) mappedAgents.get(1);
         assertEquals("94F00D99-0601-4A8E-AD1D-1B564307B0A6-ORG", organization.getId());
@@ -158,6 +161,42 @@ public class AgentDirectoryMapperTest {
         assertEquals("Test", practitioner.getNameFirstRep().getFamily());
         assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty();
         assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty();
+        assertThat(practitioner.getNameFirstRep().getText()).isNull();
+    }
+
+    @Test
+    public void mapAgentDirectoryOnlyAgentPersonWithoutFamilyNameElement() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6"/>
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                                <prefix>Mr</prefix>
+                                <given>NHS</given>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getId()).isEqualTo("95D00D99-0601-4A8E-AD1D-1B564307B0A6"),
+            () -> assertThat(practitioner.getMeta().getProfile().getFirst().getValue()).isEqualTo(PRACT_META_PROFILE),
+            () -> assertThat(practitioner.getNameFirstRep().getUse()).isEqualTo(NameUse.OFFICIAL),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("Mr NHS")
+        );
     }
 
     @Test
@@ -173,9 +212,78 @@ public class AgentDirectoryMapperTest {
         assertThat(practitioner.getId()).isEqualTo("95D00D99-0601-4A8E-AD1D-1B564307B0A6");
         assertThat(practitioner.getMeta().getProfile().getFirst().getValue()).isEqualTo(PRACT_META_PROFILE);
         assertThat(practitioner.getNameFirstRep().getUse()).isEqualTo(NameUse.OFFICIAL);
-        assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Unknown");
+        assertThat(practitioner.getNameFirstRep().getFamily()).isNull();
         assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty();
         assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty();
+        assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("Unknown");
+    }
+
+    @Test
+    public void When_MapAgentDirectoryOnlyAgentPersonWithNameElementWithOnlyGiven_Expect_TextSetToGiven() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                            <code code="125676002" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Person">
+                               <originalText>Other</originalText>
+                            </code>
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                                <given>NHS</given>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("NHS")
+        );
+    }
+
+    @Test
+    public void When_MapAgentDirectoryOnlyAgentPersonWithNameElementWithOnlyPrefix_Expect_TextSetToPrefix() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                            <code code="125676002" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Person">
+                               <originalText>Other</originalText>
+                            </code>
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                                <prefix>Mr</prefix>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("Mr")
+        );
     }
 
     @Test
@@ -199,9 +307,10 @@ public class AgentDirectoryMapperTest {
 
         assertAll(
             () -> assertThat(practitioner.getNameFirstRep().getUse()).isEqualTo(NameUse.OFFICIAL),
-            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Unknown"),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
             () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
-            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty()
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("Unknown")
         );
     }
 
@@ -220,6 +329,7 @@ public class AgentDirectoryMapperTest {
         assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Test");
         assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("NHS");
         assertThat(practitioner.getNameFirstRep().getPrefix().getFirst().getValue()).isEqualTo("Mr");
+        assertThat(practitioner.getNameFirstRep().getText()).isNull();
     }
 
     @Test

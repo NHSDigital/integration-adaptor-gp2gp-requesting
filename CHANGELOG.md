@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 * Added migration timeout override option
 
+### Changed
+
+* **[Breaking Change - GP Connect 1.6.2]** When an `agentPerson` is provided with either an empty or missing name `name`
+  element, this would previously result in a `resource[Practitioner]` with `name[0].family` set to `Unknown`.
+  This will no longer be set, but instead `resource[Practitioner].name[0].text` will now be populated with `Unknown`.
+* **[Breaking Change - GP Connect 1.6.2]** When an `agentPerson` is provided with either an empty or missing
+  `agentPerson / name / family` then this will result in a `resource[practitioner].name[0]` without `family`, `prefix`
+  or `given` populated.
+  The field `resource[practitioner].name[0].text` will instead now be populated with these values.
+
 ## [3.0.11] - 2025-05-15
 
 ### Fixed

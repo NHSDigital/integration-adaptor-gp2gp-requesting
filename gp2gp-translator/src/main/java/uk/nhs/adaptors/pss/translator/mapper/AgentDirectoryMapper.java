@@ -113,16 +113,30 @@ public class AgentDirectoryMapper {
     }
 
     private List<HumanName> getPractitionerName(PN name) {
-        var nameList = new ArrayList<HumanName>();
         var humanName = new HumanName().setUse(NameUse.OFFICIAL);
-        nameList.add(humanName);
 
-        if (name == null) {
-            humanName.setFamily(UNKNOWN);
-            return nameList;
+        if (hasNoName(name)) {
+            humanName.setText(UNKNOWN);
+            return List.of(humanName);
         }
 
-        humanName.setFamily(getPractitionerFamily(name.getFamily()));
+        if (StringUtils.isBlank(name.getFamily())) {
+            setTextFromAvailableNameFields(name, humanName);
+            return List.of(humanName);
+        }
+
+        setHumanNameValuesFromName(name, humanName);
+        return List.of(humanName);
+    }
+
+    private static void setTextFromAvailableNameFields(PN name, HumanName humanName) {
+        var requiresSeparator = StringUtils.isNotBlank(name.getPrefix()) && StringUtils.isNotBlank(name.getGiven());
+        var text = StringUtils.join(name.getPrefix(), (requiresSeparator ? " " : ""), name.getGiven());
+        humanName.setText(text);
+    }
+
+    private void setHumanNameValuesFromName(PN name, HumanName humanName) {
+        humanName.setFamily(name.getFamily());
 
         var given = getPractitionerGiven(name.getGiven());
         if (given != null) {
@@ -133,12 +147,13 @@ public class AgentDirectoryMapper {
         if (prefix != null) {
             humanName.getPrefix().add(prefix);
         }
-
-        return nameList;
     }
 
-    private String getPractitionerFamily(String family) {
-        return StringUtils.isNotEmpty(family) ? family : UNKNOWN;
+    private static boolean hasNoName(PN name) {
+        return name == null
+            || (StringUtils.isBlank(name.getFamily())
+                && StringUtils.isBlank(name.getGiven())
+                && StringUtils.isBlank(name.getPrefix()));
     }
 
     private StringType getPractitionerGiven(String given) {
