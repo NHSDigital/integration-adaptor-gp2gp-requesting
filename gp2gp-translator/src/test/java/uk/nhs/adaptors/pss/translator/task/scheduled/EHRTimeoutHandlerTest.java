@@ -54,6 +54,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,7 +79,7 @@ import uk.nhs.adaptors.pss.translator.util.InboundMessageUtil;
 import uk.nhs.adaptors.pss.translator.util.OutboundMessageUtil;
 import uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
 class EHRTimeoutHandlerTest {
 
@@ -96,6 +98,8 @@ class EHRTimeoutHandlerTest {
     private static final String EBXML_STRING = "test ebXML";
     private static final String EBXML_STRING_TWO = "test ebXML 2";
     private static final String UNEXPECTED_CONDITION_CODE = "99";
+    public static final String MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG =
+        "Migration Request timeout overwritten to 48 hours";
 
     @Captor
     private ArgumentCaptor<NACKMessageData> nackMessageData;
@@ -442,7 +446,8 @@ class EHRTimeoutHandlerTest {
     }
 
     @Test
-    void When_MigrationTimeoutOverrideIsSetAndMaxTimeoutIsLessThanCalculated_Expect_TimeoutIsDeterminedByOverride() {
+    void When_MigrationTimeoutOverrideIsSetAndMaxTimeoutIsLessThanCalculated_Expect_TimeoutIsDeterminedByOverride(CapturedOutput output) {
+
         String conversationId = UUID.randomUUID().toString();
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
@@ -457,6 +462,7 @@ class EHRTimeoutHandlerTest {
                                            EHR_EXTRACT_PERSIST_DURATION_49);
 
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
+        assertThat(output.getOut()).contains(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
     }
 
     @Test
