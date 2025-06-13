@@ -148,23 +148,22 @@ public class EHRTimeoutHandler {
             ZonedDateTime currentTime = ZonedDateTime.now(messageTimestamp.getZone());
             long numberCOPCMessages = patientAttachmentLogService.countAttachmentsForMigrationRequest(migrationRequest.getId());
 
-            // Can override the timeout calculation by providing a value in seconds.
-            if (timeoutProperties.isMigrationTimeoutOverride()) {
+            if (numberCOPCMessages > 0) {
+                Duration copcPersistDuration = persistDurationService.getPersistDurationFor(migrationRequest, COPC_MESSAGE_NAME);
+
+                timeout = (timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds())
+                        + (timeoutProperties.getCopcWeighting() * numberCOPCMessages * copcPersistDuration.getSeconds());
+
+                LOGGER.debug("Large message timeout calculated as [{}] seconds", timeout);
+            } else {
+                timeout = timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds();
+
+                LOGGER.debug("Non large message timeout calculated as [{}] seconds", timeout);
+            }
+
+            if (timeoutProperties.isMigrationTimeoutOverride() && MAX_TIMEOUT_OVERWRITE < timeout) {
                 timeout = MAX_TIMEOUT_OVERWRITE;
                 LOGGER.info("Migration Request timeout overwritten to 48 hours");
-            } else {
-                if (numberCOPCMessages > 0) {
-                    Duration copcPersistDuration = persistDurationService.getPersistDurationFor(migrationRequest, COPC_MESSAGE_NAME);
-
-                    timeout = (timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds())
-                            + (timeoutProperties.getCopcWeighting() * numberCOPCMessages * copcPersistDuration.getSeconds());
-
-                    LOGGER.debug("Large message timeout calculated as [{}] seconds", timeout);
-                } else {
-                    timeout = timeoutProperties.getEhrExtractWeighting() * ehrPersistDuration.getSeconds();
-
-                    LOGGER.debug("Non large message timeout calculated as [{}] seconds", timeout);
-                }
             }
 
             ZonedDateTime timeoutDateTime = messageTimestamp.plusSeconds(timeout);
