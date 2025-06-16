@@ -88,6 +88,7 @@ class EHRTimeoutHandlerTest {
 
     private static final int EHR_EXTRACT_PERSIST_DURATION = 7;
     private static final int EHR_EXTRACT_PERSIST_DURATION_49 = 49;
+    private static final int EHR_EXTRACT_PERSIST_DURATION_48 = 48;
     private static final int COPC_PERSIST_DURATION = 4;
     private static final ZonedDateTime TEN_DAYS_AGO = ZonedDateTime.of(LocalDateTime.now().minusDays(10), ZoneId.systemDefault());
     private static final ZonedDateTime TEN_DAYS_TIME = ZonedDateTime.of(LocalDateTime.now().plusDays(10), ZoneId.systemDefault());
@@ -463,6 +464,27 @@ class EHRTimeoutHandlerTest {
 
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
         assertThat(output.getOut()).contains(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
+    }
+
+    @Test
+    void When_MigrationTimeoutOverrideIsSetAndCalculatedTimeoutIsSameAsTimeoutOverride_Expect_TimeoutIsDeterminedByCalculatedTimeout(
+        CapturedOutput output) {
+
+        String conversationId = UUID.randomUUID().toString();
+        long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
+
+        // Simulate a message timestamp older than the override timeout (should trigger NACK)
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + ONE_SECOND);
+
+        when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId,
+                                           EHR_EXTRACT_PERSIST_DURATION_48);
+
+        verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
+        assertThat(output.getOut()).doesNotContain(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
     }
 
     @Test
