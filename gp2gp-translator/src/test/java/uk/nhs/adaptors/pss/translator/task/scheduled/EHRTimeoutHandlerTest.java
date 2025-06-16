@@ -466,6 +466,27 @@ class EHRTimeoutHandlerTest {
     }
 
     @Test
+    void When_MigrationTimeoutOverrideIsNotSetAndTimeoutDoesNotRunOut_Expect_TimeoutIsDeterminedByOverrideAndNackNotSent(
+        CapturedOutput output) {
+
+        String conversationId = UUID.randomUUID().toString();
+        long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
+
+        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(false);
+
+        // Simulate a message timestamp older than the override timeout (should trigger NACK)
+        ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + ONE_SECOND);
+
+        when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
+
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId,
+                                           EHR_EXTRACT_PERSIST_DURATION_49);
+
+        verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
+        assertThat(output.getOut()).doesNotContain(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
+    }
+
+    @Test
     void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Expect_NoNackSent() {
         String conversationId = UUID.randomUUID().toString();
 
