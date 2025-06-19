@@ -3,10 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [Unreleased]
+## [3.1.0] - 2025-06-19
 
 ### Added
-* Added migration timeout override option
+
+* Added migration timeout override option as environment variable `MIGRATION_TIMEOUT_OVERRIDE`. 
+  Setting this value to `true` will ensure that the migration will time out after a period of 48 hours has passed.
 
 ### Changed
 
