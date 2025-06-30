@@ -11,9 +11,11 @@ import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToDateTime
 import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToInstantType;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.xml.bind.JAXBException;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Observation;
@@ -30,8 +32,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
+import uk.nhs.adaptors.pss.translator.TestUtility;
 import uk.nhs.adaptors.pss.translator.mapper.CodeableConceptMapper;
 import uk.nhs.adaptors.pss.translator.mapper.diagnosticreport.SpecimenBatteryMapper.SpecimenBatteryParameters;
+import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
 import static uk.nhs.adaptors.common.util.CodeableConceptUtils.createCodeableConcept;
@@ -54,6 +58,9 @@ public class SpecimenBatteryMapperTest {
 
     @Mock
     private CodeableConceptMapper codeableConceptMapper;
+
+    @Mock
+    private ConfidentialityService confidentialityService;
 
     @InjectMocks
     private SpecimenBatteryMapper specimenBatteryMapper;
@@ -278,6 +285,8 @@ public class SpecimenBatteryMapperTest {
             </ehrComposition>
             """;
 
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(any(), any(), any())).thenCallRealMethod();
+
         final var ehrExtract = unmarshallEhrExtractFromEhrCompositionXml(ehrCompositionXml);
         final var batteryCompoundStatement = getBatteryCompoundStatement(ehrExtract);
         final var batteryParameters = getSpecimenBatteryParameters(
@@ -394,6 +403,33 @@ public class SpecimenBatteryMapperTest {
 
         assertThat(observation.getCode().getCodingFirstRep())
             .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+    }
+
+    @Test
+    void When_MappingObservationFromBatteryCompoundStatementWithConfidentialityCode_Expect_MetaSecurityContainsNOPAT()
+        throws FileNotFoundException, JAXBException {
+
+        final var codeableConcept = createCodeableConcept("1.2.3.4.5", "http://snomed.info/sct", "Test Display");
+        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(any(), any(), any())).thenCallRealMethod();
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(
+            getFile("classpath:xml/SpecimenBattery/specimen_battery_compound_statement_with_confidentiality_code.xml"),
+            RCMRMT030101UKEhrExtract.class
+        );
+        var batteryCompoundStatement = getBatteryCompoundStatement(ehrExtract);
+
+        var batteryParameters = getSpecimenBatteryParameters(
+            ehrExtract,
+            batteryCompoundStatement,
+            getObservations(),
+            getObservationComments());
+
+        final Observation observation = specimenBatteryMapper.mapBatteryObservation(batteryParameters);
+
+        assertThat(observation.getMeta().getSecurity().getFirst())
+            .usingRecursiveComparison()
+            .isEqualTo(TestUtility.getNOPATCoding());
     }
 
     private List<Observation> getObservationComments() {

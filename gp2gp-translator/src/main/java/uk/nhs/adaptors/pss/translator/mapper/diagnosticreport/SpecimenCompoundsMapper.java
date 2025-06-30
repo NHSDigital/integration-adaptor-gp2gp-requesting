@@ -159,6 +159,11 @@ public class SpecimenCompoundsMapper {
             ehrComposition.getConfidentialityCode(),
             specimenCompoundStatement.getConfidentialityCode());
 
+        var observationMeta = observation.getMeta();
+        if (observationMeta.hasSecurity() && !meta.hasSecurity()) {
+            meta.setSecurity(observationMeta.getSecurity());
+        }
+
         final Reference specimenReference = new Reference(new IdType(
             Specimen.name(),
             specimenCompoundStatement.getId().getFirst().getRoot()
@@ -188,6 +193,13 @@ public class SpecimenCompoundsMapper {
                 META_PROFILE,
                 compoundStatement.getConfidentialityCode(),
                 childNarrativeStatement.getConfidentialityCode());
+
+            if (observation != null) {
+                var observationMeta = observation.getMeta();
+                if (observationMeta.hasSecurity() && !meta.hasSecurity()) {
+                    meta.setSecurity(observationMeta.getSecurity());
+                }
+            }
 
             if (childNarrativeStatement.getText().contains(USER_COMMENT_HEADER)) {
                 getObservationById(observationComments, childNarrativeStatement.getId().getRoot())
