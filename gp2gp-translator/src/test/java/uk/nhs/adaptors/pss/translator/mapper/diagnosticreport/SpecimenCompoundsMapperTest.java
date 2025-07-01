@@ -277,7 +277,9 @@ public class SpecimenCompoundsMapperTest {
 
     @Test
     public void When_MappedObservationHasNOPATAndAssociatedNarrativeStatementDoesNot_Expect_ObservationContainsMetaSecurityNOPAT() {
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("specimen_user_narrative_statement_no_pat_in_observation.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract(
+            "specimen_user_narrative_statement_no_pat_conf_code_in_observation.xml"
+        );
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(matches(META_PROFILE), any(), any()))
             .thenCallRealMethod();
@@ -288,11 +290,45 @@ public class SpecimenCompoundsMapperTest {
             ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE
         );
 
-        var observationCommentMeta = observations.getFirst().getMeta();
+        var observationCommentMeta = observationComments.getFirst().getMeta();
 
         assertThat(observationCommentMeta.getSecurity().getFirst())
             .usingRecursiveComparison()
             .isEqualTo(META.getSecurity().getFirst());
+    }
+
+    @Test
+    public void When_NOPATisNotPresentInObservationOrNarrativeStatement_Expect_ObservationDoesNotContainMetaSecurityNOPAT() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("specimen_user_narrative_statement_without_nopat_conf_code.xml");
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(matches(META_PROFILE), any(), any()))
+            .thenCallRealMethod();
+
+        specimenCompoundsMapper.handleSpecimenChildComponents(
+            ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE
+        );
+
+        var observationCommentMeta = observationComments.getFirst().getMeta();
+
+        assertThat(observationCommentMeta.getSecurity()).isEmpty();
+    }
+
+    @Test
+    public void When_ObservationIsNotPresentWhenMappingNarrativeStatement_Expect_SSS() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("specimen_user_narrative_statement_without_nopat_conf_code.xml");
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(matches(META_PROFILE), any(), any()))
+            .thenCallRealMethod();
+
+        observations = List.of(observations.getLast());
+
+        specimenCompoundsMapper.handleSpecimenChildComponents(
+            ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE
+        );
+
+        var observationCommentMeta = observationComments.getFirst().getMeta();
+
+        assertThat(observationCommentMeta.getSecurity()).isEmpty();
     }
 
     @Test
