@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsNotPresent;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsPresent;
 import static uk.nhs.adaptors.pss.translator.mapper.diagnosticreport.SpecimenBatteryMapper.SpecimenBatteryParameters;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
@@ -151,6 +153,28 @@ public class SpecimenCompoundsMapperTest {
     }
 
     @Test
+    public void When_NestedObservationStatementHasMetaWithoutSecurity_Expect_ObservationToNotContainMetaSecurity() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract(
+            "specimen_ehr_composition_with_observation_statement_with_nopat_conf_code.xml"
+        );
+
+        final var ehrComposition = getEhrComposition(ehrExtract);
+        final var compoundStatement = getCompoundStatement(ehrExtract);
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+            META_PROFILE,
+            ehrComposition.getConfidentialityCode(),
+            compoundStatement.getConfidentialityCode()
+        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+
+        observations.getFirst().setMeta(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+
+        specimenCompoundsMapper.handleSpecimenChildComponents(
+            ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE);
+
+        assertMetaSecurityIsNotPresent(observations.getFirst().getMeta(), META_PROFILE);
+    }
+
+    @Test
     public void When_NoNestedObservationStatement_Expect_NoDiagnosticReport() {
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract(
             "specimen_ehr_composition_with_observation_statement_with_nopat_conf_code.xml"
@@ -249,6 +273,26 @@ public class SpecimenCompoundsMapperTest {
         );
 
         assertMetaSecurityIsPresent(META, observationComments.getFirst().getMeta());
+    }
+
+    @Test
+    public void When_MappedObservationHasNOPATAndAssociatedNarrativeStatementDoesNot_Expect_ObservationContainsMetaSecurityNOPAT() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("specimen_user_narrative_statement_no_pat_in_observation.xml");
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(matches(META_PROFILE), any(), any()))
+            .thenCallRealMethod();
+
+        observations.getFirst().setMeta(META);
+
+        specimenCompoundsMapper.handleSpecimenChildComponents(
+            ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE
+        );
+
+        var observationCommentMeta = observations.getFirst().getMeta();
+
+        assertThat(observationCommentMeta.getSecurity().getFirst())
+            .usingRecursiveComparison()
+            .isEqualTo(META.getSecurity().getFirst());
     }
 
     @Test
