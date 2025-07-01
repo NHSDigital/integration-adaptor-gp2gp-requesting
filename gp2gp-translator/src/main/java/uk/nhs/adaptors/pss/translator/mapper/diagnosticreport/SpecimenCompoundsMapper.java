@@ -193,7 +193,7 @@ public class SpecimenCompoundsMapper {
                 compoundStatement.getConfidentialityCode(),
                 childNarrativeStatement.getConfidentialityCode());
 
-            if (observation != null && observation.hasMeta() && observation.getMeta().hasSecurity()) {
+            if (observation != null && observation.getMeta().hasSecurity()) {
                 meta.setSecurity(observation.getMeta().getSecurity());
             }
 

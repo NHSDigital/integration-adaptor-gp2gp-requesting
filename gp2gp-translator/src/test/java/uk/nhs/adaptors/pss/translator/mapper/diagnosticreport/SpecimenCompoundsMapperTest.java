@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITHOUT_SECURITY;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.MetaType.META_WITH_SECURITY;
+import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsNotPresent;
 import static uk.nhs.adaptors.pss.translator.util.MetaUtil.assertMetaSecurityIsPresent;
 import static uk.nhs.adaptors.pss.translator.mapper.diagnosticreport.SpecimenBatteryMapper.SpecimenBatteryParameters;
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
@@ -148,6 +149,20 @@ public class SpecimenCompoundsMapperTest {
 
         assertMetaSecurityIsPresent(META, observations.getFirst().getMeta());
         assertMetaSecurityIsPresent(META, (Meta) result.getResource().getMeta());
+    }
+
+    @Test
+    public void When_NoNestedObservationStatement_Expect_NoDiagnosticReport() {
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract(
+            "specimen_ehr_composition_with_observation_statement_with_nopat_conf_code.xml"
+        );
+
+        observations = List.of(observations.getLast());
+
+        specimenCompoundsMapper.handleSpecimenChildComponents(
+            ehrExtract, observations, observationComments, diagnosticReports, PATIENT, List.of(), TEST_PRACTISE_CODE);
+
+        assertThat(diagnosticReports.getFirst().hasResult()).isFalse();
     }
 
     @Test
