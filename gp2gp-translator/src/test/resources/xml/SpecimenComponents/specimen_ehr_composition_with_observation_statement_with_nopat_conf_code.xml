@@ -4,7 +4,6 @@
             <component typeCode="COMP">
                 <ehrComposition classCode="COMPOSITION" moodCode="EVN">
                     <id root="CA4AD477-C33B-4FE7-8417-A242BB3D23AF"/>
-                    <confidentialityCode code="NOPAT" codeSystem="2.16.840.1.113883.4.642.3.47" displayName="no disclosure to patient, family or caregivers without attending provider's authorization" />
                     <author typeCode="AUT" contextControlCode="OP">
                         <time value="20200101010101"/>
                         <agentRef classCode="AGNT">
