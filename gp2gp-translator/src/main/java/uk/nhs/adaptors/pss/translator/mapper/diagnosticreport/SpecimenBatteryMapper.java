@@ -6,7 +6,6 @@ import static uk.nhs.adaptors.pss.translator.util.CompoundStatementUtil.extractR
 import static uk.nhs.adaptors.pss.translator.util.DateFormatUtil.parseToInstantType;
 import static uk.nhs.adaptors.pss.translator.util.ObservationUtil.getEffective;
 import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildIdentifier;
-import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.generateMeta;
 import static uk.nhs.adaptors.pss.translator.util.TextUtil.extractPmipComment;
 
 import java.util.List;
@@ -46,6 +45,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import uk.nhs.adaptors.pss.translator.mapper.CodeableConceptMapper;
+import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 import uk.nhs.adaptors.pss.translator.util.CompoundStatementResourceExtractors;
 import uk.nhs.adaptors.pss.translator.util.DegradedCodeableConcepts;
 import uk.nhs.adaptors.pss.translator.util.TextUtil;
@@ -65,6 +65,7 @@ public class SpecimenBatteryMapper {
     public static final String CODING_DISPLAY = "Laboratory";
 
     private final CodeableConceptMapper codeableConceptMapper;
+    private final ConfidentialityService confidentialityService;
 
     public Observation mapBatteryObservation(SpecimenBatteryParameters batteryParameters) {
         final var batteryCompoundStatement = batteryParameters.getBatteryCompoundStatement();
@@ -74,7 +75,13 @@ public class SpecimenBatteryMapper {
         final Observation observation = new Observation();
         final String id = batteryParameters.getBatteryCompoundStatement().getId().getFirst().getRoot();
         observation.setId(id);
-        observation.setMeta(generateMeta(META_PROFILE_URL_SUFFIX));
+
+        var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+            META_PROFILE_URL_SUFFIX,
+            ehrComposition.getConfidentialityCode(),
+            batteryCompoundStatement.getConfidentialityCode());
+
+        observation.setMeta(meta);
         observation.addIdentifier(buildIdentifier(id, batteryParameters.getPracticeCode()));
         observation.setSubject(new Reference(batteryParameters.getPatient()));
         observation.setSpecimen(createSpecimenReference(batteryParameters.getSpecimenCompoundStatement()));

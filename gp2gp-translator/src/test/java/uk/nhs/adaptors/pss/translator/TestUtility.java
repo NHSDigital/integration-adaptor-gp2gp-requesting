@@ -1,5 +1,6 @@
 package uk.nhs.adaptors.pss.translator;
 
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.v3.CD;
 import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKComponent3;
@@ -11,6 +12,11 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class TestUtility {
+    public static final String NOPAT_CODE = "NOPAT";
+    public static final String NOPAT_URL_CODESYSTEM = "http://hl7.org/fhir/v3/ActCode";
+    public static final String NOPAT_DISPLAY =
+        "no disclosure to patient, family or caregivers without attending provider's authorization";
+
     private TestUtility() { }
 
     public static final Function<RCMRMT030101UKEhrExtract, RCMRMT030101UKEhrComposition> GET_EHR_COMPOSITION =
@@ -38,6 +44,10 @@ public final class TestUtility {
         cd.setCodeSystem(codeSystem);
         cd.setDisplayName(displayName);
         return cd;
+    }
+
+    public static Coding getNOPATCoding() {
+        return new Coding(NOPAT_URL_CODESYSTEM, NOPAT_CODE, NOPAT_DISPLAY);
     }
 
     /**
