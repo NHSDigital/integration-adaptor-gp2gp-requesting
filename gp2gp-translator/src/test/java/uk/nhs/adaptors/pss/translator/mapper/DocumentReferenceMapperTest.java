@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -123,6 +124,8 @@ class DocumentReferenceMapperTest {
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
         var documentReference = documentReferences.getFirst();
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(anyString(), any())).thenCallRealMethod();
 
         assertAttachmentData(documentReference);
     }

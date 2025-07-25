@@ -10,6 +10,7 @@
                 <ehrComposition classCode="COMPOSITION" moodCode="EVN">
                     <id root="62A39454-299F-432E-993E-5A6232B4E099"/>
                     <availabilityTime value="20190708143500"/>
+                    <confidentialityCode code="NOPAT" codeSystem="2.16.840.1.113883.4.642.3.47" displayName="no disclosure to patient, family or caregivers without attending provider&apos;s authorization"/>
                     <author typeCode="AUT" contextControlCode="OP">
                         <time value="20100114" />
                         <agentRef classCode="AGNT">
