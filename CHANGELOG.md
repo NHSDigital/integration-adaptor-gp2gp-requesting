@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## Unreleased
+
+### Added
+* If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a `confidentialityCode`, 
+  the `meta.security` field of the corresponding translated FHIR `DocumentReference` resource will now be [appropriately populated][nopat-docs].
+
+
 ## [3.1.0] - 2025-06-19
 
 ### Added
