@@ -81,7 +81,11 @@ class DocumentReferenceMapperTest {
     @InjectMocks
     private DocumentReferenceMapper documentReferenceMapper;
     @Captor
-    private ArgumentCaptor<Optional<CV>> confidentialityCodeCaptor;
+    private ArgumentCaptor<Optional<CV>> ehrCompositionCaptor;
+    @Captor
+    private ArgumentCaptor<Optional<CV>> narrativeStatementCaptor;
+    @Captor
+    private ArgumentCaptor<Optional<CV>> externalDocumentCaptor;
 
     @BeforeEach
     void setup() {
@@ -99,7 +103,31 @@ class DocumentReferenceMapperTest {
     }
 
     @Test
+    void mapNarrativeStatementToDocumentReferenceWithNopatSecurity() {
+
+        final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        Mockito
+            .lenient()
+            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                any(String.class), any(Optional.class), any(Optional.class), any(Optional.class))).thenReturn(stubbedMeta);
+
+        var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
+        List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
+                                                                                          getEncounterList(),
+                                                                                          AUTHOR_ORG,
+                                                                                          createAttachmentList());
+        var documentReference = documentReferences.getFirst();
+
+        assertAll(
+            () -> documentReferences.forEach(this::assertMetaHasSecurity),
+            () -> assertOptionalValidData(documentReference)
+        );
+
+    }
+
+    @Test
     void mapNarrativeStatementToDocumentReferenceWithOptionalData() {
+
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -110,6 +138,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapMultipleNarrativeStatementToDocumentReference() {
+
         var ehrExtract = unmarshallEhrExtract("multiple_narrative_statements_has_referred_to_external_document.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -204,13 +233,15 @@ class DocumentReferenceMapperTest {
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
-            confidentialityCodeCaptor.capture()
+            ehrCompositionCaptor.capture(),
+            narrativeStatementCaptor.capture(),
+            externalDocumentCaptor.capture()
         )).thenReturn(META_WITH_SECURITY_ADDED);
 
         final List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
 
-        final CV externalDocumentConfidentialityCode = confidentialityCodeCaptor
+        final CV externalDocumentConfidentialityCode = externalDocumentCaptor
             .getValue()
             .orElseThrow(TestUtility.NoConfidentialityCodePresentException::new);
 
@@ -227,14 +258,15 @@ class DocumentReferenceMapperTest {
 
         when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
-            confidentialityCodeCaptor.capture()
+            ehrCompositionCaptor.capture(),
+            narrativeStatementCaptor.capture(),
+            externalDocumentCaptor.capture()
         )).thenReturn(META_WITHOUT_SECURITY_ADDED);
 
         final List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
 
-        final Optional<CV> externalDocumentConfidentialityCode = confidentialityCodeCaptor
-            .getValue();
+        final Optional<CV> externalDocumentConfidentialityCode = externalDocumentCaptor.getValue();
 
         assertAll(
             () -> documentReferences.forEach(this::assertMetaHasNoSecurity),
@@ -361,7 +393,9 @@ class DocumentReferenceMapperTest {
 
         Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             eq(META_PROFILE),
-            confidentialityCodeCaptor.capture()
+            ehrCompositionCaptor.capture(),
+            narrativeStatementCaptor.capture(),
+            externalDocumentCaptor.capture()
         )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 }

@@ -88,7 +88,7 @@ public class DocumentReferenceMapper extends AbstractMapper<DocumentReference> {
 
         documentReference.addIdentifier(buildIdentifier(id, organization.getIdentifierFirstRep().getValue()));
         documentReference.setId(id);
-        documentReference.setMeta(generateMeta(narrativeStatement));
+        documentReference.setMeta(generateMeta(ehrComposition, narrativeStatement));
         documentReference.setStatus(DocumentReferenceStatus.CURRENT);
         documentReference.setType(getType(narrativeStatement));
         documentReference.setSubject(new Reference(patient));
@@ -115,7 +115,7 @@ public class DocumentReferenceMapper extends AbstractMapper<DocumentReference> {
         return documentReference;
     }
 
-    private Meta generateMeta(RCMRMT030101UKNarrativeStatement narrativeStatement) {
+    private Meta generateMeta(RCMRMT030101UKEhrComposition ehrComposition, RCMRMT030101UKNarrativeStatement narrativeStatement) {
         final RCMRMT030101UKExternalDocument externalDocument = narrativeStatement
             .getReference()
             .getFirst()
@@ -123,6 +123,8 @@ public class DocumentReferenceMapper extends AbstractMapper<DocumentReference> {
 
         return confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             META_PROFILE,
+            ehrComposition.getConfidentialityCode(),
+            narrativeStatement.getConfidentialityCode(),
             externalDocument.getConfidentialityCode()
         );
     }
