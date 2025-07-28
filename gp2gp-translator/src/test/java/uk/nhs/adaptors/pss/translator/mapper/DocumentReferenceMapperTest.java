@@ -100,7 +100,31 @@ class DocumentReferenceMapperTest {
     }
 
     @Test
+    void mapNarrativeStatementToDocumentReferenceWithNopatSecurity() {
+
+        final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        Mockito
+            .lenient()
+            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                any(String.class), any(Optional.class), any(Optional.class), any(Optional.class))).thenReturn(stubbedMeta);
+
+        var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
+        List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
+                                                                                          getEncounterList(),
+                                                                                          AUTHOR_ORG,
+                                                                                          createAttachmentList());
+        var documentReference = documentReferences.getFirst();
+
+        assertAll(
+            () -> documentReferences.forEach(this::assertMetaHasSecurity),
+            () -> assertOptionalValidData(documentReference)
+        );
+
+    }
+
+    @Test
     void mapNarrativeStatementToDocumentReferenceWithOptionalData() {
+
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -111,6 +135,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapMultipleNarrativeStatementToDocumentReference() {
+
         var ehrExtract = unmarshallEhrExtract("multiple_narrative_statements_has_referred_to_external_document.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
