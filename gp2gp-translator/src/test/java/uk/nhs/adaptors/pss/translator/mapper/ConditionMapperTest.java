@@ -396,6 +396,20 @@ class ConditionMapperTest {
         assertThat(conditions).isEmpty();
     }
 
+    @Test
+    void When_MappingLinksetWithNotMajorCode_Expect_DefaultedToMinor(){
+        final var ehrExtract = unmarshallEhrExtract(
+                "Condition",
+                "linkset_with_minor_severity_code.xml"
+        );
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getNote().getFirst().getText()).isEqualTo("Defaulted to Minor");
+
+    }
+
     private void addMedicationRequestsToBundle(Bundle bundle) {
         var planMedicationRequest = new MedicationRequest().setId(AUTHORISE_ID);
         var orderMedicationRequest = new MedicationRequest().setId(PRESCRIBE_ID);

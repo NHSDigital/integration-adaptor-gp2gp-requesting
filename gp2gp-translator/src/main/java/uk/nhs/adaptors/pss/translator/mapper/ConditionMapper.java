@@ -76,7 +76,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
     private static final String CLINICAL_STATUS_ACTIVE_CODE = "394774009";
     private static final String CLINICAL_STATUS_INACTIVE_CODE = "394775005";
     private static final String DEFAULT_CLINICAL_STATUS = "Defaulted status to active : Unknown status at source";
-    private static final String DEFAULT_ANNOTATION = "Unspecified Significance: Defaulted to Minor";
+    private static final String DEFAULT_ANNOTATION = "Defaulted to Minor";
     private static final String MAJOR_CODE_NAME = "major";
     private static final String MINOR_CODE_NAME = "minor";
     private static final String HIERARCHY_TYPE_PARENT = "parent";
