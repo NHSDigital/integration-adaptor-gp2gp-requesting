@@ -140,19 +140,19 @@ public class MedicationRequestMapperTest {
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
         verify(medicationRequestPlanMapper, times(SINGLE_INVOCATION)).mapToPlanMedicationRequest(
-            eq(ehrExtract),
-            eq(ehrComposition),
-            eq(medicationStatement),
-            eq(medicationStatement.getComponent().getFirst().getEhrSupplyAuthorise()),
-            eq(PRACTISE_CODE)
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            medicationStatement.getComponent().getFirst().getEhrSupplyAuthorise(),
+            PRACTISE_CODE
         );
 
         verify(medicationRequestOrderMapper, times(SINGLE_INVOCATION)).mapToOrderMedicationRequest(
-            eq(ehrExtract),
-            eq(ehrComposition),
-            eq(medicationStatement),
-            eq(medicationStatement.getComponent().get(2).getEhrSupplyPrescribe()),
-            eq(PRACTISE_CODE)
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            medicationStatement.getComponent().get(2).getEhrSupplyPrescribe(),
+            PRACTISE_CODE
         );
 
         verify(medicationStatementMapper, times(SINGLE_INVOCATION)).mapToMedicationStatement(

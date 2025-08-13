@@ -37,7 +37,7 @@ import uk.nhs.adaptors.pss.translator.mapper.DateTimeMapper;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 
 @ExtendWith(MockitoExtension.class)
-public class SpecimenMapperTest {
+class SpecimenMapperTest {
 
     private static final String XML_RESOURCES_BASE = "xml/Specimen/";
     private static final String SPECIMEN_PREFIX = "Specimen/";
@@ -128,7 +128,7 @@ public class SpecimenMapperTest {
         assertThat(specimen.getNote().getFirst().getText()).isEqualTo(NOTE_TEXT);
         assertThat(specimen.getAccessionIdentifier().getValue()).isEqualTo(ACCESSION_IDENTIFIER_VALUE);
         assertThat(specimen.getType().getText()).isEqualTo(SPECIMEN_TYPE_TEXT);
-        assertThat(specimen.getCollection().getCollected().toString()).isEqualTo(SPECIMEN_COLLECTED_DATETIME.toString());
+        assertThat(specimen.getCollection().getCollected()).hasToString(String.valueOf(SPECIMEN_COLLECTED_DATETIME));
     }
 
     @Test

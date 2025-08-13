@@ -39,7 +39,7 @@ import uk.nhs.adaptors.pss.translator.model.EbxmlReference;
 import uk.nhs.adaptors.pss.translator.util.XmlParseUtilService;
 
 @ExtendWith(MockitoExtension.class)
-public class SkeletonProcessingServiceTests {
+class SkeletonProcessingServiceTests {
 
     private static final String CONVERSATION_ID = randomUUID().toString();
     private static final String NHS_NUMBER = "1111";
@@ -112,7 +112,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_UpdateInboundMessageAttachmentHandlerServiceThrowsIllegalArgumentException_Expect_ThrowsException() {
+    void When_UpdateInboundMessageAttachmentHandlerServiceThrowsIllegalArgumentException_Expect_ThrowsException() {
 
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
@@ -128,7 +128,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_HappyPathWithSkeletonAsRCMRMessage_Expect_ThrowNoErrors() throws TransformerException,
+    void When_HappyPathWithSkeletonAsRCMRMessage_Expect_ThrowNoErrors() throws TransformerException,
         SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
@@ -142,7 +142,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_HappyPathWithSkeletonAsRCMRMessage_Expect_InboundMessagePayloadIsNewRCMRMessage()
+    void When_HappyPathWithSkeletonAsRCMRMessage_Expect_InboundMessagePayloadIsNewRCMRMessage()
         throws TransformerException, SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
@@ -159,7 +159,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_HappyPathWithSkeletonAsSectionMessage_Expect_ThrowNoErrors()
+    void When_HappyPathWithSkeletonAsSectionMessage_Expect_ThrowNoErrors()
         throws TransformerException, SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
@@ -173,7 +173,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_SkeletonAsSectionMessage_Expect_ThrowNoErrors() throws TransformerException, SAXException {
+    void When_SkeletonAsSectionMessage_Expect_ThrowNoErrors() throws TransformerException, SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
 
@@ -185,7 +185,7 @@ public class SkeletonProcessingServiceTests {
     }
 
     @Test
-    public void When_SkeletonAsSectionMessageAndEBXMLSkeletonReferenceIsEmpty_Expect_IllegalArgumentException()
+    void When_SkeletonAsSectionMessageAndEBXMLSkeletonReferenceIsEmpty_Expect_IllegalArgumentException()
         throws SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
