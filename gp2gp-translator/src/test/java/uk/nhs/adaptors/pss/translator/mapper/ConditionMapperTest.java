@@ -397,7 +397,7 @@ class ConditionMapperTest {
     }
 
     @Test
-    void When_MappingLinksetWithNotMajorCode_Expect_DefaultedToMinor(){
+    void When_MappingLinksetWithNotMajorCode_Expect_DefaultedToMinor() {
         final var ehrExtract = unmarshallEhrExtract(
                 "Condition",
                 "linkset_with_minor_severity_code.xml"
