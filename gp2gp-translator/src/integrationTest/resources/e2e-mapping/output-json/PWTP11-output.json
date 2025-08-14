@@ -4270,7 +4270,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "This is the third problem"
       }, {
@@ -4575,7 +4575,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "This is a strabismus note"
       }, {
@@ -4669,7 +4669,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "Inactive Problem, Not Significant (Minor)"
       } ]
@@ -4828,7 +4828,7 @@
       "note": [ {
         "text": "Defaulted status to active : Unknown status at source"
       }, {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "(Combined with [D]Difficulty in swallowing)"
       }, {
@@ -4903,7 +4903,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "Inactive Problem, Not Significant (Minor)"
       } ]

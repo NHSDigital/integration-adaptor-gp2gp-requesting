@@ -86,6 +86,7 @@ class ConditionMapperTest {
     private static final String NAMED_STATEMENT_REF_ID = "NAMED_STATEMENT_REF_ID";
     private static final String STATEMENT_REF_ID = "STATEMENT_REF_ID";
     private static final String STATEMENT_REF_ID_1 = "STATEMENT_REF_ID_1";
+    private static final String DEFAULTED_TO_MINOR = "Defaulted to Minor";
     private static final int EXPECTED_NUMBER_OF_EXTENSIONS = 4;
 
     @Mock
@@ -394,6 +395,31 @@ class ConditionMapperTest {
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
         assertThat(conditions).isEmpty();
+    }
+
+    @Test
+    void When_MappingLinksetWithNotMajorCode_Expect_DefaultedToMinor() {
+        final var ehrExtract = unmarshallEhrExtract(
+                "Condition",
+                "linkset_with_minor_severity_code.xml"
+        );
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getNote()).hasSize(1);
+        assertEquals(DEFAULTED_TO_MINOR, conditions.getFirst().getNote().getFirst().getText());
+    }
+
+    @Test
+    void When_MappingLinksetWithUnknownSeverityCode_Expect_DefaultedToMinor() {
+        final var ehrExtract = unmarshallEhrExtract("Condition", "linkset_with_unknown_severity_code.xml");
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getNote()).hasSize(1);
+        assertEquals(DEFAULTED_TO_MINOR, conditions.getFirst().getNote().getFirst().getText());
     }
 
     private void addMedicationRequestsToBundle(Bundle bundle) {
