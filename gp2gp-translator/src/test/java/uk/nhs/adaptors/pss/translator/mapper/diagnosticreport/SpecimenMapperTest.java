@@ -128,7 +128,7 @@ public class SpecimenMapperTest {
         assertThat(specimen.getNote().getFirst().getText()).isEqualTo(NOTE_TEXT);
         assertThat(specimen.getAccessionIdentifier().getValue()).isEqualTo(ACCESSION_IDENTIFIER_VALUE);
         assertThat(specimen.getType().getText()).isEqualTo(SPECIMEN_TYPE_TEXT);
-        assertThat(specimen.getCollection().getCollected().toString()).isEqualTo(SPECIMEN_COLLECTED_DATETIME.toString());
+        assertThat(specimen.getCollection().getCollected()).hasToString(String.valueOf(SPECIMEN_COLLECTED_DATETIME));
     }
 
     @Test
