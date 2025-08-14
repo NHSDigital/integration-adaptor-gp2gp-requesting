@@ -86,6 +86,7 @@ class ConditionMapperTest {
     private static final String NAMED_STATEMENT_REF_ID = "NAMED_STATEMENT_REF_ID";
     private static final String STATEMENT_REF_ID = "STATEMENT_REF_ID";
     private static final String STATEMENT_REF_ID_1 = "STATEMENT_REF_ID_1";
+    private static final String DEFAULTED_TO_MINOR = "Defaulted to Minor";
     private static final int EXPECTED_NUMBER_OF_EXTENSIONS = 4;
 
     @Mock
@@ -407,8 +408,7 @@ class ConditionMapperTest {
 
         assertThat(conditions).isNotEmpty();
         assertThat(conditions.getFirst().getNote()).hasSize(1);
-        assertThat(conditions.getFirst().getNote().getFirst().getText()).isEqualTo("Defaulted to Minor");
-
+        assertEquals(DEFAULTED_TO_MINOR, conditions.getFirst().getNote().getFirst().getText());
     }
 
     @Test
@@ -419,7 +419,7 @@ class ConditionMapperTest {
 
         assertThat(conditions).isNotEmpty();
         assertThat(conditions.getFirst().getNote()).hasSize(1);
-        assertThat(conditions.getFirst().getNote().getFirst().getText()).isEqualTo("Defaulted to Minor");
+        assertEquals(DEFAULTED_TO_MINOR, conditions.getFirst().getNote().getFirst().getText());
     }
 
     private void addMedicationRequestsToBundle(Bundle bundle) {
