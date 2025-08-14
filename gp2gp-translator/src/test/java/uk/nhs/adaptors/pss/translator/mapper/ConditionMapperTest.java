@@ -406,8 +406,20 @@ class ConditionMapperTest {
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
 
         assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getNote()).hasSize(1);
         assertThat(conditions.getFirst().getNote().getFirst().getText()).isEqualTo("Defaulted to Minor");
 
+    }
+
+    @Test
+    void When_MappingLinksetWithUnknownSeverityCode_Expect_DefaultedToMinor() {
+        final var ehrExtract = unmarshallEhrExtract("Condition", "linkset_with_unknown_severity_code.xml");
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getNote()).hasSize(1);
+        assertThat(conditions.getFirst().getNote().getFirst().getText()).isEqualTo("Defaulted to Minor");
     }
 
     private void addMedicationRequestsToBundle(Bundle bundle) {
