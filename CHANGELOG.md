@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
+* Changed the default output to `'Defaulted to Minor'`  when the adaptor receives GP2GP xml and finds a problem that is either coded as ‘unspecified significance’ or no severity qualifier is present.
+
+
 
 ### Added
 * If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a `confidentialityCode`, 
