@@ -16,6 +16,7 @@ import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFi
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -30,6 +31,7 @@ import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.StringType;
 import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKComponent02;
+import org.hl7.v3.RCMRMT030101UKCompoundStatement;
 import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
 
@@ -100,6 +102,26 @@ public class ObservationMapperTest {
 
     @InjectMocks
     private ObservationMapper observationMapper;
+
+    @Test
+    public void mapTwoNonBloodPressureObservationsWrappedInCompoundStatementTests() {
+        var ehrExtract = unmarshallEhrExtractElement("different_compound_statements_with_observations.xml");
+
+        var ehrComposition = getEhrComposition(ehrExtract);
+        var observationStatements = getObservationStatementIncludedIntoCompoundStatement(ehrExtract);
+        var compoundStatement = ehrComposition
+            .getComponent()
+            .stream()
+            .flatMap(component4 -> extractAllCompoundStatements(component4))
+            .findFirst().get();
+
+        observationStatements.getFirst().setConfidentialityCode(NOPAT_CV);
+        ehrComposition.setConfidentialityCode(NOPAT_CV);
+
+        var observations = observationMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE);
+
+        assertThat(observations).hasSize(2);
+    }
 
     @Test
     public void mapTwoObservationsWrappedInCompoundStatementMetaSecurityWithNoPapExpectObservationsWithNoPat() {

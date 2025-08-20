@@ -89,12 +89,13 @@ public class CompoundStatementResourceExtractors {
 
         return Stream.concat(
             Stream.of(component4.getObservationStatement()),
-            component4.hasCompoundStatement() && !isBloodPressureWithBatteryAndBloodPressureTriple(component4.getCompoundStatement())
+            component4.hasCompoundStatement()
                 ? CompoundStatementUtil.extractResourcesFromCompound(
                         component4.getCompoundStatement(),
                         RCMRMT030101UKComponent02::hasObservationStatement,
                         RCMRMT030101UKComponent02::getObservationStatement,
-                        CompoundStatementResourceExtractors::isNotAllergy
+                        compoundStatement -> CompoundStatementResourceExtractors.isNotAllergy(compoundStatement)
+                                             &&  !isBloodPressureWithBatteryAndBloodPressureTriple(compoundStatement)
                     ).stream()
                     .map(RCMRMT030101UKObservationStatement.class::cast)
                 : Stream.empty()
