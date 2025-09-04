@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+* Blood pressure observations are retrieved only once to prevent duplicate entries.
+
 ### Changed
 
 * Changed the default output to `'Defaulted to Minor'`  when the adaptor receives GP2GP xml and finds a problem that is either coded as ‘unspecified significance’ or no severity qualifier is present.

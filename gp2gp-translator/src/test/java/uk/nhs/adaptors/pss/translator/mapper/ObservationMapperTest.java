@@ -102,6 +102,21 @@ public class ObservationMapperTest {
     private ObservationMapper observationMapper;
 
     @Test
+    public void mapTwoNonBloodPressureObservationsWrappedInCompoundStatementTests() {
+        var ehrExtract = unmarshallEhrExtractElement("different_compound_statements_with_observations.xml");
+
+        var ehrComposition = getEhrComposition(ehrExtract);
+        var observationStatements = getObservationStatementIncludedIntoCompoundStatement(ehrExtract);
+
+        observationStatements.getFirst().setConfidentialityCode(NOPAT_CV);
+        ehrComposition.setConfidentialityCode(NOPAT_CV);
+
+        var observations = observationMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE);
+
+        assertThat(observations).hasSize(2);
+    }
+
+    @Test
     public void mapTwoObservationsWrappedInCompoundStatementMetaSecurityWithNoPapExpectObservationsWithNoPat() {
         var ehrExtract = unmarshallEhrExtractElement("nopat_compound_statement_with_observation.xml");
 
