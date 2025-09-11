@@ -134,8 +134,8 @@ can be executed against the database using the required environment variables li
 Example usage:
 ```sh
 $ docker run --rm -e PS_DB_OWNER_NAME=postgres -e POSTGRES_PASSWORD=super5ecret -e PS_DB_HOST=postgres -e PS_DB_PORT=5432 \
-    -v /path/to/uk_sct2mo_39.0.0_20240925000001Z.zip:/snomed/uk_sct2mo_39.0.0_20240925000001Z.zip \
-    nhsdev/nia-ps-snomed-schema /snomed/uk_sct2mo_39.0.0_20240925000001Z.zip
+    -v /path/to/uk_sct2mo_40.5.0_20250827000001Z.zip:/snomed/uk_sct2mo_40.5.0_20250827000001Z.zip \
+    nhsdev/nia-ps-snomed-schema /snomed/uk_sct2mo_40.5.0_20250827000001Z.zip
 ```
 
 #### First installation
