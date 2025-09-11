@@ -1,19 +1,24 @@
 on:
-  push:
-    tags: "*"
+  release:
+    types: [published]
 
 jobs:
   push_to_dockerhub:
     strategy:
       matrix:
-        image:
-          - {folder: gp2gp-translator, dockerhub_name: nia-ps-adaptor}
-          - {folder: gpc-facade, dockerhub_name: nia-ps-facade}
-          - {folder: db-migration, dockerhub_name: nia-ps-db-migration}
-          - {folder: snomed-schema, dockerhub_name: nia-ps-snomed-schema}
+        config:
+          - folder: gp2gp-translator
+            dockerhub_name: nia-ps-adaptor
+          - folder: gpc-facade
+            dockerhub_name: nia-ps-facade
+          - folder: db-migration
+            dockerhub_name: nia-ps-db-migration
+          - folder: snomed-schema
+            dockerhub_name: nia-ps-snomed-schema
+
     uses: NHSDigital/integration-adaptor-actions/.github/workflows/release-adaptor-container-image.yml@main
     with:
-        dockerhub_name: ${{matrix.image.dockerhub_name}}
-        folder: ${{matrix.image.folder}}
-
+      folder: ${{ matrix.config.folder }}
+      dockerhub_name: ${{ matrix.config.dockerhub_name }}
+      upload_url: ${{ github.event.release.upload_url }}
     secrets: inherit
