@@ -12,11 +12,13 @@ dependencies {
     api 'com.sun.xml.bind:jaxb-impl:4.0.5'
     api 'com.sun.istack:istack-commons-runtime:4.2.0'
 
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
     implementation 'org.projectlombok:lombok:1.18.36'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testImplementation(platform('org.junit:junit-bom:5.13.4'))
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.assertj:assertj-core:3.27.3'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
