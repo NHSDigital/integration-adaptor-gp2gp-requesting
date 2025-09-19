@@ -7,13 +7,13 @@ jobs:
     strategy:
       matrix:
         config:
-          - folder: gp2gp-translator
+          - folder: docker/gp2gp-translator
             dockerhub_name: nia-ps-adaptor
-          - folder: gpc-facade
+          - folder: docker/gpc-facade
             dockerhub_name: nia-ps-facade
-          - folder: db-migration
+          - folder: docker/db-migration
             dockerhub_name: nia-ps-db-migration
-          - folder: snomed-schema
+          - folder: docker/snomed-schema
             dockerhub_name: nia-ps-snomed-schema
 
     uses: NHSDigital/integration-adaptor-actions/.github/workflows/release-adaptor-container-image.yml@main
