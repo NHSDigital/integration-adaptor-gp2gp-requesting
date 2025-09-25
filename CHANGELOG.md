@@ -5,19 +5,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+
+## [3.1.3] - 2025-09-19
+
 ### Fixed
 * Blood pressure observations are retrieved only once to prevent duplicate entries.
 
 ### Changed
+* Changed the default output to `'Defaulted to Minor'`  when the adaptor receives GP2GP xml and finds a problem that is 
+  either coded as ‘unspecified significance’ or no severity qualifier is present.
 
-* Changed the default output to `'Defaulted to Minor'`  when the adaptor receives GP2GP xml and finds a problem that is either coded as ‘unspecified significance’ or no severity qualifier is present.
 
-
+## [3.1.2] - 2025-07-29
 
 ### Added
-* If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a `confidentialityCode`, 
-  the `meta.security` field of the corresponding translated FHIR `DocumentReference` resource will now be [appropriately populated][nopat-docs].
+* If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a
+  `confidentialityCode` then the `meta.security` field of the corresponding translated FHIR `DocumentReference` resource
+  will now be [appropriately populated][nopat-docs].
 
+
+## [3.1.1] - 2025-07-10
+
+### Fixed
+
+* Fixed a bug where redactions were being removed from some Observations after being added.
 
 ## [3.1.0] - 2025-06-19
 
