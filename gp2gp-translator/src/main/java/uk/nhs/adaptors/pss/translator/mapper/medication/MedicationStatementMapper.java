@@ -56,9 +56,15 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBING_AGENCY_SYSTEM
             = "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1";
 
+    private static final String PRESCRIPTION = "NHS prescription";
+
     private static final String MS_SUFFIX = "-MS";
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
+    private static final String PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE = "prescribed-by-another-organisation";
+    private static final String PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY = "Prescribed by another organisation";
+    private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE = "prescribed-by-previous-practice";
+    private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY = "Prescribed by previous practice";
     private static final String COMPLETE = "COMPLETE";
 
     private final MedicationMapper medicationMapper;
@@ -78,15 +84,14 @@ public class MedicationStatementMapper {
 
             String ehrSupplyAuthoriseId = ehrSupplyAuthoriseIdExtract.get();
 
-            var mappedMedicationStatement = initializeMedicationStatement(
+            var mappedMedicationStatement = initializeMedicationStatement(supplyAuthorise,
                 ehrSupplyAuthoriseId, ehrComposition, medicationStatement, practiceCode);
 
             extractHighestSupplyPrescribeTime(ehrExtract, ehrSupplyAuthoriseId)
                 .map(dateTime -> new Extension(MS_LAST_ISSUE_DATE, dateTime))
                 .ifPresent(mappedMedicationStatement::addExtension);
 
-            medicationMapper.extractMedicationReference(medicationStatement)
-                .ifPresent(mappedMedicationStatement::setMedication);
+            medicationMapper.extractMedicationReference(medicationStatement).ifPresent(mappedMedicationStatement::setMedication);
 
             var status = discontinue
                 .map(this::buildMedicationStatementStatus)
@@ -108,10 +113,12 @@ public class MedicationStatementMapper {
         return null;
     }
 
-    private MedicationStatement initializeMedicationStatement(String ehrSupplyAuthoriseId,
+    private MedicationStatement initializeMedicationStatement(RCMRMT030101UKAuthorise supplyAuthorise,
+                                                              String ehrSupplyAuthoriseId,
                                                               RCMRMT030101UKEhrComposition ehrComposition,
                                                               RCMRMT030101UKMedicationStatement medicationStatement,
                                                               String practiceCode) {
+
         var meta = confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
             MEDICATION_STATEMENT_URL,
             medicationStatement.getConfidentialityCode(),
@@ -125,7 +132,7 @@ public class MedicationStatementMapper {
             .addBasedOn(new Reference(
                 new IdType(ResourceType.MedicationRequest.name(), ehrSupplyAuthoriseId)))
             .addDosage(buildDosage(medicationStatement.getPertinentInformation()))
-            .addExtension(generatePrescribingAgencyExtension())
+            .addExtension(generatePrescribingAgencyExtension(supplyAuthorise))
             .setId(ehrSupplyAuthoriseId + MS_SUFFIX)
             .setMeta(meta);
 
@@ -199,10 +206,25 @@ public class MedicationStatementMapper {
             .max(Comparator.comparing(DateTimeType::getValue));
     }
 
-    private Extension generatePrescribingAgencyExtension() {
-        return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
-            new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_CODE, PRESCRIBED_DISPLAY)
-        ));
+    private Extension generatePrescribingAgencyExtension(RCMRMT030101UKAuthorise supplyAuthorise) {
+
+        if (PRESCRIPTION.equals(supplyAuthorise.getCode().getDisplayName())) {
+            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
+                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_CODE, PRESCRIBED_DISPLAY)
+            ));
+        } else if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(supplyAuthorise.getCode().getDisplayName())) {
+            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
+                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE, PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY)
+            ));
+        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(supplyAuthorise.getCode().getDisplayName())) {
+            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
+                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE, PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY)
+            ));
+        } else {
+            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
+                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_CODE, PRESCRIBED_DISPLAY)
+            ));
+        }
     }
 
     private boolean hasLinkedInFulfillment(RCMRMT030101UKPrescribe prescribe, String id) {
