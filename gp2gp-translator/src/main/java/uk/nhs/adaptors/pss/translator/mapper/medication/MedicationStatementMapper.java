@@ -213,10 +213,7 @@ public class MedicationStatementMapper {
         String code;
         String display;
 
-        if (PRESCRIPTION.equals(displayName)) {
-            code = PRESCRIBED_CODE;
-            display = PRESCRIBED_DISPLAY;
-        } else if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName) || OTC_SALE.equals(displayName)) {
+        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName) || OTC_SALE.equals(displayName)) {
             code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
             display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
         } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(displayName)) {
