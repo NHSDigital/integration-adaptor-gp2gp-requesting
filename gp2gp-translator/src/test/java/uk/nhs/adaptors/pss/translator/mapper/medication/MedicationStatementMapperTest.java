@@ -113,8 +113,7 @@ class MedicationStatementMapperTest {
             new DateTimeType());
 
         assertAll(
-            () -> assertEquals(PRESCRIBED_CODE,
-                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_CODE, ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
             () -> assertEquals(PRESCRIBED_DISPLAY,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
