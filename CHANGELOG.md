@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+* Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
+
 ### Fixed
 * Blood pressure observations are retrieved only once to prevent duplicate entries.
 
