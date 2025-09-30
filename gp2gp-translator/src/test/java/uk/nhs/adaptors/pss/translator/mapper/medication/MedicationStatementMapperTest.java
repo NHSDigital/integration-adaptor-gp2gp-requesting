@@ -68,6 +68,9 @@ class MedicationStatementMapperTest {
 
     private static final String PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE = "prescribed-by-another-organisation";
     private static final String PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY = "Prescribed by another organisation";
+    private static final String PRESCRIPTION = "NHS prescription";
+    private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
+    private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
 
     @Mock
     private MedicationMapper medicationMapper;
@@ -85,6 +88,35 @@ class MedicationStatementMapperTest {
             confidentialityCodeCaptor.capture(),
             confidentialityCodeCaptor.capture()
         )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+    }
+
+    @Test
+    void When_MappingPrescribedByNhsResource_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
 
     @Test
