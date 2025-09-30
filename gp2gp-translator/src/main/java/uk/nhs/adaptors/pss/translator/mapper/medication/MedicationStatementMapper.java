@@ -65,6 +65,7 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY = "Prescribed by another organisation";
     private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE = "prescribed-by-previous-practice";
     private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY = "Prescribed by previous practice";
+    private static final String OTC_SALE = "OTC Sale";
     private static final String COMPLETE = "COMPLETE";
 
     private final MedicationMapper medicationMapper;
@@ -207,24 +208,32 @@ public class MedicationStatementMapper {
     }
 
     private Extension generatePrescribingAgencyExtension(RCMRMT030101UKAuthorise supplyAuthorise) {
+        String displayName = supplyAuthorise.getCode().getDisplayName();
 
-        if (PRESCRIPTION.equals(supplyAuthorise.getCode().getDisplayName())) {
-            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
-                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_CODE, PRESCRIBED_DISPLAY)
-            ));
-        } else if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(supplyAuthorise.getCode().getDisplayName())) {
-            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
-                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE, PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY)
-            ));
-        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(supplyAuthorise.getCode().getDisplayName())) {
-            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
-                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE, PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY)
-            ));
+        String code;
+        String display;
+
+        if (PRESCRIPTION.equals(displayName)) {
+            code = PRESCRIBED_CODE;
+            display = PRESCRIBED_DISPLAY;
+        } else if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName) || OTC_SALE.equals(displayName)) {
+            code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
+            display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
+        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(displayName)) {
+            code = PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE;
+            display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
         } else {
-            return new Extension(PRESCRIBING_AGENCY_URL, new CodeableConcept(
-                new Coding(PRESCRIBING_AGENCY_SYSTEM, PRESCRIBED_CODE, PRESCRIBED_DISPLAY)
-            ));
+            code = PRESCRIBED_CODE;
+            display = PRESCRIBED_DISPLAY;
         }
+
+        return buildExtension(code, display);
+    }
+
+    private Extension buildExtension(String code, String display) {
+        return new Extension(
+            PRESCRIBING_AGENCY_URL, new CodeableConcept(new Coding(PRESCRIBING_AGENCY_SYSTEM, code, display))
+        );
     }
 
     private boolean hasLinkedInFulfillment(RCMRMT030101UKPrescribe prescribe, String id) {
