@@ -1,10 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.5'
+    id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
     id 'checkstyle'
     id 'com.github.spotbugs' version '6.1.11'
-    id 'io.freefair.lombok' version '8.13.1'
+    id 'io.freefair.lombok' version '9.0.0'
 
     // Mutation testing
     id 'info.solidsoft.pitest' version '1.15.0'
