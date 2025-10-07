@@ -55,6 +55,7 @@ import uk.nhs.adaptors.pss.translator.config.PssQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.MhsServerErrorException;
 import uk.nhs.adaptors.pss.translator.service.MhsClientService;
 import uk.nhs.adaptors.pss.translator.task.SendACKMessageHandler;
+import uk.nhs.adaptors.pss.translator.task.SendContinueRequestHandler;
 import uk.nhs.adaptors.pss.translator.task.SendNACKMessageHandler;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 import jakarta.jms.JMSException;
@@ -94,6 +95,8 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
     @MockitoSpyBean
     private MhsClientService mhsClientService;
+    @MockitoSpyBean
+    private SendContinueRequestHandler sendContinueRequestHandler;
     @MockitoSpyBean
     private SendACKMessageHandler sendACKMessageHandler;
     @MockitoSpyBean
