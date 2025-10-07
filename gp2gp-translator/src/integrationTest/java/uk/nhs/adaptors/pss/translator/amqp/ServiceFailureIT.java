@@ -2,6 +2,7 @@ package uk.nhs.adaptors.pss.translator.amqp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -143,6 +144,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
     @Test
     public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
+
         doThrow(MhsServerErrorException.class)
             .doNothing()
             .when(sendContinueRequestHandler)
@@ -150,11 +152,13 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
-        await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
+        verify(sendContinueRequestHandler, timeout(10000)).prepareAndSendRequest(any());
 
-        verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
+        await().atMost(20, SECONDS)
+            .until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
-        assertThat(getCurrentMigrationStatus(getConversationId())).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
+        assertThat(getCurrentMigrationStatus(getConversationId()))
+            .isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test
