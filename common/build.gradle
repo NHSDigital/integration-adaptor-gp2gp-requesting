@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
     id 'checkstyle'
     id 'io.freefair.lombok' version '9.0.0'
-    id 'com.github.spotbugs' version '6.1.11'
+    id 'com.github.spotbugs' version '6.4.2'
 }
 
 apply plugin: 'java'
@@ -25,7 +25,7 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter-webflux'
     api 'org.springframework:spring-jms'
     api 'org.apache.commons:commons-lang3:3.17.0'
-    api 'org.apache.qpid:qpid-jms-client:2.8.0'
+    api 'org.apache.qpid:qpid-jms-client:2.9.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter:5.13.4'
 }
