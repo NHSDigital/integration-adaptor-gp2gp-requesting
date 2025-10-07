@@ -48,6 +48,7 @@ import uk.nhs.adaptors.pss.mhsmock.model.RequestJournal;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 
 @Getter
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public abstract class BaseEhrHandler {
     public static final boolean OVERWRITE_EXPECTED_JSON = false;
     private static final String REQUEST_JOURNAL_PATH = "/__admin/requests";
@@ -193,6 +194,14 @@ public abstract class BaseEhrHandler {
                 .contains("<acknowledgement typeCode=\\\"AE\\\">")
             && mostRecentRequest.getBody()
                 .contains("<code code=\\\"" + code + "\\\" codeSystem=\\\"2.16.840.1.113883.2.1.3.2.4.17.101\\\"");
+    }
+
+    protected boolean hasMigrationStatus(MigrationStatus migrationStatus, String conversationId) {
+        return migrationStatus.equals(getCurrentMigrationStatus(conversationId));
+    }
+
+    protected MigrationStatus getCurrentMigrationStatus(String conversationId) {
+        return getMigrationStatusLogService().getLatestMigrationStatusLog(conversationId).getMigrationStatus();
     }
 
     private List<Request> getMhsRequestsForConversation() {

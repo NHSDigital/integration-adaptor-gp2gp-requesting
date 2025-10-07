@@ -17,7 +17,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_EXTRACT_REQUEST_ERROR;
-import static uk.nhs.adaptors.common.enums.MigrationStatus.EHR_GENERAL_PROCESSING_ERROR;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.ERROR_LRG_MSG_GENERAL_FAILURE;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.REQUEST_RECEIVED;
 import static uk.nhs.adaptors.common.enums.QueueMessageType.TRANSFER_REQUEST;
@@ -56,7 +55,6 @@ import uk.nhs.adaptors.pss.translator.config.PssQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.MhsServerErrorException;
 import uk.nhs.adaptors.pss.translator.service.MhsClientService;
 import uk.nhs.adaptors.pss.translator.task.SendACKMessageHandler;
-import uk.nhs.adaptors.pss.translator.task.SendContinueRequestHandler;
 import uk.nhs.adaptors.pss.translator.task.SendNACKMessageHandler;
 import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 import jakarta.jms.JMSException;
@@ -67,6 +65,7 @@ import jakarta.jms.Message;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class ServiceFailureIT extends BaseEhrHandler {
 
     private static final String LOSING_ASID = "LOSING_ASID";
@@ -95,9 +94,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
     @MockitoSpyBean
     private MhsClientService mhsClientService;
-    @MockitoSpyBean
-    private SendContinueRequestHandler sendContinueRequestHandler;
-
     @MockitoSpyBean
     private SendACKMessageHandler sendACKMessageHandler;
     @MockitoSpyBean
@@ -139,22 +135,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         assertThat(getCurrentMigrationStatus(conversationId))
             .isEqualTo(EHR_EXTRACT_REQUEST_ERROR);
-    }
-
-    @Test
-    public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
-        doThrow(MhsServerErrorException.class)
-            .when(sendContinueRequestHandler).prepareAndSendRequest(any());
-
-        sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
-
-        await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
-
-        verify(sendContinueRequestHandler, times(1))
-            .prepareAndSendRequest(any());
-
-        assertThat(getCurrentMigrationStatus(getConversationId()))
-            .isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test
@@ -379,14 +359,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
         while (dlqJmsTemplate.receive() != null) {
             timeToLive = dlqJmsTemplate.getTimeToLive();
         }
-    }
-
-    private boolean hasMigrationStatus(MigrationStatus migrationStatus, String conversationId) {
-        return migrationStatus.equals(getCurrentMigrationStatus(conversationId));
-    }
-
-    private MigrationStatus getCurrentMigrationStatus(String conversationId) {
-        return getMigrationStatusLogService().getLatestMigrationStatusLog(conversationId).getMigrationStatus();
     }
 
     private void sendRequestToPssQueue(String conversationId, String patientNhsNumber) {
