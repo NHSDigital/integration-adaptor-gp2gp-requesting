@@ -97,6 +97,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
     private MhsClientService mhsClientService;
     @MockitoSpyBean
     private SendContinueRequestHandler sendContinueRequestHandler;
+
     @MockitoSpyBean
     private SendACKMessageHandler sendACKMessageHandler;
     @MockitoSpyBean
@@ -244,12 +245,12 @@ public class ServiceFailureIT extends BaseEhrHandler {
         await().until(this::hasContinueMessageBeenReceived);
 
         doThrow(WebClientRequestException.class)
-        .doThrow(WebClientRequestException.class)
-        .doThrow(WebClientRequestException.class)
-        .doThrow(WebClientRequestException.class)
-        .doThrow(WebClientRequestException.class)
-        .doCallRealMethod()
-        .when(mhsClientService).send(any());
+            .doThrow(WebClientRequestException.class)
+            .doThrow(WebClientRequestException.class)
+            .doThrow(WebClientRequestException.class)
+            .doThrow(WebClientRequestException.class)
+            .doCallRealMethod()
+            .when(mhsClientService).send(any());
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
@@ -271,8 +272,8 @@ public class ServiceFailureIT extends BaseEhrHandler {
         doThrow(webClientResponseException)
             .doThrow(webClientResponseException)
             .doThrow(webClientResponseException)
-        .doCallRealMethod()
-        .when(mhsClientService).send(any());
+            .doCallRealMethod()
+            .when(mhsClientService).send(any());
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON);
 
