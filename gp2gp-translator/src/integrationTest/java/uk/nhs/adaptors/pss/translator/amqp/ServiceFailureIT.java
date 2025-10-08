@@ -146,7 +146,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
     @Test
     public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
-
         doThrow(MhsServerErrorException.class)
             .doNothing()
             .when(sendContinueRequestHandler)
@@ -154,13 +153,11 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
-        verify(sendContinueRequestHandler, timeout(TEN_SECONDS)).prepareAndSendRequest(any());
+        await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
-        await().atMost(TWENTY, SECONDS)
-            .until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
+        verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
 
-        assertThat(getCurrentMigrationStatus(getConversationId()))
-            .isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
+        assertThat(getCurrentMigrationStatus(getConversationId())).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test
