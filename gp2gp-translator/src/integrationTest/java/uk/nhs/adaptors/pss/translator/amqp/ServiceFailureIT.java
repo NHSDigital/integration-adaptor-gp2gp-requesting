@@ -2,7 +2,6 @@ package uk.nhs.adaptors.pss.translator.amqp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
