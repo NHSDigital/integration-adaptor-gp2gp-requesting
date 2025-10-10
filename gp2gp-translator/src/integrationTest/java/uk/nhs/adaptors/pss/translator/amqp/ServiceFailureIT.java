@@ -69,6 +69,7 @@ import jakarta.jms.Message;
 @AutoConfigureMockMvc
 public class ServiceFailureIT extends BaseEhrHandler {
 
+    public static final int TEN_SECONDS = 10000;
     private static final String LOSING_ASID = "LOSING_ASID";
     private static final String WINNING_ASID = "WINNING_ASID";
     private static final String STUB_BODY = "test Body";
@@ -79,6 +80,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
     public static final String JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON = "/json/LargeMessage/Scenario_3/copc.json";
     public static final String JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON = "/json/LargeMessage/expectedBundleScenario3.json";
     public static final int RECEIVE_TIMEOUT_LIMIT = 50;
+    public static final int TWENTY = 20;
     private String conversationId;
 
     @Autowired
@@ -144,17 +146,17 @@ public class ServiceFailureIT extends BaseEhrHandler {
     @Test
     public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
         doThrow(MhsServerErrorException.class)
-            .when(sendContinueRequestHandler).prepareAndSendRequest(any());
+            .doNothing()
+            .when(sendContinueRequestHandler)
+            .prepareAndSendRequest(any());
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
         await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
-        verify(sendContinueRequestHandler, times(1))
-            .prepareAndSendRequest(any());
+        verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
 
-        assertThat(getCurrentMigrationStatus(getConversationId()))
-            .isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
+        assertThat(getCurrentMigrationStatus(getConversationId())).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test
