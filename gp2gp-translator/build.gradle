@@ -67,6 +67,7 @@ sourceSets {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
             srcDir file('src/integrationTest/java')
+            resources.srcDir file('src/integrationTest/resources')
         }
     }
 
@@ -88,14 +89,20 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    useJUnitPlatform() {
-        description = 'Runs integration tests.'
-        group = 'verification'
+    description = 'Runs integration tests.'
+    group = 'verification'
 
-        testClassesDirs = sourceSets.integrationTest.output.classesDirs
-        classpath = sourceSets.integrationTest.runtimeClasspath
-        shouldRunAfter test
-    }
+    useJUnitPlatform()
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    maxParallelForks = (Runtime.runtime.availableProcessors() / 2) ?: 1
+    forkEvery = 1
+
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'false'
+
+    shouldRunAfter test
 }
 
 tasks.register('transformXmlToJson', JavaExec) {
