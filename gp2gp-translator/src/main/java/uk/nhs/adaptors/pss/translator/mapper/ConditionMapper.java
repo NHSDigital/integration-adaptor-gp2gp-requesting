@@ -146,12 +146,8 @@ public class ConditionMapper extends AbstractMapper<Condition> {
 
         buildAssertedDateTimeType(composition).ifPresent(condition::setAssertedDateElement);
 
-        composition.getParticipant2()
-            .stream()
-            .findFirst()
-            .ifPresent(participant2 -> condition.setAsserter(
-                new Reference(new IdType(ResourceType.Practitioner.name(), participant2.getAgentRef().getId().getRoot())))
-            );
+        condition.setAsserter(
+            new Reference(new IdType(ResourceType.Practitioner.name(), composition.getAuthor().getAgentRef().getId().getRoot())));
 
         return condition;
     }

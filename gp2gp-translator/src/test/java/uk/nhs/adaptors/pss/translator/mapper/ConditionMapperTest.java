@@ -109,6 +109,19 @@ class ConditionMapperTest {
     }
 
     @Test
+    void testConditionAsserterIsMappedCorrectly() {
+        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
+
+        final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_author.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, encounters, PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertEquals(ASSERTER_ID_REFERENCE, conditions.getFirst().getAsserter().getReference());
+    }
+
+    @Test
     void testConditionIsMappedCorrectlyWithNamedStatementRefPointingtoObservationStatementNopat() {
         final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference_to_nopat_observation.xml");
