@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    api 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:8.0.0'
+    api 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:8.4.0'
     api 'org.springframework.boot:spring-boot-starter-jdbc'
     api 'org.springframework.boot:spring-boot-starter-actuator'
     api 'org.springframework.boot:spring-boot-starter-web'
