@@ -5,11 +5,6 @@
             <component typeCode="COMP">
                 <ehrComposition classCode="COMPOSITION" moodCode="EVN">
                     <id root="EHR_COMPOSITION_ENCOUNTER_ID"/>
-                    <Participant2 typeCode="PRF" contextControlCode="OP">
-                        <agentRef classCode="AGNT">
-                            <id root="ASSERTER_ID"/>
-                        </agentRef>
-                    </Participant2>
                     <author typeCode="AUT" contextControlCode="OP">
                         <time value="20230130"/>
                         <agentRef classCode="AGNT">

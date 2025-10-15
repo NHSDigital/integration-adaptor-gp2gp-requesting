@@ -68,6 +68,7 @@ class ConditionMapperTest {
     private static final String PRACTISE_CODE = "TESTPRACTISECODE";
     private static final String ENCOUNTER_ID = "EHR_COMPOSITION_ENCOUNTER_ID";
     private static final String ASSERTER_ID_REFERENCE = "Practitioner/ASSERTER_ID";
+    private static final String ASSERTER_PARTICIPANT_ID_REFERENCE = "Practitioner/ASSERTER_PARTICIPANT_ID";
     private static final String LINKSET_ID = "LINKSET_ID";
     private static final String CODING_DISPLAY = "THIS IS A TEST";
     private static final DateTimeType EHR_EXTRACT_AVAILABILITY_DATETIME = parseToDateTimeType("20101209114846.00");
@@ -110,6 +111,7 @@ class ConditionMapperTest {
 
     @Test
     void testConditionAsserterIsMappedCorrectly() {
+
         when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
 
         final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
@@ -164,7 +166,7 @@ class ConditionMapperTest {
         assertFalse(condition.getCode().getCodingFirstRep().hasDisplay());
 
         assertThat(condition.getSubject().getResource().getIdElement().getIdPart()).isEqualTo(PATIENT_ID);
-        assertThat(condition.getAsserter().getReference()).isEqualTo(ASSERTER_ID_REFERENCE);
+        assertThat(condition.getAsserter().getReference()).isEqualTo(ASSERTER_PARTICIPANT_ID_REFERENCE);
         assertFalse(condition.getContext().hasReference());
 
         assertThat(condition.getOnsetDateTimeType()).isEqualTo(EHR_EXTRACT_AVAILABILITY_DATETIME);
