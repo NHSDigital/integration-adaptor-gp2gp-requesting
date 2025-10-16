@@ -23136,7 +23136,7 @@
       "abatementDateTime": "2010-12-09T00:00:00+00:00",
       "assertedDate": "2010-01-13T15:13:32+00:00",
       "asserter": {
-        "reference": "Practitioner/2E86E940-9011-11EC-B1E5-0800200C9A66"
+        "reference": "Practitioner/3707E1F0-9011-11EC-B1E5-0800200C9A66"
       }
     }
   }, {
@@ -23266,7 +23266,7 @@
       "abatementDateTime": "2010-12-09T00:00:00+00:00",
       "assertedDate": "2010-01-13T15:13:32+00:00",
       "asserter": {
-        "reference": "Practitioner/2E86E940-9011-11EC-B1E5-0800200C9A66"
+        "reference": "Practitioner/70555A33-0550-405D-BB67-E9805440B38C"
       },
       "note": [ {
         "text": "Active Problem, Significant"
