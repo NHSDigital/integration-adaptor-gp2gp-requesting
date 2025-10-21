@@ -10,6 +10,11 @@
                             <id root="ASSERTER_ID"/>
                         </agentRef>
                     </Participant2>
+                    <author typeCode="AUT" contextControlCode="OP">
+                        <agentRef classCode="AGNT">
+                            <id root="ASSERTER_ID"/>
+                        </agentRef>
+                    </author>
                     <component typeCode="COMP">
                         <LinkSet classCode="OBS" moodCode="EVN">
                             <id root="LINKSET_ID"/>
