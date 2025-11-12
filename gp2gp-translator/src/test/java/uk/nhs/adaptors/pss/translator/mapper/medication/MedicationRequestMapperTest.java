@@ -27,7 +27,6 @@ import org.hl7.v3.RCMRMT030101UKMedicationStatement;
 import org.hl7.v3.RCMRMT030101UKPrescribe;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -122,14 +120,10 @@ public class MedicationRequestMapperTest {
     @InjectMocks
     private MedicationRequestMapper medicationRequestMapper;
 
-    @BeforeEach
-    void beforeEach() {
-        setupCommonStubs();
-    }
-
-
     @Test
     void When_MappingMedicationStatement_Expect_CorrectMappersToBeCalled() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
+
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("ehrExtract1.xml");
         final RCMRMT030101UKEhrComposition ehrComposition =
                 ehrExtract.getComponent().getFirst().getEhrFolder().getComponent().getFirst().getEhrComposition();
@@ -175,6 +169,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAvailabilityTimeInMedicationStatement_Expect_UseThatAvailabilityTime() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_AvailabilityTimeSetInMedicationStatement.xml");
         var expectedAuthoredOn = DateFormatUtil.parseToDateTimeType("20100116");
 
@@ -195,6 +190,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAvailabilityTimeNotInMedicationStatement_Expect_AuthoredOnMapped() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_AvailabilityTimeNotInMedicationStatement.xml");
         var expectedAuthoredOn = DateFormatUtil.parseToDateTimeType("20100117");
 
@@ -216,6 +212,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAvailabilityTimeInEhrCompositionAuthor_Expect_UseThatAvailabilityTime() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         final int expectedResourcesMapped = 6;
         final DateTimeType expectedAvailabilityTime = DateFormatUtil.parseToDateTimeType("20220101010101");
 
@@ -236,6 +233,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithNoEhrCompositionAuthorTime_Expect_UseEhrExtractAvailabilityTime() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         final int expectedResourcesMapped = 6;
         final DateTimeType expectedAvailabilityTime = DateFormatUtil.parseToDateTimeType("20100115");
 
@@ -256,6 +254,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithNoAuthoredOn_Expect_NullAuthoredOn() {
+        registerDependencies(medicationRequestPlanMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_AvailabilityTimeNotInMedicationStatementOrEhrComposition.xml");
 
         when(medicationStatementMapper.mapToMedicationStatement(
@@ -284,6 +283,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAuthoredOnValidDate_Expect_AuthoredOnToUseMedicationAvailabilityTime() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_hasAuthorTime.xml");
         var expectedAuthoredOn = DateFormatUtil.parseToDateTimeType("20100115");
 
@@ -304,6 +304,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAuthoredOnInExtractAndComposition_Expect_AuthoredOnToUseAvailabilityTimeInStatement() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_hasAuthorTimeInExtract.xml");
         var expectedAuthoredOn = DateFormatUtil.parseToDateTimeType("20100115");
 
@@ -324,6 +325,7 @@ public class MedicationRequestMapperTest {
 
     @Test
     public void When_MappingMedicationRequestWithAuthoredOnValidDateInExtractOnly_Expect_AuthoredOnToUseAvailabilityTimeInStatement() {
+        registerDependencies(medicationRequestPlanMapper, medicationStatementMapper, medicationRequestOrderMapper, medicationMapper);
         var ehrExtract = unmarshallEhrExtract("ehrExtract_hasAuthorTimeInExtractOnly.xml");
         var expectedAuthoredOn = DateFormatUtil.parseToDateTimeType("20100115");
 
@@ -383,13 +385,13 @@ public class MedicationRequestMapperTest {
             );
         }
 
-        @BeforeEach
-        void beforeEach() {
+        void setupMultipleOrders() {
             setupMultipleOrdersToOnePlanStubs(REPEAT_PRESCRIPTION_EXTENSION, MedicationStatementStatus.ACTIVE, true);
         }
 
         @Test
         void expectNoAdditionalPlanCreated() {
+            setupMultipleOrders();
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -413,6 +415,7 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectNoAdditionalMedicationStatementCreated() {
+            setupMultipleOrders();
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -447,13 +450,14 @@ public class MedicationRequestMapperTest {
                 "ehrExtract_MultipleSupplyPrescribeInFulfilmentOfSingleAcuteSupplyAuthorise.xml"
             );
         }
-        @BeforeEach
-        void beforeEach() {
+
+        void setupMultipleOrders() {
             setupMultipleOrdersToOnePlanStubs(ACUTE_PRESCRIPTION_EXTENSION, MedicationStatementStatus.ACTIVE, true);
         }
 
         @Test
         void expectAdditionalPlanCreated() {
+            setupMultipleOrders();
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -477,6 +481,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectTheGeneratedPlanHasIdAndIdentityUpdatedToGeneratedId() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -493,6 +500,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectTheEarliestOrderBasedOnReferencesTheOriginalPlan() {
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -509,6 +518,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectTheLatestOrderBasedOnReferencesTheGeneratedPlan() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
@@ -525,6 +537,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectTheLatestOrderPriorPrescriptionReferencesTheOriginalPlan() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
@@ -542,6 +557,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedPlanDispenseRequestValidityPeriodIsCopiedFromTheLatestOrder() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
@@ -560,6 +578,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedPlanAuthoredOnIsSetFromTheValidityPeriodStartOfTheLatestOrder() {
+            registerDependencies(medicationMapper, idGeneratorService);
+            setupMultipleOrders();
 
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
@@ -576,6 +596,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectTheLatestOrderUnchangedPropertiesAreCopiedToGeneratedPlan() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE);
 
@@ -604,6 +627,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectAdditionalMedicationStatementCreated() {
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -626,6 +651,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedMedicationStatementHasIdAndIdentityUpdatedToGeneratedPlanWithSuffix() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -642,6 +670,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedMedicationStatementBasedOnReferencesTheGeneratedPlan() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -658,6 +689,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void When_Active_Expect_GeneratedMedicationStatementHasEffectivePeriodSetToOrderValidityPeriod() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -674,7 +708,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void When_NotActive_Expect_GeneratedStatementHasEffectiveTimeSetToOrderValidityPeriodWhenEndIsPresent() {
-            setupMultipleOrdersToOnePlanStubs(ACUTE_PRESCRIPTION_EXTENSION, MedicationStatementStatus.COMPLETED, true);
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
 
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
@@ -692,6 +727,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void When_NotActive_Expect_GeneratedStatementHasEffectiveTimeEndSetToOrderValidityPeriodStartWhenEndIsNotPresent() {
+            registerDependencies(idGeneratorService);
+
             setupMultipleOrdersToOnePlanStubs(ACUTE_PRESCRIPTION_EXTENSION, MedicationStatementStatus.COMPLETED, false);
 
             var resources = medicationRequestMapper
@@ -712,6 +749,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectGeneratedMedicationStatementLastIssueDateExtensionSetToValidityPeriodStart() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -725,6 +765,8 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectOriginalMedicationStatementLastIssueDateExtensionSetToValidityPeriodStart() {
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                     .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                     );
@@ -738,6 +780,9 @@ public class MedicationRequestMapperTest {
 
         @Test
         void expectOriginalMedicationStatementUnchangedPropertiesAreCopiedToGeneratedMedicationStatement() {
+            registerDependencies(idGeneratorService);
+            setupMultipleOrders();
+
             var resources = medicationRequestMapper
                 .mapResources(ehrExtract, (Patient) new Patient().setId(PATIENT_ID), List.of(), PRACTISE_CODE
                 );
@@ -892,7 +937,7 @@ public class MedicationRequestMapperTest {
         MedicationStatementStatus medicationStatementStatus,
         boolean hasOrderValidityPeriodEnd
     ) {
-        lenient().when(
+        when(
             medicationRequestPlanMapper.mapToPlanMedicationRequest(
                 any(RCMRMT030101UKEhrExtract.class),
                 any(RCMRMT030101UKEhrComposition.class),
@@ -906,7 +951,7 @@ public class MedicationRequestMapperTest {
             ? "20240103"
             : null;
 
-        lenient().when(
+        when(
             medicationRequestOrderMapper.mapToOrderMedicationRequest(
                 any(RCMRMT030101UKEhrExtract.class),
                 any(RCMRMT030101UKEhrComposition.class),
@@ -919,9 +964,7 @@ public class MedicationRequestMapperTest {
             buildMedicationRequestOrder(EARLIEST_ORDER_ID, "20240101", orderValidityPeriodEnd)
         );
 
-        lenient().when(idGeneratorService.generateUuid()).thenReturn(GENERATED_PLAN_ID);
-
-        lenient().when(
+        when(
             medicationStatementMapper.mapToMedicationStatement(
                 any(RCMRMT030101UKEhrExtract.class),
                 any(RCMRMT030101UKEhrComposition.class),
@@ -933,34 +976,45 @@ public class MedicationRequestMapperTest {
         ).thenReturn(buildMedicationStatement(medicationStatementStatus));
     }
 
-    private void setupCommonStubs() {
-        Mockito.lenient().when(medicationRequestPlanMapper.mapToPlanMedicationRequest(
-            any(RCMRMT030101UKEhrExtract.class),
-            any(RCMRMT030101UKEhrComposition.class),
-            any(RCMRMT030101UKMedicationStatement.class),
-            any(RCMRMT030101UKAuthorise.class),
-            any(String.class)
-        )).thenReturn(new MedicationRequest());
-
-        Mockito.lenient().when(medicationRequestOrderMapper.mapToOrderMedicationRequest(
-            any(RCMRMT030101UKEhrExtract.class),
-            any(RCMRMT030101UKEhrComposition.class),
-            any(RCMRMT030101UKMedicationStatement.class),
-            any(RCMRMT030101UKPrescribe.class),
-            any(String.class)
-        )).thenReturn(new MedicationRequest());
-
-        Mockito.lenient().when(medicationStatementMapper.mapToMedicationStatement(
-            any(RCMRMT030101UKEhrExtract.class),
-            any(RCMRMT030101UKEhrComposition.class),
-            any(RCMRMT030101UKMedicationStatement.class),
-            any(RCMRMT030101UKAuthorise.class),
-            any(String.class),
-            any(DateTimeType.class)
-        )).thenReturn(new MedicationStatement());
-
-        Mockito.lenient().when(medicationMapper.createMedication(
-            any(RCMRMT030101UKConsumable.class)
-        )).thenReturn(new Medication());
+    private void registerDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == medicationRequestPlanMapper) {
+                Mockito.when(medicationRequestPlanMapper.mapToPlanMedicationRequest(
+                        any(RCMRMT030101UKEhrExtract.class),
+                        any(RCMRMT030101UKEhrComposition.class),
+                        any(RCMRMT030101UKMedicationStatement.class),
+                        any(RCMRMT030101UKAuthorise.class),
+                        any(String.class)
+                )).thenReturn(new MedicationRequest());
+            }
+            if (dependency == medicationStatementMapper) {
+                Mockito.when(medicationStatementMapper.mapToMedicationStatement(
+                        any(RCMRMT030101UKEhrExtract.class),
+                        any(RCMRMT030101UKEhrComposition.class),
+                        any(RCMRMT030101UKMedicationStatement.class),
+                        any(RCMRMT030101UKAuthorise.class),
+                        any(String.class),
+                        any(DateTimeType.class)
+                )).thenReturn(new MedicationStatement());
+            }
+            if (dependency == medicationRequestOrderMapper) {
+                Mockito.when(medicationRequestOrderMapper.mapToOrderMedicationRequest(
+                        any(RCMRMT030101UKEhrExtract.class),
+                        any(RCMRMT030101UKEhrComposition.class),
+                        any(RCMRMT030101UKMedicationStatement.class),
+                        any(RCMRMT030101UKPrescribe.class),
+                        any(String.class)
+                )).thenReturn(new MedicationRequest());
+            }
+            if (dependency == medicationMapper) {
+                Mockito.when(medicationMapper.createMedication(
+                        any(RCMRMT030101UKConsumable.class)
+                )).thenReturn(new Medication());
+            }
+            if (dependency == idGeneratorService) {
+                when(idGeneratorService.generateUuid()).thenReturn(GENERATED_PLAN_ID);
+            }
+        }
     }
+
 }

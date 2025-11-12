@@ -39,14 +39,12 @@ import org.hl7.v3.RCMRMT030101UKEhrComposition;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.hl7.v3.RCMRMT030101UKEhrFolder;
 import org.hl7.v3.RCMRMT030101UKMedicationStatement;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
@@ -84,13 +82,16 @@ class MedicationStatementMapperTest {
     @Captor
     private ArgumentCaptor<Optional<CV>> confidentialityCodeCaptor;
 
-    @BeforeEach
-    void beforeEach() {
-        Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+    public void registerDefaultDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        eq(META_PROFILE),
+                        confidentialityCodeCaptor.capture(),
+                        confidentialityCodeCaptor.capture()
+                )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            }
+        }
     }
 
     @Test
@@ -238,6 +239,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MappingPrescribeResourceWithNoOptionals_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        registerDefaultDependencies(confidentialityService);
         final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
         final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
@@ -283,6 +285,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MappingPrescribeResourceWithNoLastIssueDate_Expect_AllFieldsToBeMappedCorrectly() {
+        registerDefaultDependencies(confidentialityService);
         var medicationStatement = unmarshallMedicationStatement("medicationStatementAuthoriseNoOptionals_MedicationStatement.xml");
         var authorise = medicationStatement.getComponent()
             .stream()
@@ -323,6 +326,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithDiscontinue_WithAvailabilityTime_Expect_PeriodEndMappedAndStatusStopped() {
+        registerDefaultDependencies(confidentialityService);
         var expectedStartDate = "2010-01-14";
         var expectedEndDate = "2010-04-26";
 
@@ -337,6 +341,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithDiscontinue_WithMissingAvailabilityTime_Expect_PeriodEndMappedAndStatusCompleted() {
+        registerDefaultDependencies(confidentialityService);
         var expectedStartDate = "2010-01-14";
 
         var result =
@@ -350,6 +355,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithCompletedStatus_WithAuthoriseEffectiveTimeHigh_Expect_PeriodEndMapped() {
+        registerDefaultDependencies(confidentialityService);
         var expectedStartDate = "2010-04-27";
         var expectedEndDate = "2010-06-27";
 
@@ -364,6 +370,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithCompletedStatus_WithStatementEffectiveTimeHigh_Expect_PeriodEndMapped() {
+        registerDefaultDependencies(confidentialityService);
         var expectedStartDate = "2010-01-14";
         var expectedEndDate = "2010-06-26";
 
@@ -377,6 +384,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithCompletedStatus_WithNoValidTimes_Expect_StartAndEndTimesEqualAuthoredOn() {
+        registerDefaultDependencies(confidentialityService);
         var authoredOn = new DateTimeType("2023-01-27");
 
         var result = mapMedicationStatementFromEhrFile("ehrExtract_noValidTimes.xml", authoredOn);
@@ -389,6 +397,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithDiscontinue_WithNoValidTimes_Expect_StartAndEndTimesEqualAuthoredOn() {
+        registerDefaultDependencies(confidentialityService);
         var authoredOn = new DateTimeType("2023-01-27");
 
         var result =
@@ -402,6 +411,7 @@ class MedicationStatementMapperTest {
 
     @Test
     void When_MapToMedicationStatement_WithActiveStatement_Expect_StartDateIsNotMappedToEndDate() {
+        registerDefaultDependencies(confidentialityService);
         var authoredOn = new DateTimeType("2023-01-27");
         var expectedStartDate = "2010-01-14";
 

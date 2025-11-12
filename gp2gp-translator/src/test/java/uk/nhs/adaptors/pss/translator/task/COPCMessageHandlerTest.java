@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -169,6 +168,7 @@ class COPCMessageHandlerTest {
 
         InboundMessage message = new InboundMessage();
         prepareFragmentMocks(message);
+        prepareAttachmentLogs();
 
         // ACT
         copcMessageHandler.handleMessage(message, CONVERSATION_ID);
@@ -192,6 +192,7 @@ class COPCMessageHandlerTest {
 
         InboundMessage message = new InboundMessage();
         prepareFragmentMocks(message);
+        prepareAttachmentLogs();
         when(patientAttachmentLogService.findAttachmentLog(MESSAGE_ID, CONVERSATION_ID))
             .thenReturn(null)
             .thenReturn(buildPatientAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB", null, true));
@@ -1379,16 +1380,6 @@ class COPCMessageHandlerTest {
         when(xPathService.getNodeValue(ebXmlDocument, "/Envelope/Header/MessageHeader/MessageData/MessageId")).thenReturn("CBBAE92D-C7E8"
             + "-4A9C-8887-F5AEBA1F8CE1").thenReturn("047C22B4-613F-47D3-9A72-44A1758464FB");
 
-        var attachmentLog1 = buildPatientAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB",
-            "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1", 0, true, true);
-
-        var attachmentLog2 = buildPatientAttachmentLog("057C22B4-613F-47D3-9A72-44A1758464FB",
-            "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1", 1, false, true);
-
-        var attachmentArray = Arrays.asList(attachmentLog1, attachmentLog2);
-        lenient().when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID))
-            .thenReturn(attachmentArray);
-
         when(idGeneratorService.generateUuid()).thenReturn(TEST_ID);
     }
 
@@ -1404,12 +1395,26 @@ class COPCMessageHandlerTest {
         when(migrationRequestDao.getMigrationRequest(CONVERSATION_ID)).thenReturn(migrationRequest);
     }
 
+    private void prepareAttachmentLogMocks() {
+    }
+
+
     private void prepareAttachmentLogs() {
         var messageId = "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1";
         when(patientAttachmentLogService.findAttachmentLog(messageId, CONVERSATION_ID)).thenReturn(null)
             .thenReturn(buildPatientAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB", null, true));
         when(patientAttachmentLogService.findAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB", CONVERSATION_ID))
             .thenReturn(buildPatientAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB", "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1", true));
+
+        var attachmentLog1 = buildPatientAttachmentLog("047C22B4-613F-47D3-9A72-44A1758464FB",
+                "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1", 0, true, true);
+
+        var attachmentLog2 = buildPatientAttachmentLog("057C22B4-613F-47D3-9A72-44A1758464FB",
+                "CBBAE92D-C7E8-4A9C-8887-F5AEBA1F8CE1", 1, false, true);
+
+        var attachmentArray = Arrays.asList(attachmentLog1, attachmentLog2);
+        when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID))
+                .thenReturn(attachmentArray);
     }
 
     @SneakyThrows
