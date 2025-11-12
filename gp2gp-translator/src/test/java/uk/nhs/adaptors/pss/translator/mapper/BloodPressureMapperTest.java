@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
@@ -81,7 +80,6 @@ public class BloodPressureMapperTest {
     private static final String COMPONENT_2_INTERPRETATION_TEXT = "Low Text";
     private static final String COMPONENT_2_REFERENCE_RANGE_TEXT = "Test Range 2";
     public static final String NOPAT_CODE = "NOPAT";
-    public static final String NOPAT_URL_CODESYSTEM = "http://hl7.org/fhir/v3/ActCode";
     public static final String NOPAT_DISPLAY =
         "no disclosure to patient, family or caregivers without attending provider's authorization";
     public static final String NOPAT_OID_CODESYSTEM = "2.16.840.1.113883.4.642.3.47";
