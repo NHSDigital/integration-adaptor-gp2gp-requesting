@@ -41,7 +41,6 @@ import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.hl7.v3.RCMRMT030101UKMedicationStatement;
 import org.hl7.v3.RCMRMT030101UKPrescribe;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -109,21 +108,21 @@ class ConditionMapperTest {
     }
 
     private void registerDependencies(Object... dependencies) {
-        for (int i = 0; i < dependencies.length; i++) {
-            if(dependencies[i] == dateTimeMapper) {
+        for (Object dependency : dependencies) {
+            if (dependency == dateTimeMapper) {
                 Mockito.when(dateTimeMapper.mapDateTime(
                         any(String.class)
                 )).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
             }
-            if(dependencies[i] == confidentialityService) {
-                Mockito.when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                         eq(META_PROFILE),
                         confidentialityCodeCaptor.capture(),
                         confidentialityCodeCaptor.capture(),
                         confidentialityCodeCaptor.capture()
                 )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
             }
-            if(dependencies[i] == codeableConceptMapper) {
+            if (dependency == codeableConceptMapper) {
                 var codeableConcept = new CodeableConcept().addCoding(new Coding().setDisplay(CODING_DISPLAY));
                 when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
             }
@@ -167,7 +166,15 @@ class ConditionMapperTest {
 
     @Test
     void testConditionIsMappedCorrectlyWithNamedStatementRefPointingtoObservationStatementNopat() {
-        registerDependencies(dateTimeMapper, confidentialityService);
+        registerDependencies(dateTimeMapper);
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                eq(META_PROFILE),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture()
+        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+
         final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference_to_nopat_observation.xml");
 
