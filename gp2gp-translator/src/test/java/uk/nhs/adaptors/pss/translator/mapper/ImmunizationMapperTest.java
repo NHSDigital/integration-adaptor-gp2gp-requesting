@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.ResourceUtils.getFile;
 
@@ -76,13 +75,9 @@ public class ImmunizationMapperTest {
     @Captor
     private ArgumentCaptor<Optional<CV>> confidentialityCodeCaptor;
 
-    @BeforeEach
-    public void setup() {
-        configureDefaultStubs();
-    }
-
     @Test
     public void mapObservationToImmunizationWithValidData() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -92,6 +87,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithMissingValues() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_missing_optional_values.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -101,6 +97,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWhenEhrCompositionIdIsNotPresentOnEncounterList() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_id_not_matching_encounter_id.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -110,6 +107,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWhenEhrCompositionWithParticipantAndAuthor() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_with_author_and_participant.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -127,6 +125,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWhenEhrCompositionWithOneObservationParticipant() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_ehr_composition_with_one_observation_participant.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -139,6 +138,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithMultipleObservationStatements() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization_with_multiple_observation_statements.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -151,6 +151,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationAndCheckCodingDisplayAndVaccineProcedureUrl() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         final String VACCINE_PROCEDURE_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-VaccinationProcedure-1";
         var ehrExtract = unmarshallEhrExtract("full_valid_immunization_with_multiple_observation_statements.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
@@ -163,6 +164,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithEffectiveTimeCenter() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_center_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -172,6 +174,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithEffectiveTimeLow() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_low_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -181,6 +184,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithHighAndLowEffectiveTime() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_high_and_low_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -190,6 +194,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithHighEffectiveTime() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_high_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -199,6 +204,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void mapObservationToImmunizationWithUNKVaccineCode() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("immunization_with_only_high_effective_time.xml");
         List<Immunization> immunizationList = immunizationMapper.mapResources(ehrExtract, getPatient(), getEncounterList(), PRACTISE_CODE);
 
@@ -208,6 +214,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void When_EhrCompositionWithNoPatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper);
         final var metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         when(
             confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
@@ -244,6 +251,7 @@ public class ImmunizationMapperTest {
 
     @Test
     public void When_ObservationWithNoPatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
+        registerDefaultDependencies(codeableConceptMapper, immunizationMapper);
         final var metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         when(
             confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
@@ -341,18 +349,24 @@ public class ImmunizationMapperTest {
         assertEquals(id, identifier.getValue());
     }
 
-    private void configureDefaultStubs() {
-
-        when(codeableConceptMapper.mapToCodeableConcept(any()))
-            .thenReturn(createCodeableConcept(null, null, CODING_DISPLAY));
-        when(immunizationChecker.isImmunization(any())).thenReturn(true);
-        lenient()
-            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-                eq("Immunization-1"),
-                eq(Optional.empty()),
-                eq(Optional.empty())
-            ))
-            .thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+    public void registerDefaultDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == codeableConceptMapper) {
+                when(codeableConceptMapper.mapToCodeableConcept(any()))
+                        .thenReturn(createCodeableConcept(null, null, CODING_DISPLAY));
+            }
+            if (dependency == immunizationMapper) {
+                when(immunizationChecker.isImmunization(any())).thenReturn(true);
+            }
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        eq("Immunization-1"),
+                        eq(Optional.empty()),
+                        eq(Optional.empty())
+                ))
+                        .thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            }
+        }
     }
 
     private Patient getPatient() {
