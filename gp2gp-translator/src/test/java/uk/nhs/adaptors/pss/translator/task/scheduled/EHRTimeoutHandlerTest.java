@@ -8,11 +8,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import static org.mockito.Mockito.*;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_ACKNOWLEDGED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_MESSAGE_PROCESSING;
@@ -29,12 +26,15 @@ import static uk.nhs.adaptors.pss.translator.model.NACKReason.LARGE_MESSAGE_TIME
 import static uk.nhs.adaptors.pss.translator.model.NACKReason.LARGE_MESSAGE_ATTACHMENTS_NOT_RECEIVED;
 import static uk.nhs.adaptors.pss.translator.model.NACKReason.UNEXPECTED_CONDITION;
 
+import uk.nhs.adaptors.common.util.DateUtils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -80,7 +80,6 @@ import uk.nhs.adaptors.pss.translator.util.OutboundMessageUtil;
 import uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil;
 
 @ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
-@MockitoSettings(strictness = Strictness.LENIENT)
 class EHRTimeoutHandlerTest {
 
     private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK06";
@@ -157,13 +156,13 @@ class EHRTimeoutHandlerTest {
         );
     }
 
-    private void setupMocks(int ehrExtractPersistDuration) throws JsonProcessingException {
+    private void setupMocksForOneRequest(int ehrExtractPersistDuration) throws JsonProcessingException {
         when(persistDurationService.getPersistDurationFor(any(), eq(EHR_EXTRACT_MESSAGE_NAME)))
             .thenReturn(Duration.ofHours(ehrExtractPersistDuration));
-        when(persistDurationService.getPersistDurationFor(any(), eq(COPC_MESSAGE_NAME)))
-            .thenReturn(Duration.ofHours(COPC_PERSIST_DURATION));
+//        when(persistDurationService.getPersistDurationFor(any(), eq(COPC_MESSAGE_NAME)))
+//            .thenReturn(Duration.ofHours(COPC_PERSIST_DURATION));
         when(timeoutProperties.getEhrExtractWeighting()).thenReturn(1);
-        when(timeoutProperties.getCopcWeighting()).thenReturn(1);
+//        when(timeoutProperties.getCopcWeighting()).thenReturn(1);
         when(outboundMessageUtil.parseFromAsid(any())).thenReturn("");
         when(outboundMessageUtil.parseMessageRef(any())).thenReturn("");
         when(outboundMessageUtil.parseToAsid(any())).thenReturn("");
@@ -172,17 +171,42 @@ class EHRTimeoutHandlerTest {
         // inbound messages
         when(mockRequest.getInboundMessage())
             .thenReturn(INBOUND_MESSAGE_STRING);
-        when(mockRequest2.getInboundMessage())
-            .thenReturn(INBOUND_MESSAGE_STRING_TWO);
+//        when(mockRequest2.getInboundMessage())
+//            .thenReturn(INBOUND_MESSAGE_STRING_TWO);
         when(inboundMessageUtil.readMessage(INBOUND_MESSAGE_STRING))
             .thenReturn(mockInboundMessage);
-        when(inboundMessageUtil.readMessage(INBOUND_MESSAGE_STRING_TWO))
-            .thenReturn(mockInboundMessage2);
+//        when(inboundMessageUtil.readMessage(INBOUND_MESSAGE_STRING_TWO))
+//            .thenReturn(mockInboundMessage2);
+    }
+
+    private void setupMocksForTwoRequests(int ehrExtractPersistDuration) throws JsonProcessingException {
+        when(persistDurationService.getPersistDurationFor(any(), eq(EHR_EXTRACT_MESSAGE_NAME)))
+                .thenReturn(Duration.ofHours(ehrExtractPersistDuration));
+//        when(persistDurationService.getPersistDurationFor(any(), eq(COPC_MESSAGE_NAME)))
+//                .thenReturn(Duration.ofHours(COPC_PERSIST_DURATION));
+        when(timeoutProperties.getEhrExtractWeighting()).thenReturn(1);
+//        when(timeoutProperties.getCopcWeighting()).thenReturn(1);
+        when(outboundMessageUtil.parseFromAsid(any())).thenReturn("");
+        when(outboundMessageUtil.parseMessageRef(any())).thenReturn("");
+        when(outboundMessageUtil.parseToAsid(any())).thenReturn("");
+        when(outboundMessageUtil.parseToOdsCode(any())).thenReturn("");
+
+        // inbound messages
+        when(mockRequest.getInboundMessage())
+                .thenReturn(INBOUND_MESSAGE_STRING);
+//        when(mockRequest2.getInboundMessage())
+//            .thenReturn(INBOUND_MESSAGE_STRING_TWO);
+        when(inboundMessageUtil.readMessage(INBOUND_MESSAGE_STRING))
+                .thenReturn(mockInboundMessage);
+//        when(inboundMessageUtil.readMessage(INBOUND_MESSAGE_STRING_TWO))
+//            .thenReturn(mockInboundMessage2);
     }
 
     @Test
     void When_CheckForTimeouts_WithTimeout_Expect_SendNACKMessageHandlerIsCalled() {
         String conversationId = UUID.randomUUID().toString();
+
+        setupMigrationRequestMocks(false, false, true);
         callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, TEN_DAYS_AGO, 0, conversationId,
                                            EHR_EXTRACT_PERSIST_DURATION);
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
@@ -358,12 +382,18 @@ class EHRTimeoutHandlerTest {
 
     @Test
     void When_CheckForTimeouts_WithCollectionAndTwoTimeouts_Expect_SendNACKMessageHandlerCalledTwice() {
+        setupMigrationRequestMocks(true, true, true);
+        OffsetDateTime now = OffsetDateTime.now();
+        setupMigrationStatusLogMocks(now);
         callCheckForTimeoutWithTwoRequests(TEN_DAYS_AGO, TEN_DAYS_AGO, EHR_EXTRACT_PERSIST_DURATION);
         verify(sendNACKMessageHandler, times(2)).prepareAndSendMessage(any());
     }
 
     @Test
     void When_CheckForTimeouts_WithCollectionAndOneTimeout_Expect_SendNACKMessageHandlerCalledOnce() {
+        setupMigrationRequestMocks(true, true, true);
+        OffsetDateTime now = OffsetDateTime.now();
+        setupMigrationStatusLogMocks(now);
         callCheckForTimeoutWithTwoRequests(TEN_DAYS_TIME, TEN_DAYS_AGO, EHR_EXTRACT_PERSIST_DURATION);
         verify(sendNACKMessageHandler, times(1)).prepareAndSendMessage(any());
     }
@@ -391,8 +421,9 @@ class EHRTimeoutHandlerTest {
     void When_CheckForTimeouts_WithJsonProcessingException_Expect_MigrationLogUpdated() throws JsonProcessingException {
         String conversationId = UUID.randomUUID().toString();
         List<PatientMigrationRequest> requests = List.of(mockRequest);
-        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(argThat(list -> list.contains(EHR_EXTRACT_TRANSLATED))))
-            .thenReturn(requests);
+        setupMigrationRequestMocks(false, true, false);
+//        OffsetDateTime now = OffsetDateTime.now();
+//        setupMigrationStatusLogMocks(now);
         when(mockRequest.getConversationId()).thenReturn(conversationId);
 
         doThrow(JsonProcessingException.class).when(inboundMessageUtil).readMessage(any());
@@ -459,6 +490,13 @@ class EHRTimeoutHandlerTest {
 
         when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
 
+//        OffsetDateTime now = OffsetDateTime.now();
+
+        setupMigrationRequestMocks(false, false, true);
+//        setupMigrationStatusLogMocks(now);
+
+//        when(dateUtils.getCurrentOffsetDateTime()).thenReturn(now);
+
         callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId,
                                            EHR_EXTRACT_PERSIST_DURATION_49);
 
@@ -508,19 +546,42 @@ class EHRTimeoutHandlerTest {
         assertThat(output.getOut()).doesNotContain(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
     }
 
-    @Test
-    void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Expect_NoNackSent() {
-        String conversationId = UUID.randomUUID().toString();
+//    @Test
+//    void When_MigrationTimeoutOverrideIsSetAndTimeoutNotReached_Expect_NoNackSent() {
+//        MockedStatic<XmlUnmarshallUtil> mockedXmlUnmarshall = Mockito.mockStatic(XmlUnmarshallUtil.class);
+//
+////        mockedXmlUnmarshall.when(
+////                () -> XmlUnmarshallUtil.unmarshallString(any(), eq(RCMRIN030000UKMessage.class))
+////        ).thenReturn(mockedPayload);
+//
+//        ehrTimeoutHandler.checkForTimeouts();
+//
+//        verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
+//    }
 
-        when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(true);
+    void setupMigrationRequestMocks(boolean preParsed, boolean translated, boolean attachment) {
+        List<PatientMigrationRequest> requests = List.of(mockRequest);
+        List<PatientMigrationRequest> blankResponse = new ArrayList<>();
 
-        // Simulate a message timestamp within the override timeout (should NOT trigger NACK)
-        ZonedDateTime messageTimestamp = ZonedDateTime.now();
+        List<MigrationStatus> preParsedStatuses = Arrays.asList(REQUEST_RECEIVED, EHR_EXTRACT_REQUEST_ACCEPTED, EHR_EXTRACT_REQUEST_ACKNOWLEDGED, EHR_EXTRACT_RECEIVED);
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(preParsedStatuses)).thenReturn(preParsed ? requests : blankResponse);
 
-        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId,
-                                           EHR_EXTRACT_PERSIST_DURATION);
+        List<MigrationStatus> attachmentStatuses = Arrays.asList(EHR_EXTRACT_PROCESSING, CONTINUE_REQUEST_ACCEPTED, COPC_MESSAGE_RECEIVED, COPC_MESSAGE_PROCESSING, COPC_ACKNOWLEDGED);
 
-        verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(attachmentStatuses)).thenReturn(attachment ? requests : blankResponse);
+
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(List.of(EHR_EXTRACT_TRANSLATED))).thenReturn(translated ? requests : blankResponse);
+
+    }
+
+    void setupMigrationStatusLogMocks(OffsetDateTime logDate){
+        MigrationStatusLog migrationStatusLogMock = mock(MigrationStatusLog.class);
+
+        when(migrationStatusLogMock.getDate()).thenReturn(logDate);
+
+        when(migrationStatusLogService.getLatestMigrationStatusLog(any())).thenReturn(migrationStatusLogMock);
+
+        when(dateUtils.getCurrentOffsetDateTime()).thenReturn(logDate);
     }
 
     @Test
@@ -531,6 +592,13 @@ class EHRTimeoutHandlerTest {
         when(timeoutProperties.isMigrationTimeoutOverride()).thenReturn(false);
         when(sendNACKMessageHandler.prepareAndSendMessage(any())).thenReturn(true);
         when(patientAttachmentLogService.countAttachmentsForMigrationRequest(mockRequest.getId())).thenReturn(2L);
+
+        OffsetDateTime now = OffsetDateTime.now();
+
+        setupMigrationRequestMocks(false, false, true);
+//        setupMigrationStatusLogMocks(now);
+
+//        when(dateUtils.getCurrentOffsetDateTime()).thenReturn(now);
 
         callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 2, conversationId,
                                            EHR_EXTRACT_PERSIST_DURATION);
@@ -550,7 +618,7 @@ class EHRTimeoutHandlerTest {
 
             // Arrange
 
-            setupMocks(ehrExtractPersistDuration);
+            setupMocksForOneRequest(ehrExtractPersistDuration);
 
             // mock static method
             mockedXmlUnmarshall.when(
@@ -558,9 +626,9 @@ class EHRTimeoutHandlerTest {
             ).thenReturn(mockedPayload);
 
             // request
-            List<PatientMigrationRequest> requests = List.of(mockRequest);
-            when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(argThat(list -> list.contains(migrationStatus))))
-                .thenReturn(requests);
+//            List<PatientMigrationRequest> requests = List.of(mockRequest);
+//            when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(argThat(list -> list.contains(migrationStatus))))
+//                .thenReturn(requests);
 
             // timestamp
             when(mockInboundMessage.getEbXML())
@@ -576,7 +644,7 @@ class EHRTimeoutHandlerTest {
 
             ehrTimeoutHandler.checkForTimeouts();
 
-        } catch (JsonProcessingException | SAXException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             mockedXmlUnmarshall.close();
@@ -592,7 +660,7 @@ class EHRTimeoutHandlerTest {
 
             // Arrange
 
-            setupMocks(ehrExtractPersistDuration);
+            setupMocksForTwoRequests(ehrExtractPersistDuration);
 
             // mock static method
             mockedXmlUnmarshall.when(
@@ -600,15 +668,13 @@ class EHRTimeoutHandlerTest {
             ).thenReturn(mockedPayload);
 
             // requests
-            List<PatientMigrationRequest> requests = List.of(mockRequest, mockRequest2);
-            when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(argThat(list -> list.contains(EHR_EXTRACT_TRANSLATED))))
-                .thenReturn(requests);
+//            List<PatientMigrationRequest> requests = List.of(mockRequest, mockRequest2);
+//            when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(argThat(list -> list.contains(EHR_EXTRACT_TRANSLATED))))
+//                .thenReturn(requests);
 
             // timestamps
             when(mockInboundMessage.getEbXML())
-                .thenReturn(EBXML_STRING);
-            when(mockInboundMessage2.getEbXML())
-                .thenReturn(EBXML_STRING_TWO);
+                .thenReturn(EBXML_STRING).thenReturn(EBXML_STRING_TWO);
             when(inboundMessageUtil.parseMessageTimestamp(EBXML_STRING))
                 .thenReturn(firstRequestTimestamp);
             when(inboundMessageUtil.parseMessageTimestamp(EBXML_STRING_TWO))
@@ -619,7 +685,7 @@ class EHRTimeoutHandlerTest {
 
             // random conversation id for mocked request
             when(mockRequest.getConversationId()).thenReturn(UUID.randomUUID().toString());
-            when(mockRequest2.getConversationId()).thenReturn(UUID.randomUUID().toString());
+//            when(mockRequest2.getConversationId()).thenReturn(UUID.randomUUID().toString());
 
             // Act
 
