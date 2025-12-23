@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.isNull;
 
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
@@ -138,11 +136,37 @@ public class EncounterMapperTest {
 
     private static final String SNOMED_SYSTEM = "http://snomed.info/sct";
 
+    public void registerDefaultDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == codeableConceptMapper) {
+                setUpCodeableConceptMock();
+            }
+            if (dependency  == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        any(String.class), any(Optional.class)
+                )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            }
+            if (dependency == consultationListMapper) {
+                when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
+                        .thenReturn(getList());
+                when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
+                        .thenReturn(getList());
+                when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
+                        .thenReturn(getList());
+            }
+            if (dependency == immunizationChecker) {
+                when(immunizationChecker.isImmunization(any())).thenAnswer((Answer<Boolean>) invocation -> {
+                    String code = invocation.getArgument(0);
+                    return code.equals("1664081000000114");
+                });
+            }
+        }
+    }
+
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         patient = new Patient();
         patient.setId(PATIENT_ID);
-        setUpCodeableConceptMock();
 
         var location1 = new Location();
         location1.setName("Branch Surgery");
@@ -157,21 +181,11 @@ public class EncounterMapperTest {
         location3.setId(LOCATION_ID);
 
         entryLocations = List.of(location1, location2, location3);
-
-        Mockito.lenient()
-            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-                any(String.class), any(Optional.class)
-            )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 
     @Test
     public void testEncountersWithMultipleCompoundStatements() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService, consultationListMapper);
 
         var ehrExtract = unmarshallEhrExtractElement(ENCOUNTER_WITH_MULTIPLE_COMPOUND_STATEMENTS_XML);
 
@@ -190,12 +204,7 @@ public class EncounterMapperTest {
 
     @Test
     public void testMapValidEncounterWithSnomedCode() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, consultationListMapper);
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_STRUCTURED_ENCOUNTER_XML);
 
@@ -217,17 +226,10 @@ public class EncounterMapperTest {
 
     @Test
     public void testMapValidEncounterWithoutSnomedCode() {
-
+        registerDefaultDependencies(confidentialityService, consultationListMapper);
         var codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
 
         when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_STRUCTURED_ENCOUNTER_XML);
 
         Map<String, List<? extends DomainResource>> mappedResources = encounterMapper.mapEncounters(
@@ -249,26 +251,16 @@ public class EncounterMapperTest {
     @Test
     public void testMapValidEncounterWithNopatConfidentialityCodeWithinEhrCompositionExpectMetaSecurityAdded() {
         final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        registerDefaultDependencies(consultationListMapper);
+
         final CodeableConcept codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
 
         when(codeableConceptMapper.mapToCodeableConcept(
-            any(CD.class))
+                any(CD.class))
         ).thenReturn(codeableConcept);
-        when(consultationListMapper.mapToConsultation(
-            any(RCMRMT030101UKEhrComposition.class), any(Encounter.class))
-        ).thenReturn(getList());
-        when(consultationListMapper.mapToTopic(
-            any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class))
-        ).thenReturn(getList());
-        when(consultationListMapper.mapToCategory(
-            any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class))
-        ).thenReturn(getList());
-
-        Mockito
-            .lenient()
-            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 any(String.class), any(Optional.class)
-            )).thenReturn(stubbedMeta);
+        )).thenReturn(stubbedMeta);
 
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtractElement(ENCOUNTER_WITH_NOPAT_CONFIDENTIALITY_CODE_WITHIN_EHR_COMPOSITION);
@@ -289,26 +281,13 @@ public class EncounterMapperTest {
     @Test
     public void testMapValidEncounterWithNoscrubConfidentialityCodeWithinEhrCompositionExpectMetaSecurityNotAdded() {
         final Meta metaWithoutSecurity = MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
+        registerDefaultDependencies(confidentialityService, consultationListMapper);
+
         final CodeableConcept codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
 
         when(codeableConceptMapper.mapToCodeableConcept(
-            any(CD.class))
+                any(CD.class))
         ).thenReturn(codeableConcept);
-        when(consultationListMapper.mapToConsultation(
-            any(RCMRMT030101UKEhrComposition.class), any(Encounter.class))
-        ).thenReturn(getList());
-        when(consultationListMapper.mapToTopic(
-            any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class))
-        ).thenReturn(getList());
-        when(consultationListMapper.mapToCategory(
-            any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class))
-        ).thenReturn(getList());
-
-        Mockito
-            .lenient()
-            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-                any(String.class), any(Optional.class)
-            )).thenReturn(metaWithoutSecurity);
 
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtractElement(ENCOUNTER_WITH_NOSCRUB_CONFIDENTIALITY_CODE_WITHIN_EHR_COMPOSITION);
@@ -328,12 +307,7 @@ public class EncounterMapperTest {
 
     @Test
     public void testValidEncounterWithFullDataWithStructuredConsultation() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService, consultationListMapper);
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_STRUCTURED_ENCOUNTER_XML);
 
@@ -368,12 +342,7 @@ public class EncounterMapperTest {
 
     @Test
     public void testValidEncounterWithLinkSetWithStructuredConsultation() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService, consultationListMapper);
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_STRUCTURED_ENCOUNTER_WITH_LINKSET_XML);
 
@@ -421,8 +390,10 @@ public class EncounterMapperTest {
 
     @Test
     public void testValidEncounterWithFlatConsultationWithLinkSet() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
+
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
+                .thenReturn(getList());
         when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_FLAT_ENCOUNTER_WITH_LINK_SET_XML);
@@ -455,11 +426,11 @@ public class EncounterMapperTest {
 
     @Test
     public void testValidEncounterWithFullDataWithFlatConsultation() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull()))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
 
+        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
+                .thenReturn(getList());
+        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_FLAT_ENCOUNTER_XML);
 
         Map<String, List<? extends DomainResource>> mappedResources = encounterMapper.mapEncounters(
@@ -487,10 +458,11 @@ public class EncounterMapperTest {
 
     @Test
     public void testValidEncounterWithNoOptionalDataWithFlatConsultation() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
+
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull()))
-            .thenReturn(getList());
+                .thenReturn(getList());
+        when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
 
         var ehrExtract = unmarshallEhrExtractElement(NO_OPTIONAL_FLAT_ENCOUNTER_XML);
 
@@ -518,12 +490,7 @@ public class EncounterMapperTest {
 
     @Test
     public void testEncounterWithMappedResourcesWithStructuredConsultation() {
-        when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToTopic(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
-        when(consultationListMapper.mapToCategory(any(ListResource.class), any(RCMRMT030101UKCompoundStatement.class)))
-            .thenReturn(getList());
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService, consultationListMapper);
 
         var ehrExtract = unmarshallEhrExtractElement(FULL_VALID_STRUCTURED_ENCOUNTER_WITH_RESOURCES_XML);
 
@@ -561,6 +528,7 @@ public class EncounterMapperTest {
 
     @Test
     public void testEncounterWithMappedResourcesWithFlatConsultation() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
             .thenReturn(getList());
         when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
@@ -595,9 +563,12 @@ public class EncounterMapperTest {
 
     @Test
     public void testEncounterWithMappedResourcesWithFlatConsultationThatItReturnsRelatedProblemsForConditions() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
+
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
-            .thenReturn(getList());
+                .thenReturn(getList());
         when(consultationListMapper.mapToTopic(any(ListResource.class), isNull())).thenReturn(getList());
+
         String conditionTopicListEntry = "Condition/4971E81E-693C-11EE-9D98-00155D78C707";
         doAnswer(invocation -> {
             List<Reference> list = invocation.getArgument(1);
@@ -727,13 +698,8 @@ public class EncounterMapperTest {
     }
 
     private void setUpCodeableConceptMock() {
-
         var codeableConcept = createCodeableConcept(null, SNOMED_SYSTEM, CODING_DISPLAY);
-        lenient().when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
-        lenient().when(immunizationChecker.isImmunization(any())).thenAnswer((Answer<Boolean>) invocation -> {
-            String code = invocation.getArgument(0);
-            return code.equals("1664081000000114");
-        });
+        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
     }
 
     private ListResource getList() {
