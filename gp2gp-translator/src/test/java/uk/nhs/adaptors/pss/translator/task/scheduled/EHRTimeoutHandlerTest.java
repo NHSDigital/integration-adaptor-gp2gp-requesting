@@ -549,21 +549,15 @@ class EHRTimeoutHandlerTest {
     @Test
     void When_MigrationTimeoutOverrideIsNotSetAndTimeoutDoesNotRunOut_Expect_TimeoutIsDeterminedByOverrideAndNackNotSent(
         CapturedOutput output) {
-
         String conversationId = UUID.randomUUID().toString();
+        setupMigrationRequestMocks(false, true, false);
         long overrideTimeoutSeconds = Duration.ofDays(2).getSeconds();
 
         // Simulate a message timestamp older than the override timeout (should trigger NACK)
         ZonedDateTime messageTimestamp = ZonedDateTime.now().minusSeconds(overrideTimeoutSeconds + ONE_SECOND);
 
-        MockedStatic<XmlUnmarshallUtil> mockedXmlUnmarshall = Mockito.mockStatic(XmlUnmarshallUtil.class);
-        mockedXmlUnmarshall.when(
-                () -> XmlUnmarshallUtil.unmarshallString(any(), eq(RCMRIN030000UKMessage.class))
-        ).thenReturn(mockedPayload);
-
-
-        ehrTimeoutHandler.checkForTimeouts();
-        mockedXmlUnmarshall.close();
+        callCheckForTimeoutsWithOneRequest(EHR_EXTRACT_PROCESSING, messageTimestamp, 0, conversationId,
+                EHR_EXTRACT_PERSIST_DURATION_49);
 
         verify(sendNACKMessageHandler, times(0)).prepareAndSendMessage(any());
         assertThat(output.getOut()).doesNotContain(MIGRATION_REQUEST_TIMEOUT_OVERWRITTEN_TO_48_HOURS_LOG_MSG);
