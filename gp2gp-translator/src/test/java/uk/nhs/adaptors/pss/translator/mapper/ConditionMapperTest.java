@@ -68,6 +68,7 @@ class ConditionMapperTest {
     private static final String PRACTISE_CODE = "TESTPRACTISECODE";
     private static final String ENCOUNTER_ID = "EHR_COMPOSITION_ENCOUNTER_ID";
     private static final String ASSERTER_ID_REFERENCE = "Practitioner/ASSERTER_ID";
+    private static final String ASSERTER_PARTICIPANT_ID_REFERENCE = "Practitioner/ASSERTER_PARTICIPANT_ID";
     private static final String LINKSET_ID = "LINKSET_ID";
     private static final String CODING_DISPLAY = "THIS IS A TEST";
     private static final DateTimeType EHR_EXTRACT_AVAILABILITY_DATETIME = parseToDateTimeType("20101209114846.00");
@@ -120,13 +121,33 @@ class ConditionMapperTest {
                         confidentialityCodeCaptor.capture(),
                         confidentialityCodeCaptor.capture(),
                         confidentialityCodeCaptor.capture()
-                )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+                )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
             }
             if (dependency == codeableConceptMapper) {
                 var codeableConcept = new CodeableConcept().addCoding(new Coding().setDisplay(CODING_DISPLAY));
                 when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
             }
         }
+    }
+
+    @Test
+    void testConditionAsserterIsMappedCorrectly() {
+        registerDependencies(dateTimeMapper);
+
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                eq(META_PROFILE),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture()
+        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+
+        final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_author.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, encounters, PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertEquals(ASSERTER_ID_REFERENCE, conditions.getFirst().getAsserter().getReference());
     }
 
     @Test
@@ -166,14 +187,7 @@ class ConditionMapperTest {
 
     @Test
     void testConditionIsMappedCorrectlyWithNamedStatementRefPointingtoObservationStatementNopat() {
-        registerDependencies(dateTimeMapper);
-
-        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-                eq(META_PROFILE),
-                confidentialityCodeCaptor.capture(),
-                confidentialityCodeCaptor.capture(),
-                confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+        registerDependencies(dateTimeMapper, confidentialityService);
 
         final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference_to_nopat_observation.xml");
@@ -300,7 +314,7 @@ class ConditionMapperTest {
 
     @Test
     void mapConditionWithoutSnomedCodeInCoding() {
-        registerDependencies(dateTimeMapper);
+        registerDependencies(dateTimeMapper, codeableConceptMapper);
 
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
