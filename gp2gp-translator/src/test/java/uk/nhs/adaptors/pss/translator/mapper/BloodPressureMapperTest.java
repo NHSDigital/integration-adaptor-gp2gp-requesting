@@ -80,6 +80,7 @@ public class BloodPressureMapperTest {
     private static final String COMPONENT_2_INTERPRETATION_TEXT = "Low Text";
     private static final String COMPONENT_2_REFERENCE_RANGE_TEXT = "Test Range 2";
     public static final String NOPAT_CODE = "NOPAT";
+    public static final String NOPAT_URL_CODESYSTEM = "http://hl7.org/fhir/v3/ActCode";
     public static final String NOPAT_DISPLAY =
         "no disclosure to patient, family or caregivers without attending provider's authorization";
     public static final String NOPAT_OID_CODESYSTEM = "2.16.840.1.113883.4.642.3.47";
@@ -252,100 +253,100 @@ public class BloodPressureMapperTest {
             );
         }
 
-        @Test
-        public void mapBloodPressureObservationWithCompositionIdMatchingEncounter() {
-            var ehrExtract = unmarshallEhrExtractElement("ehr_composition_id_matching_encounter_bp_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithCompositionIdMatchingEncounter() {
+        var ehrExtract = unmarshallEhrExtractElement("ehr_composition_id_matching_encounter_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertTrue(bloodPressure.hasContext());
-        }
+        assertTrue(bloodPressure.hasContext());
+    }
 
-        @Test
-        public void mapBloodPressureObservationWithSystolicOnlyComment() {
-            var ehrExtract = unmarshallEhrExtractElement("systolic_comment_only_bp_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithSystolicOnlyComment() {
+        var ehrExtract = unmarshallEhrExtractElement("systolic_comment_only_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_2);
-        }
+        assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_2);
+    }
 
-        @Test
-        public void mapBloodPressureObservationWithDiastolicOnlyComment() {
-            var ehrExtract = unmarshallEhrExtractElement("diastolic_comment_only_blood_pressure_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithDiastolicOnlyComment() {
+        var ehrExtract = unmarshallEhrExtractElement("diastolic_comment_only_blood_pressure_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_3);
-        }
+        assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_3);
+    }
 
-        @Test
-        public void mapBloodPressureObservationWithNarrativeStatementOnlyComment() {
-            var ehrExtract = unmarshallEhrExtractElement("narrative_statement_comment_only_bp_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithNarrativeStatementOnlyComment() {
+        var ehrExtract = unmarshallEhrExtractElement("narrative_statement_comment_only_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_4);
-        }
+        assertThat(bloodPressure.getComment()).isEqualTo(COMMENT_EXAMPLE_4);
+    }
 
-        @Test
-        public void mapBloodPressureObservationWithEffectiveDateTime() {
-            var ehrExtract = unmarshallEhrExtractElement(
-                    "effective_date_time_using_effective_time_center_bp_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithEffectiveDateTime() {
+        var ehrExtract = unmarshallEhrExtractElement(
+            "effective_date_time_using_effective_time_center_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getEffective()).isInstanceOf(DateTimeType.class);
-            assertThat(bloodPressure.getEffectiveDateTimeType().getValueAsString()).isEqualTo("2006-04-25");
-        }
+        assertThat(bloodPressure.getEffective()).isInstanceOf(DateTimeType.class);
+        assertThat(bloodPressure.getEffectiveDateTimeType().getValueAsString()).isEqualTo("2006-04-25");
+    }
 
-        @Test
-        public void mapBloodPressureObservationWithEffectivePeriod() {
-            var ehrExtract = unmarshallEhrExtractElement(
-                    "effective_period_start_end_using_effective_time_bp_example.xml");
+    @Test
+    public void mapBloodPressureObservationWithEffectivePeriod() {
+        var ehrExtract = unmarshallEhrExtractElement(
+            "effective_period_start_end_using_effective_time_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getEffective()).isInstanceOf(Period.class);
-            assertThat(bloodPressure.getEffectivePeriod().getStartElement().getValueAsString()).isEqualTo("2006-04-25");
-            assertThat(bloodPressure.getEffectivePeriod().getEndElement().getValueAsString()).isEqualTo("2006-04-26");
-        }
+        assertThat(bloodPressure.getEffective()).isInstanceOf(Period.class);
+        assertThat(bloodPressure.getEffectivePeriod().getStartElement().getValueAsString()).isEqualTo("2006-04-25");
+        assertThat(bloodPressure.getEffectivePeriod().getEndElement().getValueAsString()).isEqualTo("2006-04-26");
+    }
 
-        @Test
-        public void mapBloodPressureWithNoSnomedCodeInCoding() {
-            var ehrExtract = unmarshallEhrExtractElement("full_valid_data_bp_example.xml");
+    @Test
+    public void mapBloodPressureWithNoSnomedCodeInCoding() {
+        var ehrExtract = unmarshallEhrExtractElement("full_valid_data_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertThat(bloodPressure.getCode().getCodingFirstRep())
-                    .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
-            assertThat(bloodPressure.getCode().getCoding().get(1).getDisplay())
-                    .isEqualTo(CODING_DISPLAY_MOCK);
-            assertThat(bloodPressure.getComponent().getFirst().getCode().getCodingFirstRep())
-                    .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
-            assertThat(bloodPressure.getComponent().getFirst().getCode().getCoding().get(1).getDisplay())
-                    .isEqualTo(CODING_DISPLAY_MOCK);
-            assertThat(bloodPressure.getComponent().get(1).getCode().getCodingFirstRep())
-                    .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
-            assertThat(bloodPressure.getComponent().get(1).getCode().getCoding().get(1).getDisplay())
-                    .isEqualTo(CODING_DISPLAY_MOCK);
-        }
+        assertThat(bloodPressure.getCode().getCodingFirstRep())
+            .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(bloodPressure.getCode().getCoding().get(1).getDisplay())
+            .isEqualTo(CODING_DISPLAY_MOCK);
+        assertThat(bloodPressure.getComponent().getFirst().getCode().getCodingFirstRep())
+            .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(bloodPressure.getComponent().getFirst().getCode().getCoding().get(1).getDisplay())
+            .isEqualTo(CODING_DISPLAY_MOCK);
+        assertThat(bloodPressure.getComponent().get(1).getCode().getCodingFirstRep())
+            .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(bloodPressure.getComponent().get(1).getCode().getCoding().get(1).getDisplay())
+            .isEqualTo(CODING_DISPLAY_MOCK);
+    }
 
-        @Test
-        public void mapBloodPressureWithSnomedCodeInCoding() {
-            var codeableConcept = createCodeableConcept("http://snomed.info/sct", "123456", "Display");
-            when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
+    @Test
+    public void mapBloodPressureWithSnomedCodeInCoding() {
+        var codeableConcept = createCodeableConcept("http://snomed.info/sct", "123456", "Display");
+        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
 
-            var ehrExtract = unmarshallEhrExtractElement("full_valid_data_bp_example.xml");
+        var ehrExtract = unmarshallEhrExtractElement("full_valid_data_bp_example.xml");
 
-            var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
+        var bloodPressure = bloodPressureMapper.mapResources(ehrExtract, patient, ENCOUNTER_LIST, PRACTISE_CODE).getFirst();
 
-            assertAll(
-                    () -> assertEquals(codeableConcept, bloodPressure.getCode()),
-                    () -> assertEquals(codeableConcept, bloodPressure.getComponent().getFirst().getCode()),
-                    () -> assertEquals(codeableConcept, bloodPressure.getComponent().get(1).getCode())
-            );
-        }
+        assertAll(
+                () -> assertEquals(codeableConcept, bloodPressure.getCode()),
+                () -> assertEquals(codeableConcept, bloodPressure.getComponent().getFirst().getCode()),
+                () -> assertEquals(codeableConcept, bloodPressure.getComponent().get(1).getCode())
+        );
+    }
     }
 
     private void assertFixedValues(Observation bloodPressure) {

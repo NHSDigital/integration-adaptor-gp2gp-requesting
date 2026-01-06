@@ -270,6 +270,7 @@ class ConditionMapperTest {
 
     @Test
     void testConditionWithMedicationRequestsIsMappedCorrectly() {
+        registerDependencies(dateTimeMapper);
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_medication_refs.xml");
 
         MockedStatic<MedicationMapperUtils> mockedMedicationMapperUtils = Mockito.mockStatic(MedicationMapperUtils.class);
