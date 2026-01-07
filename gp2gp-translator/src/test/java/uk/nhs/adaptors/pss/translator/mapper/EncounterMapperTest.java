@@ -598,6 +598,7 @@ public class EncounterMapperTest {
     @ParameterizedTest
     @MethodSource("encounterPeriodTestFiles")
     public void testEncounterPeriod(String inputXML, String startDate, String endDate)   {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         when(consultationListMapper.mapToConsultation(any(RCMRMT030101UKEhrComposition.class), any(Encounter.class)))
             .thenReturn(getList());
         when(consultationListMapper.mapToTopic(any(ListResource.class), isNull()))
