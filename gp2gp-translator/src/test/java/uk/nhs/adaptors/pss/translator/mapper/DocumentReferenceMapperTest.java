@@ -21,12 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.hl7.fhir.dstu3.model.DocumentReference;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Meta;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.*;
+import org.hl7.v3.CD;
 import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.junit.jupiter.api.Test;
