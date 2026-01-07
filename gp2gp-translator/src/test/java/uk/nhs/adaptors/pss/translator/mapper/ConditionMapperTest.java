@@ -399,7 +399,7 @@ class ConditionMapperTest {
         assertFalse(condition.getCode().getCodingFirstRep().hasDisplay());
 
         assertThat(condition.getSubject().getResource().getIdElement().getIdPart()).isEqualTo(PATIENT_ID);
-        assertThat(condition.getAsserter().getReference()).isEqualTo(ASSERTER_PARTICIPANT_ID_REFERENCE);
+        assertThat(condition.getAsserter().getReference()).isEqualTo(ASSERTER_ID_REFERENCE);
         assertFalse(condition.getContext().hasReference());
 
         assertThat(condition.getOnsetDateTimeType()).isEqualTo(EHR_EXTRACT_AVAILABILITY_DATETIME);
