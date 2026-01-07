@@ -280,7 +280,6 @@ public class EncounterMapperTest {
 
     @Test
     public void testMapValidEncounterWithNoscrubConfidentialityCodeWithinEhrCompositionExpectMetaSecurityNotAdded() {
-        final Meta metaWithoutSecurity = MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
         registerDefaultDependencies(confidentialityService, consultationListMapper);
 
         final CodeableConcept codeableConcept = createCodeableConcept(null, "1.2.3.4.5", CODING_DISPLAY);
