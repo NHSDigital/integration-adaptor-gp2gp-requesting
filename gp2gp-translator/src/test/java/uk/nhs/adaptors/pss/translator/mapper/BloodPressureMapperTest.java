@@ -199,10 +199,10 @@ public class BloodPressureMapperTest {
 
         @ParameterizedTest(name = "[{index}] {0}")
         @ValueSource(strings = {
-                "ehr_composition_containing_confidentiality_code",
-                "battery_compound_statement_containing_confidentiality_code",
-                "systolic_observation_containing_confidentiality_code",
-                "diastolic_observation_containing_confidentiality_code"
+            "ehr_composition_containing_confidentiality_code",
+            "battery_compound_statement_containing_confidentiality_code",
+            "systolic_observation_containing_confidentiality_code",
+            "diastolic_observation_containing_confidentiality_code"
         })
         public void When_MappingBloodPressureWithConfidentialityCodes_Expect_BloodPressureObservationContainsSecurityMeta(
                 String inputXml) {

@@ -52,8 +52,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.xml.sax.SAXException;
@@ -62,7 +60,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.common.service.MDCService;
-import uk.nhs.adaptors.common.util.DateUtils;
 import uk.nhs.adaptors.connector.model.MigrationStatusLog;
 import uk.nhs.adaptors.connector.model.PatientMigrationRequest;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
@@ -94,7 +91,6 @@ class EHRTimeoutHandlerTest {
     private static final long TEN_DAYS = 10;
     private static final int ONE_SECOND = 1;
     private static final String INBOUND_MESSAGE_STRING = "test inbound Message";
-    private static final String INBOUND_MESSAGE_STRING_TWO = "test inbound Message 2";
     private static final String EBXML_STRING = "test ebXML";
     private static final String EBXML_STRING_TWO = "test ebXML 2";
     private static final String UNEXPECTED_CONDITION_CODE = "99";
@@ -588,18 +584,32 @@ class EHRTimeoutHandlerTest {
         List<PatientMigrationRequest> requests = List.of(mockRequest);
         List<PatientMigrationRequest> blankResponse = new ArrayList<>();
 
-        List<MigrationStatus> preParsedStatuses = Arrays.asList(REQUEST_RECEIVED, EHR_EXTRACT_REQUEST_ACCEPTED, EHR_EXTRACT_REQUEST_ACKNOWLEDGED, EHR_EXTRACT_RECEIVED);
-        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(preParsedStatuses)).thenReturn(preParsed ? requests : blankResponse);
+        List<MigrationStatus> preParsedStatuses = Arrays.asList(
+            REQUEST_RECEIVED,
+            EHR_EXTRACT_REQUEST_ACCEPTED,
+            EHR_EXTRACT_REQUEST_ACKNOWLEDGED,
+            EHR_EXTRACT_RECEIVED
+        );
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(preParsedStatuses))
+            .thenReturn(preParsed ? requests : blankResponse);
 
-        List<MigrationStatus> attachmentStatuses = Arrays.asList(EHR_EXTRACT_PROCESSING, CONTINUE_REQUEST_ACCEPTED, COPC_MESSAGE_RECEIVED, COPC_MESSAGE_PROCESSING, COPC_ACKNOWLEDGED);
+        List<MigrationStatus> attachmentStatuses = Arrays.asList(
+            EHR_EXTRACT_PROCESSING,
+            CONTINUE_REQUEST_ACCEPTED,
+            COPC_MESSAGE_RECEIVED,
+            COPC_MESSAGE_PROCESSING,
+            COPC_ACKNOWLEDGED
+        );
 
-        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(attachmentStatuses)).thenReturn(attachment ? requests : blankResponse);
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(attachmentStatuses))
+            .thenReturn(attachment ? requests : blankResponse);
 
-        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(List.of(EHR_EXTRACT_TRANSLATED))).thenReturn(translated ? requests : blankResponse);
+        when(migrationRequestService.getMigrationRequestsByMigrationStatusIn(List.of(EHR_EXTRACT_TRANSLATED)))
+            .thenReturn(translated ? requests : blankResponse);
 
     }
 
-    void setupMigrationStatusLogMocks(OffsetDateTime logDate){
+    void setupMigrationStatusLogMocks(OffsetDateTime logDate) {
         MigrationStatusLog migrationStatusLogMock = mock(MigrationStatusLog.class);
 
         when(migrationStatusLogMock.getDate()).thenReturn(logDate);
