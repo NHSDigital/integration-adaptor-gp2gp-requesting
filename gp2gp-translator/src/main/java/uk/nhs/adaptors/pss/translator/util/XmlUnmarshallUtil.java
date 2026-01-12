@@ -33,14 +33,8 @@ public class XmlUnmarshallUtil {
     public static <T> T unmarshallFile(File xmlFile, Class<T> destinationClass) throws JAXBException {
 
         Unmarshaller unmarshaller = getContext(destinationClass).createUnmarshaller();
-
-        Object result = unmarshaller.unmarshal(xmlFile);
-
-        if (result instanceof JAXBElement) {
-            return ((JAXBElement<T>) result).getValue();
-        }
-
-        return destinationClass.cast(result);
+        JAXBElement<T> unmarshalledMessage = (JAXBElement) unmarshaller.unmarshal(xmlFile);
+        return unmarshalledMessage.getValue();
     }
 
 
