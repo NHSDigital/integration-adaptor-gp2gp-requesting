@@ -60,7 +60,7 @@ public class ResourceReferenceUtil {
             return;
         }
 
-        //boolean includeNarrative = isNotIgnoredResource(compoundStatement, entryReferences);
+        boolean includeNarrative = isNotIgnoredResource(compoundStatement, entryReferences);
 
         compoundStatement.getComponent().forEach(component -> {
             addObservationStatementEntry(component.getObservationStatement(), entryReferences, compoundStatement);
@@ -69,7 +69,7 @@ public class ResourceReferenceUtil {
             addLinkSetEntry(component.getLinkSet(), entryReferences);
             addMedicationEntry(component.getMedicationStatement(), entryReferences);
 
-            if (isNotIgnoredResource(compoundStatement, entryReferences)) {
+            if (includeNarrative) {
                 addNarrativeStatementEntry(component.getNarrativeStatement(), entryReferences);
             }
 
