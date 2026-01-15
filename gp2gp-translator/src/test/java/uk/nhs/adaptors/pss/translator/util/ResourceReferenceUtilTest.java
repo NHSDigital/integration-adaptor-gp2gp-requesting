@@ -35,6 +35,7 @@ public class ResourceReferenceUtilTest {
     private static final String XML_RESOURCES_COMPOUND = "xml/ResourceReference/CompoundStatement/";
     private static final int TWO = 2;
     private static final int THREE = 3;
+    private static final int FOUR = 4;
 
     @Mock
     private DatabaseImmunizationChecker immunizationChecker;
@@ -45,13 +46,14 @@ public class ResourceReferenceUtilTest {
     @Test
     public void testPlanStatementReferencedAtCompoundStatementLevel() {
         final RCMRMT030101UKCompoundStatement compoundStatement
-            = unmarshallCompoundStatementElement("compound_statement_with_plan_statement.xml");
+            = unmarshallCompoundStatementElement("compound_statement_with_plan_and_request_statement.xml");
 
         List<Reference> references = new ArrayList<>();
         resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
 
-        assertThat(references).hasSize(THREE);
+        assertThat(references).hasSize(FOUR);
         assertThat(references.get(2).getReference()).isEqualTo("ProcedureRequest/3316531F-5705-424C-9E1A-EE694FB411B4");
+        assertThat(references.get(THREE).getReference()).isEqualTo("ReferralRequest/B4303C92-4D1C-11E3-A2DD-010000000161");
     }
 
     @Test

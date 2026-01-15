@@ -104,6 +104,33 @@
                     </Participant>
                 </PlanStatement>
             </component>
+            <component>
+              <RequestStatement classCode="OBS" moodCode="RQO">
+                <id root="B4303C92-4D1C-11E3-A2DD-010000000161"/>
+                <code code="8HV6." codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Reason Code">
+                  <translation code="183885007" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Reason Code 1"/>
+                  <translation code="8HV6.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Reason Code 2"/>
+                </code>
+                <text>Test request statement text
+                  New line</text>
+                <statusCode code="COMPLETE"/>
+                <effectiveTime>
+                  <center value="20050406" nullFlavor="NI"/>
+                </effectiveTime>
+                <availabilityTime value="20100101123000"/>
+                <priorityCode code="394848005" displayName="Normal" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"><originalText>Routine</originalText></priorityCode>
+                <responsibleParty typeCode="RESP">
+                  <agentRef classCode="AGNT">
+                    <id root="B8CA3710-4D1C-11E3-9E6B-010000001205"/>
+                  </agentRef>
+                </responsibleParty>
+                <Participant typeCode="PPRF" contextControlCode="OP">
+                  <agentRef classCode="AGNT">
+                    <id root="58341512-03F3-4C8E-B41C-A8FCA3886BBB"/>
+                  </agentRef>
+                </Participant>
+              </RequestStatement>
+            </component>
         </CompoundStatement>
     </component>
 </CompoundStatement>
