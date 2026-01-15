@@ -43,6 +43,18 @@ public class ResourceReferenceUtilTest {
     private ResourceReferenceUtil resourceReferenceUtil;
 
     @Test
+    public void testPlanStatementReferencedAtCompoundStatementLevel() {
+        final RCMRMT030101UKCompoundStatement compoundStatement
+            = unmarshallCompoundStatementElement("compound_statement_with_plan_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
+
+        assertThat(references).hasSize(THREE);
+        assertThat(references.get(2).getReference()).isEqualTo("ProcedureRequest/3316531F-5705-424C-9E1A-EE694FB411B4");
+    }
+
+    @Test
     public void testPlanStatementReferencedAtEhrCompositionLevel() {
         final RCMRMT030101UKEhrComposition ehrComposition
             = unmarshallEhrCompositionElement("ehr_composition_with_plan_statement.xml");
