@@ -34,13 +34,25 @@ public class ResourceReferenceUtilTest {
     private static final String XML_RESOURCES_COMPOSITION = "xml/ResourceReference/EhrComposition/";
     private static final String XML_RESOURCES_COMPOUND = "xml/ResourceReference/CompoundStatement/";
     private static final int TWO = 2;
-
+    private static final int THREE = 3;
 
     @Mock
     private DatabaseImmunizationChecker immunizationChecker;
 
     @InjectMocks
     private ResourceReferenceUtil resourceReferenceUtil;
+
+    @Test
+    public void testPlanStatementReferencedAtEhrCompositionLevel() {
+        final RCMRMT030101UKEhrComposition ehrComposition
+            = unmarshallEhrCompositionElement("ehr_composition_with_plan_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromEhrComposition(ehrComposition, references);
+
+        assertThat(references).hasSize(THREE);
+        assertThat(references.get(2).getReference()).isEqualTo("ProcedureRequest/3316531F-5705-424C-9E1A-EE694FB411B4");
+    }
 
     @Test
     public void testMedicationResourcesReferencedAtEhrCompositionLevel() {
