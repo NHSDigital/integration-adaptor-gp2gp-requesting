@@ -44,7 +44,19 @@ public class ResourceReferenceUtilTest {
     private ResourceReferenceUtil resourceReferenceUtil;
 
     @Test
-    public void testPlanStatementReferencedAtCompoundStatementLevel() {
+    public void testNarrativeStatementReferencedAtCompoundStatementLevel() {
+        final RCMRMT030101UKCompoundStatement compoundStatement
+            = unmarshallCompoundStatementElement("compound_statement_with_narrative_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
+
+        assertThat(references).hasSize(THREE);
+        assertThat(references.get(2).getReference()).isEqualTo("Observation/CA4AD477-C33B-4FE7-8417-A242BB3D23AF");
+    }
+
+    @Test
+    public void testPlanAndRequestStatementReferencedAtCompoundStatementLevel() {
         final RCMRMT030101UKCompoundStatement compoundStatement
             = unmarshallCompoundStatementElement("compound_statement_with_plan_and_request_statement.xml");
 
