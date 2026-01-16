@@ -33,6 +33,7 @@ public class ResourceReferenceUtilTest {
 
     private static final String XML_RESOURCES_COMPOSITION = "xml/ResourceReference/EhrComposition/";
     private static final String XML_RESOURCES_COMPOUND = "xml/ResourceReference/CompoundStatement/";
+    private static final int ONE = 1;
     private static final int TWO = 2;
     private static final int THREE = 3;
     private static final int FOUR = 4;
@@ -51,8 +52,8 @@ public class ResourceReferenceUtilTest {
         List<Reference> references = new ArrayList<>();
         resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
 
-        assertThat(references).hasSize(THREE);
-        assertThat(references.get(2).getReference()).isEqualTo("Observation/CA4AD477-C33B-4FE7-8417-A242BB3D23AF");
+        assertThat(references).hasSize(ONE);
+        assertThat(references.getFirst().getReference()).isEqualTo("Observation/07F5EAC0-90B5-11EC-B1E5-0800200C9A66");
     }
 
     @Test
