@@ -50,27 +50,29 @@ public class ResourceReferenceUtil {
 
     public void extractChildReferencesFromCompoundStatement(RCMRMT030101UKCompoundStatement compoundStatement,
                                                             List<Reference> entryReferences) {
-        if (compoundStatement != null) {
-            if (isDiagnosticReport(compoundStatement)) {
-                addDiagnosticReportEntry(compoundStatement, entryReferences);
-            } else {
 
-                compoundStatement.getComponent().forEach(component -> {
-                    addObservationStatementEntry(
-                        component.getObservationStatement(), entryReferences, compoundStatement);
-                    addPlanStatementEntry(component.getPlanStatement(), entryReferences);
-                    addRequestStatementEntry(component.getRequestStatement(), entryReferences);
-                    addLinkSetEntry(component.getLinkSet(), entryReferences);
-                    addMedicationEntry(component.getMedicationStatement(), entryReferences);
-
-                    if (isNotIgnoredResource(compoundStatement, entryReferences)) {
-                        addNarrativeStatementEntry(component.getNarrativeStatement(), entryReferences);
-                    }
-
-                    extractChildReferencesFromCompoundStatement(component.getCompoundStatement(), entryReferences);
-                });
-            }
+        if (compoundStatement == null) {
+            return;
         }
+
+        if (isDiagnosticReport(compoundStatement)) {
+            addDiagnosticReportEntry(compoundStatement, entryReferences);
+            return;
+        }
+
+        compoundStatement.getComponent().forEach(component -> {
+            addObservationStatementEntry(component.getObservationStatement(), entryReferences, compoundStatement);
+            addPlanStatementEntry(component.getPlanStatement(), entryReferences);
+            addRequestStatementEntry(component.getRequestStatement(), entryReferences);
+            addLinkSetEntry(component.getLinkSet(), entryReferences);
+            addMedicationEntry(component.getMedicationStatement(), entryReferences);
+
+            if (isNotIgnoredResource(compoundStatement, entryReferences)) {
+                addNarrativeStatementEntry(component.getNarrativeStatement(), entryReferences);
+            }
+
+            extractChildReferencesFromCompoundStatement(component.getCompoundStatement(), entryReferences);
+        });
     }
 
     public void extractChildReferencesFromTemplate(RCMRMT030101UKCompoundStatement compoundStatement,
