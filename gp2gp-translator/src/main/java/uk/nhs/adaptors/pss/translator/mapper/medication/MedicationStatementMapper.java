@@ -56,7 +56,7 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBING_AGENCY_SYSTEM
             = "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1";
 
-    private static final String PRESCRIPTION = "NHS prescription";
+
 
     private static final String MS_SUFFIX = "-MS";
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
@@ -67,6 +67,11 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY = "Prescribed by previous practice";
     private static final String OTC_SALE = "OTC Sale";
     private static final String COMPLETE = "COMPLETE";
+    private static final String PRESCRIPTION_BY_ANOTHER_ORGANISATION = "Prescription by another organisation";
+    private static final String PERSONAL_ADMINISTRATION = "Personal Administration";
+    private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
+    private static final String NHS_PRESCRIPTION = "NHS Prescription";
+    private static final String PRIVATE_PRESCRIPTION = "Private Prescription";
 
     private final MedicationMapper medicationMapper;
     private final ConfidentialityService confidentialityService;
@@ -213,15 +218,24 @@ public class MedicationStatementMapper {
         String code;
         String display;
 
-        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName) || OTC_SALE.equals(displayName)) {
+        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName)
+            || OTC_SALE.equals(displayName)
+            || PERSONAL_ADMINISTRATION.equals(displayName)
+            || PRESCRIPTION_BY_ANOTHER_ORGANISATION.equals(displayName)) {
             code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
             display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
         } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(displayName)) {
             code = PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE;
             display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
-        } else {
+        } else if (NHS_PRESCRIPTION.equals(displayName)
+                   || PRIVATE_PRESCRIPTION.equals(displayName)
+                   || ACBS_PRESCRIPTION.equals(displayName)) {
             code = PRESCRIBED_CODE;
             display = PRESCRIBED_DISPLAY;
+        } else {
+            throw new IllegalArgumentException(
+                "Unsupported prescribing agency displayName: " + displayName
+            );
         }
 
         return buildExtension(code, display);

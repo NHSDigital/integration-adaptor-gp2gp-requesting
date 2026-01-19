@@ -72,6 +72,7 @@ class MedicationStatementMapperTest {
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
     private static final String OTC_SALE = "OTC Sale";
+    private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
 
     @Mock
     private MedicationMapper medicationMapper;
@@ -234,6 +235,35 @@ class MedicationStatementMapperTest {
             () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
             () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribeResourceWithACBSPrescription_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(ACBS_PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
 
