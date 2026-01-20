@@ -56,8 +56,6 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBING_AGENCY_SYSTEM
             = "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1";
 
-
-
     private static final String MS_SUFFIX = "-MS";
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
