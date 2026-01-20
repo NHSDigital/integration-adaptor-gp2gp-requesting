@@ -70,6 +70,7 @@ public class MedicationStatementMapper {
     private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
     private static final String NHS_PRESCRIPTION = "NHS Prescription";
     private static final String PRIVATE_PRESCRIPTION = "Private Prescription";
+    private static final String PAST_MEDICATION = "Past medication";
 
     private final MedicationMapper medicationMapper;
     private final ConfidentialityService confidentialityService;
@@ -227,7 +228,8 @@ public class MedicationStatementMapper {
             display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
         } else if (NHS_PRESCRIPTION.equals(displayName)
                    || PRIVATE_PRESCRIPTION.equals(displayName)
-                   || ACBS_PRESCRIPTION.equals(displayName)) {
+                   || ACBS_PRESCRIPTION.equals(displayName)
+                   || PAST_MEDICATION.equals(displayName)) {
             code = PRESCRIBED_CODE;
             display = PRESCRIBED_DISPLAY;
         } else {
