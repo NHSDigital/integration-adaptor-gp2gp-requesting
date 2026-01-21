@@ -7,6 +7,7 @@ import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementSt
 import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken.UNK;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -111,18 +112,16 @@ class MedicationStatementMapperTest {
             .findFirst();
         authorise.get().getCode().setDisplayName("unknown EhrSupplyType");
 
-        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
-            ehrExtract,
-            ehrComposition,
-            medicationStatement,
-            authorise.get(),
-            PRACTISE_CODE,
-            new DateTimeType());
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                                           () -> medicationStatementMapper.mapToMedicationStatement(
+                                               ehrExtract,
+                                               ehrComposition,
+                                               medicationStatement,
+                                               authorise.get(),
+                                               PRACTISE_CODE,
+                                               new DateTimeType()));
 
-        assertAll(
-            () -> assertEquals(PRESCRIBED_CODE, ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
-            () -> assertEquals(PRESCRIBED_DISPLAY,
-                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+        assertThat(exception.getMessage()).contains("Unsupported prescribing agency displayName: unknown EhrSupplyType");
     }
 
     @Test
@@ -138,6 +137,34 @@ class MedicationStatementMapperTest {
             .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
             .findFirst();
         authorise.get().getCode().setDisplayName(PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE, ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribedByLowercaseNhsResource_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PRESCRIPTION.toLowerCase());
 
         final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
             ehrExtract,

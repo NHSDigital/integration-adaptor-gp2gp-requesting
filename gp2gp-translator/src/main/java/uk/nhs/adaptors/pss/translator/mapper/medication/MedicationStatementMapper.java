@@ -217,19 +217,19 @@ public class MedicationStatementMapper {
         String code;
         String display;
 
-        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName)
-            || OTC_SALE.equals(displayName)
-            || PERSONAL_ADMINISTRATION.equals(displayName)
-            || PRESCRIPTION_BY_ANOTHER_ORGANISATION.equals(displayName)) {
+        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equalsIgnoreCase(displayName)
+            || OTC_SALE.equalsIgnoreCase(displayName)
+            || PERSONAL_ADMINISTRATION.equalsIgnoreCase(displayName)
+            || PRESCRIPTION_BY_ANOTHER_ORGANISATION.equalsIgnoreCase(displayName)) {
             code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
             display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
-        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(displayName)) {
+        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equalsIgnoreCase(displayName)) {
             code = PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE;
             display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
-        } else if (NHS_PRESCRIPTION.equals(displayName)
-                   || PRIVATE_PRESCRIPTION.equals(displayName)
-                   || ACBS_PRESCRIPTION.equals(displayName)
-                   || PAST_MEDICATION.equals(displayName)) {
+        } else if (NHS_PRESCRIPTION.equalsIgnoreCase(displayName)
+                   || PRIVATE_PRESCRIPTION.equalsIgnoreCase(displayName)
+                   || ACBS_PRESCRIPTION.equalsIgnoreCase(displayName)
+                   || PAST_MEDICATION.equalsIgnoreCase(displayName)) {
             code = PRESCRIBED_CODE;
             display = PRESCRIBED_DISPLAY;
         } else {
