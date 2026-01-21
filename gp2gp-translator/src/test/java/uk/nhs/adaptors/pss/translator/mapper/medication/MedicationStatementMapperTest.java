@@ -123,7 +123,7 @@ class MedicationStatementMapperTest {
                                                PRACTISE_CODE,
                                                new DateTimeType()));
 
-        assertThat(exception.getMessage()).contains("Unsupported prescribing agency displayName: unknown EhrSupplyType");
+        assertThat(exception.getMessage()).contains("Unsupported prescribing agency: unknown EhrSupplyType");
     }
 
     @Test

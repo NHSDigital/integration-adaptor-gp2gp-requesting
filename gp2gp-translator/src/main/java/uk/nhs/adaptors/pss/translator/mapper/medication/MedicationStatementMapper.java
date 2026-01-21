@@ -214,31 +214,16 @@ public class MedicationStatementMapper {
     private Extension generatePrescribingAgencyExtension(RCMRMT030101UKAuthorise supplyAuthorise) {
         String displayName = supplyAuthorise.getCode().getDisplayName();
 
-        String code;
-        String display;
-
-        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equalsIgnoreCase(displayName)
-            || OTC_SALE.equalsIgnoreCase(displayName)
-            || PERSONAL_ADMINISTRATION.equalsIgnoreCase(displayName)
-            || PRESCRIPTION_BY_ANOTHER_ORGANISATION.equalsIgnoreCase(displayName)) {
-            code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
-            display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
-        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equalsIgnoreCase(displayName)) {
-            code = PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE;
-            display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
-        } else if (NHS_PRESCRIPTION.equalsIgnoreCase(displayName)
-                   || PRIVATE_PRESCRIPTION.equalsIgnoreCase(displayName)
-                   || ACBS_PRESCRIPTION.equalsIgnoreCase(displayName)
-                   || PAST_MEDICATION.equalsIgnoreCase(displayName)) {
-            code = PRESCRIBED_CODE;
-            display = PRESCRIBED_DISPLAY;
-        } else {
-            throw new IllegalArgumentException(
-                "Unsupported prescribing agency displayName: " + displayName
-            );
-        }
-
-        return buildExtension(code, display);
+        return switch (displayName) {
+            case String display when isPrescribedByAnotherOrganisation(display)
+                -> buildExtension(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE, PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY);
+            case String display when isPrescribedByPreviousPractice(display)
+                -> buildExtension(PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE, PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY);
+            case String display when isPrescribedAtThisPractice(display)
+                -> buildExtension(PRESCRIBED_CODE, PRESCRIBED_DISPLAY);
+            default
+                -> throw new IllegalArgumentException("Unsupported prescribing agency: " + displayName);
+        };
     }
 
     private Extension buildExtension(String code, String display) {
@@ -252,5 +237,23 @@ public class MedicationStatementMapper {
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().hasId()
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().getId().hasRoot()
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().getId().getRoot().equals(id);
+    }
+
+    private static Boolean isPrescribedByAnotherOrganisation(String display) {
+        return display.equalsIgnoreCase(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY)
+                || display.equalsIgnoreCase(OTC_SALE)
+                || display.equalsIgnoreCase(PERSONAL_ADMINISTRATION)
+                || display.equalsIgnoreCase(PRESCRIPTION_BY_ANOTHER_ORGANISATION);
+    }
+
+    private static boolean isPrescribedByPreviousPractice(String display) {
+        return display.equalsIgnoreCase(PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY);
+    }
+
+    private static boolean isPrescribedAtThisPractice(String display) {
+        return display.equalsIgnoreCase(NHS_PRESCRIPTION)
+                || display.equalsIgnoreCase(PRIVATE_PRESCRIPTION)
+                || display.equalsIgnoreCase(ACBS_PRESCRIPTION)
+                || display.equalsIgnoreCase(PAST_MEDICATION);
     }
 }
