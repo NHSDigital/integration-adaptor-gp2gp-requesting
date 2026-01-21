@@ -219,7 +219,7 @@ public class MedicationStatementMapper {
                 -> buildExtension(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE, PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY);
             case String display when isPrescribedByPreviousPractice(display)
                 -> buildExtension(PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE, PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY);
-            case String display when isPrescribedAtThisPractice(display)
+            case String s when isPrescribedAtThisPractice(s)
                 -> buildExtension(PRESCRIBED_CODE, PRESCRIBED_DISPLAY);
             default
                 -> throw new IllegalArgumentException("Unsupported prescribing agency: " + displayName);
