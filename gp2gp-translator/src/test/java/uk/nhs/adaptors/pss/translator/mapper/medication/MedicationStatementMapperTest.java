@@ -76,6 +76,7 @@ class MedicationStatementMapperTest {
     private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
     private static final String PRIVATE_PRESCRIPTION = "Private Prescription";
     private static final String PAST_MEDICATION = "Past medication";
+    private static final String PERSONAL_ADMINISTRATION = "Personal Administration";
 
     @Mock
     private MedicationMapper medicationMapper;
@@ -122,6 +123,35 @@ class MedicationStatementMapperTest {
                                                new DateTimeType()));
 
         assertThat(exception.getMessage()).contains("Unsupported prescribing agency displayName: unknown EhrSupplyType");
+    }
+
+    @Test
+    void When_MappingPrescribedByPersonalAdministration_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PERSONAL_ADMINISTRATION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
 
     @Test
