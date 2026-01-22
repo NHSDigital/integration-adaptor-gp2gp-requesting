@@ -132,3 +132,8 @@ pitest {
 pitestGithub {
     deleteOldSummaries = true
 }
+
+checkstyle {
+    configFile file('../config/checkstyle/checkstyle.xml')
+    toolVersion '13.0.0'
+}

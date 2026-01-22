@@ -7,6 +7,7 @@ import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementSt
 import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken.UNK;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -72,6 +73,11 @@ class MedicationStatementMapperTest {
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
     private static final String OTC_SALE = "OTC Sale";
+    private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
+    private static final String PRIVATE_PRESCRIPTION = "Private Prescription";
+    private static final String PAST_MEDICATION = "Past medication";
+    private static final String PERSONAL_ADMINISTRATION = "Personal Administration";
+    private static final String PRESCRIPTION_BY_ANOTHER_ORGANISATION = "Prescription by another organisation";
 
     @Mock
     private MedicationMapper medicationMapper;
@@ -108,6 +114,32 @@ class MedicationStatementMapperTest {
             .findFirst();
         authorise.get().getCode().setDisplayName("unknown EhrSupplyType");
 
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                                           () -> medicationStatementMapper.mapToMedicationStatement(
+                                               ehrExtract,
+                                               ehrComposition,
+                                               medicationStatement,
+                                               authorise.get(),
+                                               PRACTISE_CODE,
+                                               new DateTimeType()));
+
+        assertThat(exception.getMessage()).contains("Unsupported prescribing agency: unknown EhrSupplyType");
+    }
+
+    @Test
+    void When_MappingPrescribedByAnotherOrganization_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PRESCRIPTION_BY_ANOTHER_ORGANISATION);
+
         final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
             ehrExtract,
             ehrComposition,
@@ -117,8 +149,38 @@ class MedicationStatementMapperTest {
             new DateTimeType());
 
         assertAll(
-            () -> assertEquals(PRESCRIBED_CODE, ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
-            () -> assertEquals(PRESCRIBED_DISPLAY,
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribedByPersonalAdministration_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PERSONAL_ADMINISTRATION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
 
@@ -135,6 +197,34 @@ class MedicationStatementMapperTest {
             .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
             .findFirst();
         authorise.get().getCode().setDisplayName(PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE, ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribedByLowercaseNhsResource_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PRESCRIPTION.toLowerCase());
 
         final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
             ehrExtract,
@@ -234,6 +324,93 @@ class MedicationStatementMapperTest {
             () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
             () -> assertEquals(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribeResourceWithACBSPrescription_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(ACBS_PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribeResourceWithPastMedication_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PAST_MEDICATION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
+    }
+
+    @Test
+    void When_MappingPrescribeResourceWithPrivatePrescription_Expect_AllFieldsToBeMappedCorrectly() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName(PRIVATE_PRESCRIPTION);
+
+        final MedicationStatement result = medicationStatementMapper.mapToMedicationStatement(
+            ehrExtract,
+            ehrComposition,
+            medicationStatement,
+            authorise.get(),
+            PRACTISE_CODE,
+            new DateTimeType());
+
+        assertAll(
+            () -> assertEquals(PRESCRIBED_CODE,
+                               ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getCode()),
+            () -> assertEquals(PRESCRIBED_DISPLAY,
                                ((CodeableConcept) result.getExtension().get(0).getValue()).getCoding().get(0).getDisplay()));
     }
 
