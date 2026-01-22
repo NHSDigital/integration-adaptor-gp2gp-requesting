@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+* Updated the Requesting Adaptor to map newly granular EHRSupplyType values from EMIS into the corresponding GPC JSON record fields.
+
 ### Added
 * Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
 * Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent
