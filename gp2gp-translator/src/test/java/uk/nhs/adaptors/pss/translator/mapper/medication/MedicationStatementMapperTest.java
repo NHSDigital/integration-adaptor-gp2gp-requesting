@@ -7,6 +7,7 @@ import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementSt
 import static org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken.UNK;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -101,6 +102,32 @@ class MedicationStatementMapperTest {
                 )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
             }
         }
+    }
+
+    @Test
+    void When_MappingPrescribedWithUnknownEhrSupplyType_Expect_MedStatementMappedToDefaultEhrSupplyType() throws JAXBException {
+        final File file = FileFactory.getXmlFileFor("MedicationStatement", "ehrExtract3.xml");
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+        final RCMRMT030101UKEhrComposition ehrComposition = GET_EHR_COMPOSITION.apply(ehrExtract);
+        final RCMRMT030101UKMedicationStatement medicationStatement =
+            unmarshallMedicationStatement("medicationStatementAuthoriseAllOptionals_MedicationStatement.xml");
+        final Optional<RCMRMT030101UKAuthorise> authorise = medicationStatement.getComponent()
+            .stream()
+            .filter(RCMRMT030101UKComponent2::hasEhrSupplyAuthorise)
+            .map(RCMRMT030101UKComponent2::getEhrSupplyAuthorise)
+            .findFirst();
+        authorise.get().getCode().setDisplayName("unknown EhrSupplyType");
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                                           () -> medicationStatementMapper.mapToMedicationStatement(
+                                               ehrExtract,
+                                               ehrComposition,
+                                               medicationStatement,
+                                               authorise.get(),
+                                               PRACTISE_CODE,
+                                               new DateTimeType()));
+
+        assertThat(exception.getMessage()).contains("Unsupported prescribing agency: unknown EhrSupplyType");
     }
 
     @ParameterizedTest(name = "EhrSupplyType \"{0}\" maps to code \"{1}\" and display \"{2}\"")
@@ -552,9 +579,6 @@ class MedicationStatementMapperTest {
 
     private static Stream<Arguments> ehrSupplyTypeMappings() {
         return Stream.of(
-            Arguments.of("unknown EhrSupplyType",
-                         PRESCRIBED_CODE,
-                         PRESCRIBED_DISPLAY),
             Arguments.of(PRESCRIPTION,
                          PRESCRIBED_CODE,
                          PRESCRIBED_DISPLAY),
