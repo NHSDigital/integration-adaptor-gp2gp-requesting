@@ -2,6 +2,7 @@ package uk.nhs.adaptors.pss.translator.storage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LocalStorageService implements StorageService {
 
@@ -9,7 +10,7 @@ public class LocalStorageService implements StorageService {
     private final Map<String, byte[]> storage;
 
     public LocalStorageService() {
-        storage = new HashMap<>();
+        storage = new ConcurrentHashMap<>();
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {

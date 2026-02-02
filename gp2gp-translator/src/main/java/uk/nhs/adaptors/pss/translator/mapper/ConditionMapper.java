@@ -11,11 +11,11 @@ import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildReferenceExt
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -408,7 +408,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
 
     private Map<String, String> getMedicationStatementIdMapping(List<RCMRMT030101UKMedicationStatement> medicationStatements) {
 
-        Map<String, String> statementToRequestMap = new HashMap<>();
+        Map<String, String> statementToRequestMap = new ConcurrentHashMap<>();
 
         medicationStatements.forEach(medicationStatement -> {
             var medicationStatementId = medicationStatement.getId().getRoot();
