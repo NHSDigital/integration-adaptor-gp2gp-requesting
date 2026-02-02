@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +18,7 @@ import uk.nhs.adaptors.gp2gpmhstestenv.mockspinemhsoutbound.model.OutboundMessag
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class JournalService {
 
-    private static final Map<String, List<OutboundMessage>> REQUEST_JOURNALS_MAP = new HashMap<>();
+    private static final Map<String, List<OutboundMessage>> REQUEST_JOURNALS_MAP = new ConcurrentHashMap<>();
 
     public Map<String, List<OutboundMessage>> getRequestJournal() {
         return REQUEST_JOURNALS_MAP;

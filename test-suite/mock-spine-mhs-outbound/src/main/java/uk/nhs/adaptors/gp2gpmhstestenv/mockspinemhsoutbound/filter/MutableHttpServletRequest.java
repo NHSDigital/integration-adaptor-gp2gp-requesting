@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
@@ -16,7 +17,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     public MutableHttpServletRequest(HttpServletRequest request) {
         super(request);
-        this.customHeaders = new HashMap<>();
+        this.customHeaders = new ConcurrentHashMap<>();
     }
 
     @Override
