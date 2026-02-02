@@ -1,6 +1,5 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
