@@ -125,7 +125,7 @@ services:
       - nia-ps
 
   ps_db:
-    image: postgres:14.0
+    image: postgres:16.0
     ports:
       - "${PS_DB_PORT}:5432"
     environment:
