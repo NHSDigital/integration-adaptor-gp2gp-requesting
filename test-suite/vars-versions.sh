@@ -8,6 +8,6 @@ export PS_FACADE_VERSION="nhsdev/nia-ps-facade:1.0.0"
 export PS_DB_MIGRATION_VERSION="nhsdev/nia-ps-db-migration:1.0.0"
 
 export ACTIVEMQ_VERSION="nhsdev/nia-ps-activemq:0.1-amd64" # has an arm64 and amd64 version
-export POSTGRES_VERSION="postgres:14.0"
+export POSTGRES_VERSION="postgres:16.0"
 export DYNAMODB_VERSION="nhsdev/nia-dynamodb-local:1.0.3"
 export REDIS_VERSION="redis"
