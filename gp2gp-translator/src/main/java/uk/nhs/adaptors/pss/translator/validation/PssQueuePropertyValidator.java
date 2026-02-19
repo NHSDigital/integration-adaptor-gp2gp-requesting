@@ -42,6 +42,12 @@ public class PssQueuePropertyValidator
     private ArrayList<String> validateAgainstRuleset(TreeMap<String, String> environmentVariables) {
         ArrayList<String> messages = new ArrayList<>();
 
+        for (var variable : environmentVariables.entrySet()) {
+            if (StringUtils.isBlank(variable.getValue())) {
+                messages.add(String.format(MISSING_ENV_VARIABLE_MESSAGE, variable.getKey()));
+            }
+        }
+
         return messages;
     }
 

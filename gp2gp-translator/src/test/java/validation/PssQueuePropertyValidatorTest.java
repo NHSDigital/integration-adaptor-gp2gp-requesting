@@ -51,26 +51,27 @@ public class PssQueuePropertyValidatorTest {
                     );
                 });
     }
-//
-//    @Test
-//    void When_ConfigurationPropertiesNotProvided_Expect_ContextNotCreated() {
-//        contextRunner
-//                .withPropertyValues(
-//                        buildPropertyValue(GP2GP_STORAGE_TYPE, ""),
-//                        buildPropertyValue(GP2GP_STORAGE_CONTAINER_NAME, ""),
-//                        buildPropertyValue(GP2GP_AZURE_STORAGE_CONNECTION_STRING, "")
-//                )
-//                .run(context -> {
-//                    assertThat(context).hasFailed();
-//                    var startupFailure = context.getStartupFailure();
-//
-//                    assertThat(startupFailure)
-//                            .rootCause()
-//                            .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_TYPE")
-//                            .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_CONTAINER_NAME");
-//                });
-//    }
-//
+
+    @Test
+    void When_ConfigurationPropertiesNotProvided_Expect_ContextNotCreated() {
+        contextRunner
+                .withPropertyValues(
+                        buildPropertyValue(PS_AMQP_BROKER, ""),
+                        buildPropertyValue(PS_AMQP_USERNAME, ""),
+                        buildPropertyValue(PS_AMQP_PASSWORD, "")
+                )
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    var startupFailure = context.getStartupFailure();
+
+                    assertThat(startupFailure)
+                            .rootCause()
+                            .hasMessageContaining("Env variable not provided: PS_AMQP_BROKER")
+                            .hasMessageContaining("Env variable not provided: PS_AMQP_USERNAME")
+                            .hasMessageContaining("Env variable not provided: PS_AMQP_PASSWORD");
+                });
+    }
+
 //    @Test
 //    void When_StorageTypeIsNotAzureAndConnectionStringIsEmpty_Expect_ContextCreated() {
 //        contextRunner
