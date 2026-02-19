@@ -72,46 +72,6 @@ public class PssQueuePropertyValidatorTest {
                 });
     }
 
-//    @Test
-//    void When_StorageTypeIsNotAzureAndConnectionStringIsEmpty_Expect_ContextCreated() {
-//        contextRunner
-//                .withPropertyValues(
-//                        buildPropertyValue(GP2GP_STORAGE_TYPE, VALID_GP2GP_STORAGE_TYPE),
-//                        buildPropertyValue(GP2GP_STORAGE_CONTAINER_NAME, VALID_GP2GP_STORAGE_CONTAINER_NAME),
-//                        buildPropertyValue(GP2GP_AZURE_STORAGE_CONNECTION_STRING, "")
-//                )
-//                .run(context -> {
-//                    var storageConnectorConfiguration = context.getBean(StorageConnectorConfiguration.class);
-//
-//                    assertAll(
-//                            () -> assertThat(storageConnectorConfiguration.getType())
-//                                    .isEqualTo(VALID_GP2GP_STORAGE_TYPE),
-//                            () -> assertThat(storageConnectorConfiguration.getContainerName())
-//                                    .isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
-//                            () -> assertThat(storageConnectorConfiguration.getAzureConnectionString())
-//                                    .isEmpty()
-//                    );
-//                });
-//    }
-//
-//    @Test
-//    void When_StorageTypeIsAzureAndConnectionStringIsEmpty_Expect_IsNotContextCreated() {
-//        contextRunner
-//                .withPropertyValues(
-//                        buildPropertyValue(GP2GP_STORAGE_TYPE, "Azure"),
-//                        buildPropertyValue(GP2GP_STORAGE_CONTAINER_NAME, VALID_GP2GP_STORAGE_CONTAINER_NAME),
-//                        buildPropertyValue(GP2GP_AZURE_STORAGE_CONNECTION_STRING, "")
-//                )
-//                .run(context -> {
-//                    assertThat(context).hasFailed();
-//                    var startupFailure = context.getStartupFailure();
-//
-//                    assertThat(startupFailure)
-//                            .rootCause()
-//                            .hasMessageContaining("Env variable not provided: GP2GP_AZURE_STORAGE_CONNECTION_STRING");
-//                });
-//    }
-
     @Contract(pure = true)
     private static @NotNull String buildPropertyValue(String propertyName, String value) {
         return String.format("amqp.pss.%s=%s", propertyName, value);
