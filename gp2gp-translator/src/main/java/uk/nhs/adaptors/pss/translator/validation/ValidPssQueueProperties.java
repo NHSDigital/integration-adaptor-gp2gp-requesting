@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = PssQueuePropertyValidator.class)
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidStorageConnectorConfiguration {
+public @interface ValidPssQueueProperties {
     String message() default "Invalid PSS Queue Configuration";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
