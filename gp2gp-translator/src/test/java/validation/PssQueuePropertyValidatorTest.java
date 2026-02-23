@@ -72,6 +72,25 @@ public class PssQueuePropertyValidatorTest {
                 });
     }
 
+    @Test
+    void When_SingleConfigurationPropertyNotProvided_Expect_ContextNotCreated() {
+        contextRunner
+                .withPropertyValues(
+                        buildPropertyValue(PS_AMQP_BROKER, VALID_PS_AMQP_BROKER),
+                        buildPropertyValue(PS_AMQP_USERNAME, VALID_PS_AMQP_USERNAME),
+                        buildPropertyValue(PS_AMQP_PASSWORD, "")
+                )
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    var startupFailure = context.getStartupFailure();
+
+                    assertThat(startupFailure)
+                            .rootCause()
+                            .hasMessageContaining("Env variable not provided: PS_AMQP_PASSWORD");
+                });
+    }
+
+
     @Contract(pure = true)
     private static @NotNull String buildPropertyValue(String propertyName, String value) {
         return String.format("amqp.pss.%s=%s", propertyName, value);
