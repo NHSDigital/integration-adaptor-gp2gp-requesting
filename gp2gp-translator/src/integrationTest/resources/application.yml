@@ -30,8 +30,8 @@ amqp:
   mhs:
     queueName: ${MHS_QUEUE_NAME:mhsQueue}
     broker: ${MHS_AMQP_BROKER:amqp://localhost:5672}
-    username: ${MHS_AMQP_USERNAME:}
-    password: ${MHS_AMQP_PASSWORD:}
+    username: ${MHS_AMQP_USERNAME:admin}
+    password: ${MHS_AMQP_PASSWORD:admin}
     maxRedeliveries: ${MHS_AMQP_MAX_REDELIVERIES:3}
     dlqPrefix: ${MHS_DLQ_PREFIX:DLQ.}
   gp2gp:
