@@ -66,27 +66,6 @@ public class StorageServiceValidatorTest {
                 });
     }
 
-//    @Test
-//    void When_ConfigurationContainsAllPropertiesAndTypeIsS3_Expect_ContextIsNotCreated() {
-//        contextRunner
-//                .withPropertyValues(
-//                        buildPropertyValue(STORAGE_TYPE, STORAGE_TYPE_S3),
-//                        buildPropertyValue(STORAGE_REGION, VALID_STORAGE_REGION),
-//                        buildPropertyValue(STORAGE_CONTAINER_NAME, VALID_STORAGE_CONTAINER_NAME),
-//                        buildPropertyValue(STORAGE_REFERENCE, VALID_STORAGE_REFERENCE),
-//                        buildPropertyValue(STORAGE_SECRET, VALID_STORAGE_SECRET)
-//                )
-//                .run(context -> {
-//                    assertThat(context).hasFailed();
-//                    var startupFailure = context.getStartupFailure();
-//
-//                    assertThat(startupFailure)
-//                            .rootCause()
-//                            .hasMessageContaining("Env variable not required when using storage type S3: STORAGE_REFERENCE")
-//                            .hasMessageContaining("Env variable not required when using storage type S3: STORAGE_SECRET");
-//                });
-//    }
-
     @Test
     void When_ConfigurationHasMissingPropertiesAndTypeIsS3_Expect_ContextIsNotCreated() {
         contextRunner
@@ -107,30 +86,6 @@ public class StorageServiceValidatorTest {
                             .hasMessageContaining("Env variable not provided: STORAGE_CONTAINER_NAME");
                 });
     }
-
-//    @Test
-//    void When_ConfigurationHasAllIncorrectPropertiesAndTypeIsS3_Expect_ContextIsNotCreated() {
-//        contextRunner
-//                .withPropertyValues(
-//                        buildPropertyValue(STORAGE_TYPE, STORAGE_TYPE_S3),
-//                        buildPropertyValue(STORAGE_REGION, StringUtils.EMPTY),
-//                        buildPropertyValue(STORAGE_CONTAINER_NAME, StringUtils.EMPTY),
-//                        buildPropertyValue(STORAGE_REFERENCE, VALID_STORAGE_REFERENCE),
-//                        buildPropertyValue(STORAGE_SECRET, VALID_STORAGE_SECRET)
-//                )
-//                .run(context -> {
-//                    assertThat(context).hasFailed();
-//                    var startupFailure = context.getStartupFailure();
-//
-//                    assertThat(startupFailure)
-//                            .rootCause()
-//                            .hasMessageContaining("Env variable not provided: STORAGE_REGION")
-//                            .hasMessageContaining("Env variable not provided: STORAGE_CONTAINER_NAME")
-//                            .hasMessageContaining("Env variable not required when using storage type S3: STORAGE_REFERENCE")
-//                            .hasMessageContaining("Env variable not required when using storage type S3: STORAGE_SECRET");
-//                });
-//    }
-
 
     @Test
     void When_ConfigurationContainsAzureRequiredProperties_Expect_IsContextIsCreated() {

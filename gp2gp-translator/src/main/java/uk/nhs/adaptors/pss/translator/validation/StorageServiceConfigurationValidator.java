@@ -18,7 +18,6 @@ public class StorageServiceConfigurationValidator
     private static final String MISSING_ENV_VARIABLE_MESSAGE = "Env variable not provided: %s";
 
     enum Rule {
-        OPTIONAL,
         REQUIRED,
         OMIT
     }
@@ -82,8 +81,6 @@ public class StorageServiceConfigurationValidator
         if (storageType.equalsIgnoreCase("S3")) {
             ruleset.add(new ValidationRule(STORAGE_REGION, Rule.REQUIRED));
             ruleset.add(new ValidationRule(STORAGE_CONTAINER_NAME, Rule.REQUIRED));
-//            ruleset.add(new ValidationRule(STORAGE_REFERENCE, Rule.OMIT));
-//            ruleset.add(new ValidationRule(STORAGE_SECRET, Rule.OMIT));
         }
         if (storageType.equalsIgnoreCase("Azure")) {
             ruleset.add(new ValidationRule(STORAGE_REGION, Rule.OMIT));
