@@ -22,8 +22,6 @@ public class StorageServiceValidatorTest {
     private static final String VALID_STORAGE_REFERENCE = "some-reference";
     private static final String VALID_STORAGE_SECRET = "some-secret";
 
-    private static final String EMPTY_STRING = "";
-
     // Configuration fields
     private static final String STORAGE_TYPE = "type";
     private static final String STORAGE_REGION = "region";
