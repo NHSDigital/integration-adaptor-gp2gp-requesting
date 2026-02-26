@@ -2,6 +2,8 @@ package uk.nhs.adaptors.pss.translator.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.pss.translator.storage.StorageServiceConfiguration;
 
@@ -21,11 +23,11 @@ public class StorageServiceConfigurationValidator
         OMIT
     }
 
-    private final String STORAGE_TYPE = "STORAGE_TYPE";
-    private final String STORAGE_REGION = "STORAGE_REGION";
-    private final String STORAGE_CONTAINER_NAME = "STORAGE_CONTAINER_NAME";
-    private final String STORAGE_REFERENCE = "STORAGE_REFERENCE";
-    private final String STORAGE_SECRET = "STORAGE_SECRET";
+    private static final String STORAGE_TYPE = "STORAGE_TYPE";
+    private static final String STORAGE_REGION = "STORAGE_REGION";
+    private static final String STORAGE_CONTAINER_NAME = "STORAGE_CONTAINER_NAME";
+    private static final String STORAGE_REFERENCE = "STORAGE_REFERENCE";
+    private static final String STORAGE_SECRET = "STORAGE_SECRET";
 
     @Override
     public boolean isValid(StorageServiceConfiguration config, ConstraintValidatorContext context) {
@@ -60,13 +62,13 @@ public class StorageServiceConfigurationValidator
         ArrayList<ValidationRule> ruleset = this.getRuleset(environmentVariables.get(STORAGE_TYPE));
 
         for (var config : ruleset) {
-            String configValue = environmentVariables.get(config.name);
-            if (config.rule == Rule.OMIT && !configValue.isBlank()) {
-                messages.add(String.format(OMIT_ENV_VARIABLE_MESSAGE, environmentVariables.get(STORAGE_TYPE), config.name));
+            String configValue = environmentVariables.get(config.getName());
+            if (config.getRule() == Rule.OMIT && !configValue.isBlank()) {
+                messages.add(String.format(OMIT_ENV_VARIABLE_MESSAGE, environmentVariables.get(STORAGE_TYPE), config.getName()));
                 continue;
             }
-            if (config.rule == Rule.REQUIRED && configValue.isBlank()) {
-                messages.add(String.format(MISSING_ENV_VARIABLE_MESSAGE, config.name));
+            if (config.getRule() == Rule.REQUIRED && configValue.isBlank()) {
+                messages.add(String.format(MISSING_ENV_VARIABLE_MESSAGE, config.getName()));
             }
         }
 
@@ -97,9 +99,11 @@ public class StorageServiceConfigurationValidator
         context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
     }
 
+    @Getter
+    @Setter
     class ValidationRule {
-        String name;
-        Rule rule;
+        private String name;
+        private Rule rule;
 
         ValidationRule(String configuration, Rule rule) {
             this.name = configuration;
