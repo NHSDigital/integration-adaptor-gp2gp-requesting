@@ -34,7 +34,7 @@ jobs:
           cp -r ./${{ inputs.path }}/build/reports ./artifacts
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
           name: '${{ inputs.name }} Checkstyle Report'
@@ -68,7 +68,7 @@ jobs:
           cp -r ./${{ inputs.path }}/build/reports ./artifacts
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
           name: '${{ inputs.name }} Spotbugs Report'
@@ -103,7 +103,7 @@ jobs:
           cp -r ./${{ inputs.path }}/build/reports ./artifacts
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
           name: '${{ inputs.name }} Unit Test Report'
@@ -210,7 +210,7 @@ jobs:
           cp -r ./scripts/logs ./artifacts
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
           name: '${{ inputs.name }} Integration Test Report & Docker Logs'
