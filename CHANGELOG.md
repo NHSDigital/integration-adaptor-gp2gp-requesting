@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 * Updated the Requesting Adaptor to map newly granular EHRSupplyType values from EMIS into the corresponding GPC JSON record fields.
+* Corrected the EHR Extract interaction identifier used by timeout handling from RCMR_IN030000UK06 to RCMR_IN030000UK07.
 
 ### Added
 * Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
