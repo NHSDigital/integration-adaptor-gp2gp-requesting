@@ -14,7 +14,6 @@
     <modifyDataType tableName="patient_attachment_log" columnName="mid" newDataType="varchar(1024)"/>
     <modifyDataType tableName="patient_attachment_log" columnName="filename" newDataType="varchar(1024)"/>
     <modifyDataType tableName="patient_attachment_log" columnName="parent_mid" newDataType="varchar(1024)"/>
-    <modifyDataType tableName="patient_attachment_log" columnName="content_type" newDataType="varchar(1024)"/>
 </changeSet>
 
  </databaseChangeLog>
