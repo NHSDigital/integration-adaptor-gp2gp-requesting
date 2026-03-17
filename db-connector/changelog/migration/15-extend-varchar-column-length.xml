@@ -1,0 +1,20 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+	http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+	http://www.liquibase.org/xml/ns/dbchangelog-ext
+	http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/pro
+	http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd">
+
+<changeSet id="5" author="Ole">
+    <modifyDataType tableName="patient_attachment_log" columnName="mid" newDataType="varchar(1024)"/>
+    <modifyDataType tableName="patient_attachment_log" columnName="filename" newDataType="varchar(1024)"/>
+    <modifyDataType tableName="patient_attachment_log" columnName="parent_mid" newDataType="varchar(1024)"/>
+    <modifyDataType tableName="patient_attachment_log" columnName="content_type" newDataType="varchar(1024)"/>
+</changeSet>
+
+ </databaseChangeLog>
