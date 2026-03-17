@@ -63,7 +63,7 @@ throughput times to allow adjustment if required ....
 The *Persist Duration* of each message is unique to the sending organisation and is obtained from the [Spine Directory Service (SDS) FHIR API](https://digital.nhs.uk/developer/api-catalogue/spine-directory-service-fhir). Responses for an organisation's message type are cached by default, the frequency the cache is
 updated is configurable via the environment variable `TIMEOUT_SDS_POLL_FREQUENCY`. 
 
-The adaptor checks incomplete transfers periodically, at a default frequency of every six hours. However, this is configurable via the environment variable `TIMEOUT_CRON_TIME`.
+The adaptor checks incomplete transfers periodically, at a default frequency of every two hours. However, this is configurable via the environment variable `TIMEOUT_CRON_TIME`.
 
 Should you wish to specify a maximum timeout period (in seconds), thus bypassing the above logic, you may specify the 
 value in the `migrationTimeoutOverride` environment variable.
@@ -105,7 +105,7 @@ Required environment variables:
 
 ### Populating the SNOMED database
 
-The adaptor requires an up to date copy of the SNOMED DB as part of translating FHIR `CodableConcepts`.
+The adaptor requires an up-to-date copy of the SNOMED DB as part of translating FHIR `CodableConcepts`.
 
 The SNOMED loader script is built as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-snomed-schema](https://hub.docker.com/r/nhsdev/nia-ps-snomed-schema).
 
