@@ -91,7 +91,7 @@ when they are unavailable.
 The adaptor uses Liquibase to perform DB migrations.
 New versions of the Adaptor may require DB changes, which will necessitate the execution of the migration script before the new version of the application can be executed.
 
-The DB migrations is build as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-db-migration](https://hub.docker.com/r/nhsdev/nia-ps-db-migration).
+The DB migration is built as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-db-migration](https://hub.docker.com/r/nhsdev/nia-ps-db-migration).
 
 Required environment variables:
 
@@ -100,6 +100,8 @@ Required environment variables:
 - PS_DB_URL e.g. jdbc:postgresql://hostname:port
 - GPC_FACADE_USER_DB_PASSWORD e.g. another5ecret, used when creating the user `gpc_user`
 - GP2GP_TRANSLATOR_USER_DB_PASSWORD e.g. yetanother5ecret, used when creating the user `gp2gp_user`
+
+For example, the DB migration can be run as an ECS task in AWS.
 
 *When passing passwords into this script it is the responsibility of the supplier to ensure that passwords are being kept secure by using appropriate controls within their infrastructure.*
 
