@@ -13,7 +13,7 @@ The motivation for the GP2GP FHIR Request Adaptor is to remove the dependency on
 The idea is to build an adaptor that could be installed and configured in a New Market Entrant (NME) infrastructure,
 and could work with the incumbent’s GPC < 1.6.0.
 
-The adaptor consists of two main components:
+The Adaptor consists of two main components:
 - GPC API Facade
 - GP2GP Translator
 
@@ -24,7 +24,7 @@ Both are Java Spring Boot applications, released as separate Docker images.
 
 1. [Guidance for setting up the GP2GP adaptors in INT](/getting-started-instructions.md)
 1. [Guidance for operating the adaptor as a New Market Entrant](/OPERATING.md)
-1. [Guidance on integrating with the adaptor's APIs](#endpoints)
+1. [Guidance on integrating with the Adaptor's APIs](#endpoints)
 1. [Guidance for developing the adaptor](/developer-information.md)
 1. [Documentation on how this adaptor maps GP2GP concepts to GPConnect concepts](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
 
