@@ -19,7 +19,6 @@ The Adaptor consists of two main components:
 
 Both are Java Spring Boot applications, released as separate Docker images.
 
-
 ## Table of contents
 
 1. [Guidance for setting up the GP2GP adaptors in INT](/getting-started-instructions.md)
