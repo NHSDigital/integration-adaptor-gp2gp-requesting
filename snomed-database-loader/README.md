@@ -16,19 +16,19 @@ These immunization codes are constructed from using the following methods:
 
 ### Immunization root codes
 
-The SNOMED CT schema is build in a hierarchical structure with a relationship reference set which defines whether a 
-particular is a child of another code (identified using the type code of `116680003` (`IsA`)).  These root codes refer
-to a certain set of codes under which most other immunization codes exists.
+The SNOMED CT schema is built in a hierarchical structure with a relationship reference set which defines whether a 
+particular code is a child of another code (identified using the type code of `116680003` (`IsA`)).  These root codes refer
+to a certain set of codes under which most other immunization codes exist.
 
 These root codes are as follows:
 
-| SNOMED Code    | Description                                                               |
-|----------------|---------------------------------------------------------------------------|
-| 787859002      | Vaccine Product (medicinal product)                                       |
-| 127785005      | Administration to produce immunity, either active or passive (procedure)  |
-| 304250009      | Immunization status (finding)                                             |
-| 90351000119108 | Vaccination not done (situation)                                          |
-| 713404003      | Vaccination given (situation)                                             |
+| SNOMED Code    | Description                                                              |
+|----------------|--------------------------------------------------------------------------|
+| 787859002      | Vaccine Product (medicinal product)                                      |
+| 127785005      | Administration to produce immunity, either active or passive (procedure) |
+| 304250009      | Immunization status (finding)                                            |
+| 90351000119108 | Vaccination not done (situation)                                         |
+| 713404003      | Vaccination given (situation)                                            |
 
 ### Immunization root code descendants
 
@@ -42,7 +42,7 @@ This hierarchy can be illustrated using the [SNOMED CT Browser](https://termbrow
 ### Immunizations outside of root code hierarchy
 
 There also exist a number of codes which do not sit within the hierarchy of the root codes listed above. These are
-usually codes for which an immunization is not provided anymore but may be present on the history of a patients.
+usually codes for which an immunization is not provided anymore but may be present on the history of a patient.
 An example of one of these codes in the [SNOMED CT Browser](https://termbrowser.nhs.uk/) is below:
 
 ![immunization_not_in_hierarchy_example.png](immunization_not_in_hierarchy_example.png)
@@ -50,11 +50,8 @@ An example of one of these codes in the [SNOMED CT Browser](https://termbrowser.
 However, the reference set used to build the immunization codes still includes inactive relationships, so these will be 
 included when building the descendants of immunization root codes.
 
-If the immunization codes have not been loaded successfully into the SNOMED DB then a RuntimeException with twill be thrown during 
-initialization of the GP2GP Translator Service and the service will then terminate.
-
-If the immunization codes have not been loaded successfully into the SNOMED DB, The GP2GP Translator Service will now 
-exit and throw a RuntimeException with the following message:
+If the immunization codes have not been loaded successfully into the SNOMED DB, the GP2GP Translator Service will
+exit and throw a RuntimeException during initialization with the following message:
 ```
 FATAL: Expected Immunization codes not found in snomedct.immunization_codes view.
 SNOMED CT Database not set up correctly.
@@ -66,7 +63,7 @@ Please update / reload the SNOMED DB.
 
 ## How to run (Mac & Unix)
 
-### Prerequsistes
+### Prerequisites
 1. Download SNOMED CT Release 
 2. Set the following env vars:
 - PS_DB_OWNER_NAME (database user, needs permissions to create/drop schemas), e.g. `export PS_DB_OWNER_NAME='postgres'`
