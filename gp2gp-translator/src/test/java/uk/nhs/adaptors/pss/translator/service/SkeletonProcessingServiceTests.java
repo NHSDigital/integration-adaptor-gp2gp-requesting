@@ -210,6 +210,30 @@ class SkeletonProcessingServiceTests {
                 inboundMessage, migrationRequest.getConversationId()));
     }
 
+    @Test
+    void When_SkeletonAsSectionMessageAndPayloadNodeNotFound_Expect_IllegalArgumentException()
+            throws SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        var reference = new EbxmlReference("First instance is always a payload", "mid:1", "docId");
+        var ebXmlAttachments = List.of(reference);
+        var fileAsBytes = readInboundMessageSkeletonPayloadFromFile().getBytes(StandardCharsets.UTF_8);
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(fileAsBytes);
+        when(xmlParseUtilService.getEbxmlAttachmentsData(any())).thenReturn(ebXmlAttachments);
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(ebXmlDocument);
+        when(xPathService.getNodes(any(), any())).thenReturn(nodeList);
+        when(nodeList.item(0)).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog,
+                        inboundMessage, migrationRequest.getConversationId()));
+    }
+
     PatientAttachmentLog createSkeletonPatientAttachmentLog() {
         return
             PatientAttachmentLog.builder()

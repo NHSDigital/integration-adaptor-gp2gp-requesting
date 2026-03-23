@@ -65,17 +65,17 @@ You can also review what commits have gone in by using the git log command or ID
 
 Deploy this commit to the AWS Path to Live environment.
 
-1. Clicking through to the successful Jenkins build of your commit
-1. Navigate to the "Push Image" section of the pipeline, looking for an entry which looks like
+1. Clicking through to the successful GH Actions build of your commit
+1. Navigate to the "Build / Generate Build Id" section of the pipeline, looking for an entry which looks like
    ```
-   docker push ...amazonaws.com/pss_gpc_facade:<TAG_NAME>
+   Run chmod +x ./create_build_id.sh
+   Generated the build tag: PR-001-000a0a1
    ```
 1. Make a note of the <TAG_NAME> so it can be deployed in the step below.
-1. Log into the [Jenkins Terraform project][jenkins-terraform] and specify project=`nia`, Environment=`ptl`,
+1. Navigate to the [Terraform project](https://github.com/NHSDigital/integration-adaptors-deployment) and specify project=`nia`, Environment=`ptl`,
    component=`pss`, action=`apply`, variables=`pss_build_id=<TAG_NAME>` and click the Build button waiting
    for the build to finish successfully
 
-[jenkins-terraform]: http://ec2-35-177-12-25.eu-west-2.compute.amazonaws.com/job/Terraform/build?delay=0sec
 
 Perform an end to end smoke test of the adaptor by transferring the patient 9732596910 from C88046 to P83007 using the
 [instructions on Confluence][e2e-ptl-test-instructions] by setting the `to-ods: C88046` and `to-asid: 858000001001`.
