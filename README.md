@@ -3,7 +3,7 @@ National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk
 
 Incumbent providers (e.g. TPP, EMIS, SystemOne) would have to make changes to their GP Connect interface implementations
 in order to deploy GP2GP Adaptor in their infrastructure to support the losing practice scenario - i.e. whereby a 
-different practice transfers patient data from the incumbent. In particular, they would need to implement the 1.6.0 version
+different practice transfers patient data from the incumbent. In particular, they would need to implement the 1.6.2 version
 that is required by the GPC Consumer and GP2GP adaptors.
 
 This business case is not always easy for the incumbent providers to accept, as they would have to invest time to
@@ -11,7 +11,7 @@ make those changes.
 
 The motivation for the GP2GP FHIR Request Adaptor is to remove the dependency on incumbent providers to do that work.
 The idea is to build an adaptor that could be installed and configured in a New Market Entrant (NME) infrastructure,
-and could work with the incumbent’s GPC < 1.6.0.
+and could work with the incumbent’s GPC < 1.6.2.
 
 The Adaptor consists of two main components:
 - GPC API Facade
