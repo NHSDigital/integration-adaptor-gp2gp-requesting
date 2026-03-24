@@ -1,25 +1,25 @@
 # Getting started with Postman tests
 
-## Pre-reqs before running Postman tests
-1. Ensure you have built the docker containers by following the build process from the root [README](../README.md)
-2. Postman installed
-3. Import the scripts into Postman `nia-patient-switching-standard-adaptor\test-suite\postman\Medicus Test Collection PSS Adaptor.postman_collection.json`
-4. Certificates have been added to postman
+## Prerequisites before running Postman tests
+1. Ensure you have built the Docker containers by following the build process from the root [README](../README.md)
+2. Ensure Postman is installed
+3. Import the scripts into Postman `nia-patient-switching-standard-adaptor\test-suite\postman\Test Collection PSS Adaptor.postman_collection.json`
+4. Certificates have been added to Postman
     1. Open Postman / Settings (cog symbol)
     2. Go to Certificates tab inside Settings menu
     3. Turn on CA Certificates and add the `rootCA.pem` file from `nia-patient-switching-standard-adaptor\test-suite\postman\localhost-certificates`
     4. Click on Add certificate next to Client Certificates
     5. Add the `spineClient` file
-    6. Add the `spintClient.key`
+    6. Add the `spineClient.key`
     7. Change the Host location to `localhost` : `443`
     8. Click on Add
     9. Close Settings menu
 
 ## Setting up test-suite adaptors to run Postman tests
-1. Use the terminal and CD into folder `\nia-patient-switching-standard-adaptor\test-suite`
+1. Use the terminal and navigate into folder `\nia-patient-switching-standard-adaptor\test-suite`
 2. Run the start script `./start-test-environment.sh`
 3. Allow the system to build adaptors
-4. After building your docker suite should look something like this (containers can appear in any order):
+4. After building, your Docker suite should look something like this (containers can appear in any order):
 
 <details>
     ```
@@ -41,9 +41,9 @@ This is especially useful for the SNOMED data which takes a long time to import.
 If you want to start from a fresh DB, delete the volume with `docker volume rm test-suite_pgdata` and then run `./start-test-environment.sh`.
 
 ## Running the translator and facade in your IDE for debugging
-1. Ensure test-suite environment is setup from steps above
-2. Turn off both the `ps_gp2gp_transaltor-1` and `gpc_facade-1` in docker desktop
-3. Open the project:`nia-patient-switching-standard-adaptor`
+1. Ensure test-suite environment is set up from steps above
+2. Turn off both the `ps_gp2gp_translator-1` and `gpc_facade-1` in Docker Desktop
+3. Open the project: `nia-patient-switching-standard-adaptor`
 4. Navigate to `nia-patient-switching-standard-adaptor\gp2gp-translator\src\main\java\uk\nhs\adaptors\pss\translator\Gp2gpTranslatorApplication.java`
 5. Run `Gp2gpTranslatorApplication.java` with the environment variables below:
 
@@ -75,7 +75,7 @@ If you want to start from a fresh DB, delete the volume with `docker volume rm t
    
    SDS_API_KEY: "change_if_needed" # used for calculating migration timeouts 
    
-   #changepathforsnomedFilepath
+   # Change path for SNOMED filepath
    SNOMED_CT_TERMINOLOGY_FILE: "/snomed/file/location/uk_sct2mo_41.0.0_20250924000001Z.zip"
    
    PS_LOGGING_LEVEL: "DEBUG"
@@ -98,9 +98,9 @@ GPC_FACADE_USER_DB_PASSWORD: "123456"
 
 
 ### Troubleshooting:
-- Check that both `Gp2gpTranslatorApplication.java` + `GpcFacadeApplication.java` are running locally
+- Check that both `Gp2gpTranslatorApplication.java` and `GpcFacadeApplication.java` are running locally
 - Check the environment variables
-- Check that both the `ps_gp2gp_translator-1` + `gpc_facade-1` have stopped running
-- Check the certificates in postman
+- Check that both the `ps_gp2gp_translator-1` and `gpc_facade-1` have stopped running
+- Check the certificates in Postman
 - If the start script doesn't run, check the file permissions to ensure the script is executable or run with 
 elevated privileges i.e. `sudo ./start-test-environment.sh`   
