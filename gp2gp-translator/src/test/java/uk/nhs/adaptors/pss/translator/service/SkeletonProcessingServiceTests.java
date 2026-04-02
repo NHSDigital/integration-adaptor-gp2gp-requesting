@@ -5,9 +5,8 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 
+import static org.mockito.Mockito.*;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
 import java.nio.charset.StandardCharsets;
@@ -251,6 +250,43 @@ class SkeletonProcessingServiceTests {
                     .deleted(false)
                     .patientMigrationReqId(1)
                     .build();
+    }
+
+    @Test
+    void When_SkeletonDocumentIdHasLeadingUnderscore_Expect_UnderscoreIsStrippedBeforeXPathQuery()
+            throws SAXException, TransformerException {
+
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        var reference = new EbxmlReference(
+                "First instance is always a payload",
+                "mid:1",
+                "_C3866E77-41E2-4593-A133-AB622F54684F"
+        );
+        var ebXmlAttachments = List.of(reference);
+        var fileAsBytes = readInboundMessageSkeletonPayloadFromFile().getBytes(StandardCharsets.UTF_8);
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(fileAsBytes);
+        when(xmlParseUtilService.getEbxmlAttachmentsData(any())).thenReturn(ebXmlAttachments);
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(ebXmlDocument);
+        when(xPathService.getNodes(any(), any())).thenReturn(nodeList);
+        when(nodeList.item(0)).thenReturn(node);
+        when(ebXmlDocument.getElementsByTagName("*")).thenReturn(nodeList);
+        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(inboundMessage.getPayload());
+        when(node.getOwnerDocument()).thenReturn(ebXmlDocument);
+        when(node.getParentNode()).thenReturn(node);
+
+        skeletonProcessingService.updateInboundMessageWithSkeleton(
+                attachmentLog, inboundMessage, CONVERSATION_ID);
+
+        var expectedDocumentId = "C3866E77-41E2-4593-A133-AB622F54684F";
+        var expectedXPath = "//*/@*[.='" + expectedDocumentId + "']/parent::*/parent::*";
+
+        verify(xPathService).getNodes(any(), eq(expectedXPath));
     }
 
     @SneakyThrows
