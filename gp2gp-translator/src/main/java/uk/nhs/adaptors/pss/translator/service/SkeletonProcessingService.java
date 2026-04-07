@@ -75,7 +75,7 @@ public class SkeletonProcessingService {
             throw new IllegalArgumentException("inboundMessage does not contain a skeleton attachment reference");
         }
 
-        var skeletonDocumentId = ebxmlSkeletonReference.get().getDocumentId();
+        var skeletonDocumentId = ebxmlSkeletonReference.get().getDocumentId().replaceFirst("^_", "");
         var payloadXml = xPathService.parseDocumentFromXml(inboundMessage.getPayload());
         var valueNodes = xPathService.getNodes(payloadXml, "//*/@*[.='" + skeletonDocumentId + "']/parent::*/parent::*");
         var payloadNodeToReplace = valueNodes.item(0);
