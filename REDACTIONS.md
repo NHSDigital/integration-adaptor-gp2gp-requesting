@@ -32,7 +32,7 @@ To enable Redactions, the GP2GP Adaptor should be deployed with the following en
 ***`GP2GP_REDACTIONS_ENABLED: true`***
 
 To disable Redactions, the GP2GP Adaptor should be deployed with the following environment variable:
-
+                                               
 ***`GP2GP_REDACTIONS_ENABLED: false`***
 
 Note that if Redactions are not enabled, the resultant XML will be produced with an `interactionId` of `RCMR_IN030000UK06` and
