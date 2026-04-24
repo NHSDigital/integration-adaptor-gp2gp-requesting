@@ -62,4 +62,5 @@ public class AzureStorageService implements StorageService {
             throw new StorageException("Failed to download blob from Azure Blob storage", e);
         }
     }
+
 }
