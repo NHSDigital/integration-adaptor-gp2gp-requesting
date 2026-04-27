@@ -12,6 +12,7 @@ import org.testcontainers.azure.AzuriteContainer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AzureStorageServiceTest {
@@ -72,5 +73,20 @@ public class AzureStorageServiceTest {
 
         assertNotNull(response);
         Assertions.assertEquals(fileContent, downloadedContent);
+    }
+
+    @Test
+    void deleteFileTest() {
+
+        String fileContent = "dummy-content";
+        blobServiceClient
+                .getBlobContainerClient(CONTAINER_NAME)
+                .getBlobClient(FILE_NAME).upload(BinaryData.fromString(fileContent));
+
+        azureStorageService.deleteFile(FILE_NAME);
+
+        Exception exception = assertThrows(Exception.class, () -> azureStorageService.downloadFile(FILE_NAME));
+
+        Assertions.assertEquals("Status code 404, BlobNotFound", exception.getMessage());
     }
 }
