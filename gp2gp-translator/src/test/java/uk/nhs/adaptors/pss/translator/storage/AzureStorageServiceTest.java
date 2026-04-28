@@ -102,4 +102,9 @@ public class AzureStorageServiceTest {
         assertNotNull(response);
         Assertions.assertTrue(response.contains(FILE_NAME));
     }
+
+    @Test
+    AzureStorageServiceTest() {
+
+    }
 }

@@ -22,7 +22,8 @@ public class StorageServiceFactory implements FactoryBean<StorageService> {
                 storageService = new AWSStorageService(S3Client.builder().build(), configuration, S3Presigner.builder().build());
                 break;
             case AZURE:
-                storageService = new AzureStorageService(configuration);
+                AzureStorageServiceFactory azureStorageServiceFactory = new AzureStorageServiceFactory();
+                storageService = azureStorageServiceFactory.Create(configuration);
                 break;
             default:
                 storageService = new LocalStorageService();
