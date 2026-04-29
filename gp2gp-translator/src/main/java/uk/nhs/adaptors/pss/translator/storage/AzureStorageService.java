@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Locale;
 
 import com.azure.storage.blob.BlobContainerClient;
@@ -30,6 +31,11 @@ public class AzureStorageService implements StorageService {
         } else {
             blobServiceClient = null;
         }
+    }
+
+    public AzureStorageService(BlobServiceClient blobServiceClient, StorageServiceConfiguration configuration) {
+        this.blobServiceClient = blobServiceClient;
+        this.containerName = configuration.getContainerName();
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
