@@ -3,6 +3,7 @@ package uk.nhs.adaptors.pss.translator.storage;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,13 +14,15 @@ public class StorageServiceConfigTest {
             .withUserConfiguration(StorageServiceConfig.class);
 
     @Test
-    void azureStorageService_IsCreated_WhenTypeIsAzure() {
+    void When_TypeIsAzure_Expect_AzureStorageServiceIsCreated() {
         // Arrange & Act
         contextRunner.withPropertyValues("storage.type=Azure")
                 .withBean(StorageServiceConfiguration.class, () -> {
                     StorageServiceConfiguration config = new StorageServiceConfiguration();
                     config.setAccountReference("account");
-                    config.setAccountSecret(Base64.getEncoder().encodeToString("secret".getBytes()));
+                    config.setAccountSecret(
+                            Base64.getEncoder().encodeToString("secret".getBytes(StandardCharsets.UTF_8))
+                    );
                     config.setContainerName("container");
                     return config;
                 })
@@ -32,7 +35,7 @@ public class StorageServiceConfigTest {
     }
 
     @Test
-    void awsStorageService_IsCreated_WhenTypeIsS3() {
+    void When_TypeIsS3_Expect_AwsStorageServiceIsCreated() {
         System.setProperty("aws.region", "eu-west-2");
 
         contextRunner.withPropertyValues("storage.type=S3")
@@ -47,7 +50,7 @@ public class StorageServiceConfigTest {
     }
 
     @Test
-    void localStorageService_IsCreated_WhenTypeIsLocalMock() {
+    void When_TypeIsLocalMock_Expect_LocalStorageServiceIsCreated() {
         contextRunner.withPropertyValues("storage.type=LocalMock")
                 .run(context -> {
                     assertThat(context).hasSingleBean(StorageService.class);
@@ -57,7 +60,7 @@ public class StorageServiceConfigTest {
     }
 
     @Test
-    void localStorageService_IsCreated_WhenTypeIsMissing() {
+    void When_TypeIsMissing_Expect_LocalStorageServiceIsCreated() {
         contextRunner
                 .run(context -> {
                     assertThat(context).hasSingleBean(StorageService.class);
@@ -67,7 +70,7 @@ public class StorageServiceConfigTest {
     }
 
     @Test
-    void noStorageService_IsCreated_WhenTypeIsInvalid() {
+    void When_TypeIsInvalid_Expect_StorageServiceIsNotCreated() {
         contextRunner.withPropertyValues("storage.type=INVALID_TYPE")
                 .withBean(StorageServiceConfiguration.class, StorageServiceConfiguration::new)
                 .run(context -> assertThat(context).doesNotHaveBean(StorageService.class));

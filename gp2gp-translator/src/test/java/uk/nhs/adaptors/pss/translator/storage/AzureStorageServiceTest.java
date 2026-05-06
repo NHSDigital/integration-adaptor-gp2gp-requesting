@@ -58,7 +58,7 @@ public class AzureStorageServiceTest {
     }
 
     @Test
-    void uploadFile_SuccessfullyUploadsToAzure() throws StorageException {
+    void When_UploadFile_Expect_SuccessfullyUploadsToAzure() throws StorageException {
         mockBlobClientChain();
 
         azureStorageService.uploadFile(FILE_NAME, FILE_CONTENT);
@@ -67,7 +67,7 @@ public class AzureStorageServiceTest {
     }
 
     @Test
-    void downloadFile_SuccessfullyDownloadsFromAzure() throws StorageException {
+    void When_DownloadFile_Expect_SuccessfullyDownloadsFromAzure() throws StorageException {
         mockBlobClientChain();
         when(blockBlobClient.getProperties()).thenReturn(blobProperties);
         when(blobProperties.getBlobSize()).thenReturn((long) FILE_CONTENT.length);
@@ -84,7 +84,7 @@ public class AzureStorageServiceTest {
     }
 
     @Test
-    void deleteFile_SuccessfullyDeletesFromAzure() {
+    void When_DeleteFile_Expect_SuccessfullyDeletesFromAzure() {
         mockBlobClientChain();
 
         azureStorageService.deleteFile(FILE_NAME);
@@ -93,7 +93,7 @@ public class AzureStorageServiceTest {
     }
 
     @Test
-    void getFileLocation_ReturnsCorrectUrl() {
+    void When_GetFileLocation_Expect_ReturnsCorrectUrl() {
         mockBlobClientChain();
         String expectedUrl = "https://azuremock.blob.core.windows.net/test-container/testfile.txt";
         when(blockBlobClient.getBlobUrl()).thenReturn(expectedUrl);
