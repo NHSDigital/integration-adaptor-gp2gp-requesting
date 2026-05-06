@@ -3,6 +3,7 @@ package uk.nhs.adaptors.pss.translator.storage;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
+import jakarta.annotation.Nonnull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class StorageServiceConfig {
 
     @Bean
     @ConditionalOnProperty(name = "storage.type", havingValue = "Azure")
-    public StorageService azureStorageService(StorageServiceConfiguration configuration) {
+    public @Nonnull StorageService azureStorageService(StorageServiceConfiguration configuration) {
         StorageSharedKeyCredential credentials = new StorageSharedKeyCredential(
                 configuration.getAccountReference(),
                 configuration.getAccountSecret()
@@ -38,7 +39,7 @@ public class StorageServiceConfig {
 
     @Bean
     @ConditionalOnProperty(name = "storage.type", havingValue = "S3")
-    public StorageService awsStorageService(StorageServiceConfiguration configuration) {
+    public @Nonnull StorageService awsStorageService(StorageServiceConfiguration configuration) {
         return new AWSStorageService(
                 S3Client.builder().build(),
                 configuration,
@@ -48,7 +49,7 @@ public class StorageServiceConfig {
 
     @Bean
     @ConditionalOnProperty(name = "storage.type", havingValue = "LocalMock", matchIfMissing = true)
-    public StorageService localStorageService() {
+    public @Nonnull StorageService localStorageService() {
         return new LocalStorageService();
     }
 }
