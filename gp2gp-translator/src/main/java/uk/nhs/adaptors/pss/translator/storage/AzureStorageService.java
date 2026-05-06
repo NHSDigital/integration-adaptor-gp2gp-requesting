@@ -4,32 +4,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import com.azure.storage.common.StorageSharedKeyCredential;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "BlobServiceClient is immutable and thread-safe.")
 public class AzureStorageService implements StorageService {
 
-    // Consistent objects
     private final BlobServiceClient blobServiceClient;
-    private String containerName;
+    private final String containerName;
 
-    public AzureStorageService(StorageServiceConfiguration configuration) {
-        if (!configuration.getAccountReference().isEmpty()) {
-
-            StorageSharedKeyCredential credentials = createAzureCredentials(
-                configuration.getAccountReference(), configuration.getAccountSecret());
-
-            String azureEndpoint = createAzureStorageEndpoint(configuration.getAccountReference());
-            blobServiceClient = createBlobServiceClient(azureEndpoint, credentials);
-            containerName = configuration.getContainerName();
-        } else {
-            blobServiceClient = null;
-        }
+    public AzureStorageService(BlobServiceClient client, StorageServiceConfiguration config) {
+        blobServiceClient = client;
+        containerName = config.getContainerName();
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
@@ -54,22 +43,6 @@ public class AzureStorageService implements StorageService {
     public String getFileLocation(String filename) {
         var blobClient = createBlobBlockClient(filename);
         return blobClient.getBlobUrl();
-    }
-
-    private StorageSharedKeyCredential createAzureCredentials(String accountName, String accountKey) {
-        return new StorageSharedKeyCredential(accountName, accountKey);
-    }
-
-    private String createAzureStorageEndpoint(String containerName) {
-        return String.format(Locale.ROOT, "https://%s.blob.core.windows.net", containerName);
-    }
-
-    private BlobServiceClient createBlobServiceClient(String endpoint, StorageSharedKeyCredential credentials) {
-
-        return new BlobServiceClientBuilder()
-                .endpoint(endpoint)
-                .credential(credentials)
-                .buildClient();
     }
 
     private BlobContainerClient createBlobContainerClient() {
