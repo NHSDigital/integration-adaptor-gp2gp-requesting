@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AzureStorageServiceTest {
 
-    private static final String CONTAINER_NAME = "test-container";
+    private static final String CONTAINER_NAME = "container";
     private static final String FILE_NAME = "testfile.txt";
     private static final byte[] FILE_CONTENT = "mock-content".getBytes(StandardCharsets.UTF_8);
 
