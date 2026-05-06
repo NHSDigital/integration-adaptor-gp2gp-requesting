@@ -11,7 +11,9 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "BlobServiceClient is immutable and thread-safe.")
 public class AzureStorageService implements StorageService {
 
     // Consistent objects
@@ -30,6 +32,11 @@ public class AzureStorageService implements StorageService {
         } else {
             blobServiceClient = null;
         }
+    }
+
+    public AzureStorageService(BlobServiceClient blobServiceClient, StorageServiceConfiguration configuration) {
+        this.blobServiceClient = blobServiceClient;
+        this.containerName = configuration.getContainerName();
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
