@@ -34,7 +34,9 @@ public class StorageServiceConfig {
                 .credential(credentials)
                 .buildClient();
 
-        return new AzureStorageService(blobServiceClient, configuration);
+        var blobContainerClient = blobServiceClient.getBlobContainerClient(configuration.getContainerName());
+
+        return new AzureStorageService(blobContainerClient);
     }
 
     @Bean

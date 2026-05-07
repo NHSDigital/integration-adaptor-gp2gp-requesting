@@ -1,7 +1,6 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.blob.BlobClient;
@@ -25,15 +24,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AzureStorageServiceTest {
-
-    private static final String CONTAINER_NAME = "container";
     private static final String FILE_NAME = "testfile.txt";
     private static final byte[] FILE_CONTENT = "mock-content".getBytes(StandardCharsets.UTF_8);
 
-    @Mock
-    private BlobServiceClient blobServiceClient;
-    @Mock
-    private StorageServiceConfiguration configuration;
     @Mock
     private BlobContainerClient blobContainerClient;
     @Mock
@@ -47,19 +40,17 @@ public class AzureStorageServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(configuration.getContainerName()).thenReturn(CONTAINER_NAME);
-        azureStorageService = new AzureStorageService(blobServiceClient, configuration);
+        azureStorageService = new AzureStorageService(blobContainerClient);
     }
 
-    private void mockBlobClientChain() {
-        when(blobServiceClient.getBlobContainerClient(CONTAINER_NAME)).thenReturn(blobContainerClient);
+    private void mockBlobContainerClientChain() {
         when(blobContainerClient.getBlobClient(FILE_NAME)).thenReturn(blobClient);
         when(blobClient.getBlockBlobClient()).thenReturn(blockBlobClient);
     }
 
     @Test
     void When_UploadFile_Expect_SuccessfullyUploadsToAzure() throws StorageException {
-        mockBlobClientChain();
+        mockBlobContainerClientChain();
 
         azureStorageService.uploadFile(FILE_NAME, FILE_CONTENT);
 
@@ -68,7 +59,7 @@ public class AzureStorageServiceTest {
 
     @Test
     void When_DownloadFile_Expect_SuccessfullyDownloadsFromAzure() throws StorageException {
-        mockBlobClientChain();
+        mockBlobContainerClientChain();
         when(blockBlobClient.getProperties()).thenReturn(blobProperties);
         when(blobProperties.getBlobSize()).thenReturn((long) FILE_CONTENT.length);
 
@@ -85,7 +76,7 @@ public class AzureStorageServiceTest {
 
     @Test
     void When_DeleteFile_Expect_SuccessfullyDeletesFromAzure() {
-        mockBlobClientChain();
+        mockBlobContainerClientChain();
 
         azureStorageService.deleteFile(FILE_NAME);
 
@@ -94,7 +85,7 @@ public class AzureStorageServiceTest {
 
     @Test
     void When_GetFileLocation_Expect_ReturnsCorrectUrl() {
-        mockBlobClientChain();
+        mockBlobContainerClientChain();
         String expectedUrl = "https://azuremock.blob.core.windows.net/test-container/testfile.txt";
         when(blockBlobClient.getBlobUrl()).thenReturn(expectedUrl);
 
