@@ -32,10 +32,9 @@ public class AzureStorageServiceTest {
                 .buildClient();
         blobServiceClient.createBlobContainer(CONTAINER_NAME);
 
-        StorageServiceConfiguration config = new StorageServiceConfiguration();
-        config.setContainerName(CONTAINER_NAME);
+        var blobContainerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
 
-        azureStorageService = new AzureStorageService(blobServiceClient, config);
+        azureStorageService = new AzureStorageService(blobContainerClient);
     }
 
     @AfterEach

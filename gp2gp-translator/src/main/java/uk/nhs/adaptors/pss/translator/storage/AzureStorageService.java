@@ -6,19 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "BlobServiceClient is immutable and thread-safe.")
 public class AzureStorageService implements StorageService {
 
-    private final BlobServiceClient blobServiceClient;
-    private final String containerName;
+    private final BlobContainerClient blobContainerClient;
 
-    public AzureStorageService(BlobServiceClient client, StorageServiceConfiguration config) {
-        blobServiceClient = client;
-        containerName = config.getContainerName();
+    public AzureStorageService(BlobContainerClient client) {
+        blobContainerClient = client;
     }
 
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
@@ -35,23 +30,15 @@ public class AzureStorageService implements StorageService {
     }
 
     public void deleteFile(String filename) {
-        BlobContainerClient containerClient = createBlobContainerClient();
-        BlockBlobClient blobClient = containerClient.getBlobClient(filename).getBlockBlobClient();
-        blobClient.delete();
+        createBlobBlockClient(filename).delete();
     }
 
     public String getFileLocation(String filename) {
-        var blobClient = createBlobBlockClient(filename);
-        return blobClient.getBlobUrl();
-    }
-
-    private BlobContainerClient createBlobContainerClient() {
-        return blobServiceClient.getBlobContainerClient(containerName);
+        return createBlobBlockClient(filename).getBlobUrl();
     }
 
     private BlockBlobClient createBlobBlockClient(String filename) {
-        BlobContainerClient containerClient = createBlobContainerClient();
-        return containerClient.getBlobClient(filename).getBlockBlobClient();
+        return blobContainerClient.getBlobClient(filename).getBlockBlobClient();
     }
 
     private void addFileStringToMainContainer(String filename, byte[] fileAsString) throws StorageException, IOException {
@@ -75,5 +62,4 @@ public class AzureStorageService implements StorageService {
             throw new StorageException("Failed to download blob from Azure Blob storage", e);
         }
     }
-
 }
