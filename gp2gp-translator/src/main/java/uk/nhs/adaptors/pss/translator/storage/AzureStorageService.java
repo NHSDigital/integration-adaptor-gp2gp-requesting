@@ -16,11 +16,6 @@ public class AzureStorageService implements StorageService {
         blobContainerClient = client;
     }
 
-    public AzureStorageService(BlobServiceClient blobServiceClient, StorageServiceConfiguration configuration) {
-        this.blobServiceClient = blobServiceClient;
-        this.containerName = configuration.getContainerName();
-    }
-
     public void uploadFile(String filename, byte[] fileAsString) throws StorageException {
         try {
             addFileStringToMainContainer(filename, fileAsString);
