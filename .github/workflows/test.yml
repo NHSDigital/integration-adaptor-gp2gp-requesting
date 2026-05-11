@@ -112,7 +112,7 @@ jobs:
 
       - name: Test Job Summary
         if: always()
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5
         with:
           paths: "${{ inputs.path }}/build/test-results/test/TEST-*.xml"
 
@@ -219,7 +219,7 @@ jobs:
 
       - name: Test Job Summary
         if: always()
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5
         with:
           paths: "./${{ inputs.path }}/build/test-results/integrationTest/TEST-*.xml"
 
