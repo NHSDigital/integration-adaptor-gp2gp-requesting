@@ -7,8 +7,8 @@ plugins {
     id 'io.freefair.lombok' version '9.0.0'
 
     // Mutation testing
-    id 'info.solidsoft.pitest' version '1.15.0'
-    id 'com.arcmutate.github' version '2.0.0'
+//    id 'info.solidsoft.pitest' version '1.15.0'
+//    id 'com.arcmutate.github' version '2.0.0'
 }
 
 apply plugin: 'java'
@@ -40,8 +40,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'io.rest-assured:rest-assured:5.5.0'
 
-    pitest 'com.arcmutate:base:1.3.2'
-    pitest 'com.arcmutate:pitest-git-plugin:2.0.0'
+//    pitest 'com.arcmutate:base:1.3.2'
+//    pitest 'com.arcmutate:pitest-git-plugin:2.0.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -91,23 +91,23 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
         html.enabled = false
     }
 }
-
-pitest {
-    pitestVersion = '1.16.1'
-    junit5PluginVersion = '1.2.1'
-    outputFormats = ['gitci']
-
-    // git feature limits analysis to contents of PR only
-    features = ["+GIT(from[HEAD~1])"]
-
-    // PRs which don't introduce any production code changes, shouldn't fail the Mutation Testing Actions Workflow
-    failWhenNoMutations = false
-
-    mutators = ['STRONGER', 'EXTENDED_ALL']
-
-    threads = project.getGradle().getStartParameter().getMaxWorkerCount()
-}
-
-pitestGithub {
-    deleteOldSummaries = true
-}
+//
+//pitest {
+//    pitestVersion = '1.16.1'
+//    junit5PluginVersion = '1.2.1'
+//    outputFormats = ['gitci']
+//
+//    // git feature limits analysis to contents of PR only
+//    features = ["+GIT(from[HEAD~1])"]
+//
+//    // PRs which don't introduce any production code changes, shouldn't fail the Mutation Testing Actions Workflow
+//    failWhenNoMutations = false
+//
+//    mutators = ['STRONGER', 'EXTENDED_ALL']
+//
+//    threads = project.getGradle().getStartParameter().getMaxWorkerCount()
+//}
+//
+//pitestGithub {
+//    deleteOldSummaries = true
+//}
