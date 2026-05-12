@@ -1,5 +1,6 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
+import com.azure.core.credential.AzureSasCredential;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
@@ -12,27 +13,39 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.util.Locale;
 
+import static org.apache.commons.codec.binary.Base64.isBase64;
+
 @Configuration
 public class StorageServiceConfig {
 
     @Bean
     @ConditionalOnProperty(name = "storage.type", havingValue = "Azure")
     public @Nonnull StorageService azureStorageService(StorageServiceConfiguration configuration) {
-        StorageSharedKeyCredential credentials = new StorageSharedKeyCredential(
-                configuration.getAccountReference(),
-                configuration.getAccountSecret()
-        );
-
+        BlobServiceClient blobServiceClient;
         String endpoint = String.format(
                 Locale.ROOT,
                 "https://%s.blob.core.windows.net",
                 configuration.getAccountReference()
         );
 
-        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                .endpoint(endpoint)
-                .credential(credentials)
-                .buildClient();
+        if (isBase64(configuration.getAccountSecret())) {
+            StorageSharedKeyCredential credentials = new StorageSharedKeyCredential(
+                    configuration.getAccountReference(),
+                    configuration.getAccountSecret()
+            );
+
+            blobServiceClient = new BlobServiceClientBuilder()
+                    .endpoint(endpoint)
+                    .credential(credentials)
+                    .buildClient();
+        } else {
+            AzureSasCredential credentials = new AzureSasCredential(configuration.getAccountSecret());
+
+            blobServiceClient = new BlobServiceClientBuilder()
+                    .endpoint(endpoint)
+                    .credential(credentials)
+                    .buildClient();
+        }
 
         var blobContainerClient = blobServiceClient.getBlobContainerClient(configuration.getContainerName());
 
