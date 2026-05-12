@@ -374,7 +374,7 @@ The following variables are used for [storing attachments](#attachment-storage).
   - `STORAGE_REGION`: The AWS region of the S3 bucket, leave blank if using Azure
   - `STORAGE_CONTAINER_NAME`: The name of the Azure Storage container or Amazon S3 Bucket
   - `STORAGE_REFERENCE`: The Azure account name or AWS Access Key ID (leave undefined if using an AWS instance role)
-  - `STORAGE_SECRET`: The Azure account key or the Amazon Access Key. (leave undefined if using an AWS instance role)
+  - `STORAGE_SECRET`: The Azure account key/SAS token or the Amazon Access Key. (leave undefined if using an AWS instance role)
 
 **Optional**
   - `STORAGE_RETRY_LIMIT`: The number of retries that are performed when uploading an attachment to storage before
