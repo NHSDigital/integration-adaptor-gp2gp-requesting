@@ -76,13 +76,16 @@ public class AWSStorageService implements StorageService {
     }
 
     public void deleteFile(String filename) {
-
-        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                                                               .bucket(bucketName)
-                                                               .key(filename)
-                                                               .build();
-        s3Client.deleteObject(deleteRequest);
-        LOGGER.info("{} was successfully deleted", filename);
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(filename)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+            LOGGER.info("{} was successfully deleted", filename);
+        } catch (Exception e) {
+            throw new StorageException("Error occurred deleting from S3 Bucket", e);
+        }
     }
 
     public String getFileLocation(String filename) {

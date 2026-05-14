@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AzureStorageServiceTest {
+public class AzureStorageServiceIntegrationTest {
 
     private static final String CONTAINER_NAME = "azurecontainer";
     private static final String FILE_NAME = "testfile.txt";

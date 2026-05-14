@@ -2,7 +2,7 @@
 National Integration Adaptor - [GP2GP Requesting Adaptor](https://digital.nhs.uk/developer/api-catalogue/gp2gp/gp2gp-requesting-adaptor)
 
 Incumbent providers (e.g. TPP, EMIS, SystemOne) would have to make changes to their GP Connect interface implementations
-in order to deploy GP2GP Adaptor in their infrastructure to support the losing practice scenario - i.e. whereby a 
+in order to deploy GP2GP Adaptor in their infrastructure to support the losing practice scenario - i.e. whereby a
 different practice transfers patient data from the incumbent. In particular, they would need to implement the 1.6.2 version
 that is required by the GPC Consumer and GP2GP adaptors.
 
@@ -19,6 +19,14 @@ The Adaptor consists of two main components:
 
 Both are Java Spring Boot applications, released as separate Docker images.
 
+## Start here
+
+- [Set up the GP2GP adaptors in INT](/getting-started-instructions.md)
+- [Set up on Windows](/getting-started-with-windows.md)
+- [Operate the adaptor as a New Market Entrant](/OPERATING.md)
+- [Develop the adaptor](/developer-information.md)
+- [GP2GP to GP Connect mapping documentation](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
+
 ## Table of contents
 
 1. [Guidance for setting up the GP2GP adaptors in INT](/getting-started-instructions.md)
@@ -29,11 +37,11 @@ Both are Java Spring Boot applications, released as separate Docker images.
 
 ## Endpoints
 
-The Adaptor's facade provides two main endpoints for interacting with patient records.
+The adaptor's GPC API Facade provides two main endpoints for interacting with patient records.
 
 ### POST /Patient/$gpc.migratestructuredrecord
 
-The migratestructuredrecord endpoint is the primary endpoint for the Adaptor.
+The `migratestructuredrecord` endpoint is the primary endpoint for the Adaptor.
 This endpoint initiates the electronic health record (EHR) transfer process. 
 To use this endpoint, you need to provide the following headers:
 
@@ -43,6 +51,8 @@ To use this endpoint, you need to provide the following headers:
 - FROM-ODS : ODS identifier of the winning New Market Entrant (NME)
 - ConversationId : A unique UUID for the request. If not provided, the Adaptor will generate one and include it in the response headers.
   It must be used for all further calls for the patient's NHS number.
+
+Note: HTTP header names are case-insensitive.
 
 If a `ConversationId` header is provided where the value is populated but does not contain a valid UUID, then the 
 following response will be returned:
@@ -99,9 +109,9 @@ Request Body Example:
    }
    ```
 
-Responds with one of:
+Response behavior:
 
-1. Initial request: If you successfully configure the endpoint described above and call it, you should receive a 202-accepted response. This means the adaptor has received the request and is making the relevant requests.
+1. Initial request: If you successfully configure the endpoint described above and call it, you should receive a `202 Accepted` response. This means the adaptor has received the request and is making the relevant requests.
 2. Polling the request: After receiving a 202 response, we recommend polling the endpoint at regular intervals using an
    increasing call gap strategy until you get a 200 response.
    Each poll can return one of the following responses:
@@ -143,22 +153,23 @@ Responds with one of:
 
 ### POST /$gpc.ack
 
-This endpoint finalizes the EHR transfer process.
+This endpoint finalises the EHR transfer process.
 If you do not call this endpoint after receiving an EHR from the migratestructuredrecord endpoint, then you risk the losing practice triggering the manual postal transfer.
 
 To use this endpoint, you need to provide the following headers:
 
-- CONVERSATIONID: ID from the initial request.
-- CONFIRMATIONRESPONSE: Status of the EHR integration.
+- ConversationId: ID from the initial request.
+- ConfirmationResponse: Status of the EHR integration.
     - ACCEPTED: EHR integration successful.
     - FAILED_TO_INTEGRATE: Error encountered; triggers postal process.
 
-Endpoint calling:
+Endpoint behavior:
 
 This endpoint is a fire-and-forget endpoint.
-- If your request is successful, you will get a 200: Success response.
-- If your request is unsuccessful, you will get a 500: Server error response.
-- If you receive a 500 response, you can retry at any point, however, it should be noted that you must receive a 200: Success response from the migratestructuredrecord for the given conversation ID to receive a 200: Success from this endpoint.
+- If your request is successful, you will get a `200 OK` response.
+- If your request is unsuccessful, you will get a `500 Internal Server Error` response.
+- If you receive a `500` response, you can retry at any point. However, note that you must receive a `200 OK` response from `migratestructuredrecord` 
+  for the given conversation ID to receive a `200 OK` response from this endpoint.
 
 ## Licensing
 This code is dual-licensed under the MIT license and the OGL (Open Government License).
@@ -232,4 +243,4 @@ Active transfers per iteration were 400:
 Response time:
 ![report5.png](test-suite/non-functional-tests/test-scenario/perf_report/report5.png)
 
-Results can be visualised by importing results8.jtl into JMeter.
+Results can be visualized by importing `results8.jtl` into JMeter.
