@@ -3,6 +3,7 @@ package uk.nhs.adaptors.pss.translator.storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -93,7 +94,10 @@ public class AWSStorageServiceTest {
 
         awsStorageService.deleteFile(FILE_NAME);
 
-        verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client).deleteObject(captor.capture());
+        assertEquals(BUCKET_NAME, captor.getValue().bucket());
+        assertEquals(FILE_NAME, captor.getValue().key());
     }
 
     @Test
