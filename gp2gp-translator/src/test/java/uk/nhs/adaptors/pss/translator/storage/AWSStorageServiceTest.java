@@ -1,127 +1,125 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
-import io.findify.s3mock.S3Mock;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3Configuration;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-import java.io.IOException;
-import java.net.URI;
+import java.io.ByteArrayInputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class AWSStorageServiceTest {
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-    public static final int PORT = 9090;
-    private static final String BUCKET_NAME = "s3bucket";
-    private static final String FILE_NAME = "test-file.txt";
-    public static final String ACCESS_KEY = "accessKey";
-    public static final String SECRET_KEY = "secretKey";
+@ExtendWith(MockitoExtension.class)
+public class AWSStorageServiceTest {
 
-    private S3Mock s3Mock;
+    private static final String FILE_NAME = "testfile.txt";
+    private static final String BUCKET_NAME = "test-bucket";
+    private static final byte[] FILE_CONTENT = "mock-content".getBytes(StandardCharsets.UTF_8);
+    private static final String PRESIGNED_URL = "https://s3.amazonaws.com/testfile.txt";
+
+    @Mock private S3Client s3Client;
+    @Mock private S3Presigner s3Presigner;
+    @Mock private PresignedGetObjectRequest presignedGetObjectRequest;
+
     private AWSStorageService awsStorageService;
-    private StorageServiceConfiguration config;
-    private S3Client s3Client;
 
     @BeforeEach
     void setUp() {
-
-        s3Mock = new S3Mock.Builder().withPort(PORT).withInMemoryBackend().build();
-        s3Mock.start();
-        System.out.println("S3Mock started at http://localhost:" + PORT);
-
-        s3Client = S3Client.builder()
-            .endpointOverride(URI.create("http://localhost:" + PORT))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)))
-            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
-            .region(Region.EU_WEST_2)
-            .build();
-
-        config = new StorageServiceConfiguration();
+        StorageServiceConfiguration config = new StorageServiceConfiguration();
         config.setContainerName(BUCKET_NAME);
-        config.setRegion(Region.EU_WEST_2.toString());
-
-        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
-
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().region(Region.EU_WEST_2).build());
-    }
-
-    @AfterEach
-    void tearDown() {
-        s3Mock.stop();
+        awsStorageService = new AWSStorageService(s3Client, config, s3Presigner);
     }
 
     @Test
-    void uploadToStorageTest() throws IOException {
-        String uploadContent = "upload-content";
+    void When_UploadFile_Expect_SuccessfullyUploadsToS3() throws StorageException {
+        when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenReturn(PutObjectResponse.builder().build());
 
-        awsStorageService.uploadFile(FILE_NAME, uploadContent.getBytes(StandardCharsets.UTF_8));
+        awsStorageService.uploadFile(FILE_NAME, FILE_CONTENT);
 
-        final var request = GetObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build();
-        ResponseInputStream<GetObjectResponse> uploadedObjectInS3 = s3Client.getObject(request);
-        String uploadedS3Content = new String(uploadedObjectInS3.readAllBytes(), StandardCharsets.UTF_8);
-
-        assertEquals(uploadContent, uploadedS3Content);
+        verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
 
     @Test
-    void downloadFromStorageTest() {
+    void When_UploadFile_AndS3Throws_Expect_StorageExceptionThrown() {
+        when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenThrow(new RuntimeException("S3 unavailable"));
 
-        String fileContent = "dummy-content";
-        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-                           RequestBody.fromString(fileContent));
-
-        byte[] response = awsStorageService.downloadFile(FILE_NAME);
-        String downloadedContent = new String(response, StandardCharsets.UTF_8);
-
-        assertNotNull(response);
-        assertEquals(fileContent, downloadedContent);
+        assertThrows(StorageException.class, () -> awsStorageService.uploadFile(FILE_NAME, FILE_CONTENT));
     }
 
     @Test
-    void deleteFileTest() {
+    void When_DownloadFile_Expect_SuccessfullyDownloadsFromS3() {
+        when(s3Client.getObject(any(GetObjectRequest.class)))
+                .thenReturn(responseInputStream(FILE_CONTENT));
 
-        String fileContent = "dummy-content";
-        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-                           RequestBody.fromString(fileContent));
+        byte[] result = awsStorageService.downloadFile(FILE_NAME);
+
+        assertArrayEquals(FILE_CONTENT, result);
+    }
+
+    @Test
+    void When_DownloadFile_AndS3Throws_Expect_StorageExceptionThrown() {
+        when(s3Client.getObject(any(GetObjectRequest.class)))
+                .thenThrow(new RuntimeException("S3 unavailable"));
+
+        assertThrows(StorageException.class, () -> awsStorageService.downloadFile(FILE_NAME));
+    }
+
+    @Test
+    void When_DeleteFile_Expect_SuccessfullyDeletesFromS3() {
+        when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
 
         awsStorageService.deleteFile(FILE_NAME);
 
-        Exception exception = assertThrows(Exception.class, () -> awsStorageService.downloadFile(FILE_NAME));
-
-        assertEquals("Error occurred downloading from S3 Bucket", exception.getMessage());
+        verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
     }
 
     @Test
-    void getFileLocationTest() {
-        config.setAccountReference(ACCESS_KEY);
-        config.setAccountSecret(SECRET_KEY);
+    void When_DeleteFile_AndS3Throws_Expect_StorageExceptionThrown() {
+        when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
+                .thenThrow(new RuntimeException("S3 unavailable"));
 
-        awsStorageService = new AWSStorageService(s3Client, config, S3Presigner.builder().region(Region.EU_WEST_2).build());
-        String fileContent = "dummy-content";
-        s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build(),
-                           RequestBody.fromString(fileContent));
-
-        String response = awsStorageService.getFileLocation(FILE_NAME);
-
-        assertNotNull(response);
-        assertTrue(response.contains(FILE_NAME));
+        assertThrows(StorageException.class, () -> awsStorageService.deleteFile(FILE_NAME));
     }
 
+    @Test
+    void When_GetFileLocation_Expect_ReturnsPresignedUrl() throws Exception {
+        when(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class)))
+                .thenReturn(presignedGetObjectRequest);
+        when(presignedGetObjectRequest.url())
+                .thenReturn(new URL(PRESIGNED_URL));
+
+        String result = awsStorageService.getFileLocation(FILE_NAME);
+
+        assertEquals(PRESIGNED_URL, result);
+    }
+
+    private ResponseInputStream<GetObjectResponse> responseInputStream(byte[] content) {
+        return new ResponseInputStream<>(
+                GetObjectResponse.builder().build(),
+                new ByteArrayInputStream(content)
+        );
+    }
 }
