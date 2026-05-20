@@ -31,14 +31,12 @@ import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.v3.CD;
 import org.hl7.v3.CV;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
@@ -87,13 +85,9 @@ class DocumentReferenceMapperTest {
     @Captor
     private ArgumentCaptor<Optional<CV>> externalDocumentCaptor;
 
-    @BeforeEach
-    void setup() {
-        configureCommonStubs();
-    }
-
     @Test
     void mapNarrativeStatementToDocumentReferenceWithValidData() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -104,11 +98,10 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithNopatSecurity() {
+        registerDefaultDependencies(codeableConceptMapper);
 
         final Meta stubbedMeta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-        Mockito
-            .lenient()
-            .when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
                 any(String.class), any(Optional.class), any(Optional.class), any(Optional.class))).thenReturn(stubbedMeta);
 
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
@@ -127,7 +120,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithOptionalData() {
-
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_optional_data.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -138,7 +131,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapMultipleNarrativeStatementToDocumentReference() {
-
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("multiple_narrative_statements_has_referred_to_external_document.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -148,6 +141,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithAttachments() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -158,6 +152,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithAbsentAttachment() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_absent_attachment.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, new ArrayList<>());
@@ -168,6 +163,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithInvalidEncounterReference() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_with_invalid_encounter.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -178,6 +174,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNestedNarrativeStatement() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("nested_narrative_statements.xml");
 
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
@@ -189,6 +186,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void mapNarrativeStatementToDocumentReferenceWithNullFlavors() {
+        registerDefaultDependencies(codeableConceptMapper, confidentialityService);
         var ehrExtract = unmarshallEhrExtract("narrative_statement_null_flavors.xml");
         List<DocumentReference> documentReferences = documentReferenceMapper.mapResources(ehrExtract, createPatient(),
             getEncounterList(), AUTHOR_ORG, createAttachmentList());
@@ -228,6 +226,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void When_NarrativeStatement_With_ExternalDocumentAndNopatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
+        registerDefaultDependencies(codeableConceptMapper);
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtract("narrative_statement_has_referred_to_external_document_with_nopat.xml");
 
@@ -253,6 +252,7 @@ class DocumentReferenceMapperTest {
 
     @Test
     void When_NarrativeStatement_With_ExternalDocumentAndNoConfidentialityCode_Expect_MetaFromConfidentialityWithoutSecurity() {
+        registerDefaultDependencies(codeableConceptMapper);
         final RCMRMT030101UKEhrExtract ehrExtract =
             unmarshallEhrExtract("narrative_statement_has_referred_to_external_document.xml");
 
@@ -384,18 +384,23 @@ class DocumentReferenceMapperTest {
         return unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
     }
 
-    private void configureCommonStubs() {
-        final CodeableConcept concept = createCodeableConcept(null, SNOMED_SYSTEM, CODING_DISPLAY);
+    public void registerDefaultDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == codeableConceptMapper) {
+                final CodeableConcept concept = createCodeableConcept(null, SNOMED_SYSTEM, CODING_DISPLAY);
 
-        Mockito.lenient().when(codeableConceptMapper.mapToCodeableConcept(
-            any(CD.class)
-        )).thenReturn(concept);
-
-        Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            ehrCompositionCaptor.capture(),
-            narrativeStatementCaptor.capture(),
-            externalDocumentCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+                when(codeableConceptMapper.mapToCodeableConcept(
+                        any(CD.class)
+                )).thenReturn(concept);
+            }
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        eq(META_PROFILE),
+                        ehrCompositionCaptor.capture(),
+                        narrativeStatementCaptor.capture(),
+                        externalDocumentCaptor.capture()
+                )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            }
+        }
     }
 }

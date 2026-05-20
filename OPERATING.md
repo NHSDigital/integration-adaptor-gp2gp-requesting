@@ -1,10 +1,21 @@
-# Operating The Adaptor
+# Operating the Adaptor
+
+This guide is for teams running the GP2GP FHIR Request Adaptor in a deployed environment.
+It complements the setup guidance in [README.md](README.md), [getting-started-instructions.md](getting-started-instructions.md),
+and [getting-started-with-windows.md](getting-started-with-windows.md).
+
+## Start here
+
+- [Project overview and API guidance](README.md)
+- [Set up the GP2GP adaptors in INT](getting-started-instructions.md)
+- [Set up on Windows](getting-started-with-windows.md)
+- [Develop the adaptor](developer-information.md)
 
 ## Dependencies
 
 To run the adaptor you will need:
 
-- Both the [nia-ps-adaptor (aka translator)][nia-ps-adaptor] and [nia-ps-facade] containers running
+- Both the [GP2GP Translator][nia-ps-adaptor] and [GPC API Facade][nia-ps-facade] containers running
 - A populated PostgreSQL DB, for more details see [Database Requirements](#database-requirements)
 - A [message broker](#message-broker)
 - An instance of the [MHS Adaptor] running
@@ -15,16 +26,17 @@ To run the adaptor you will need:
 
 ## Logging and tracing
 
-The Adaptors services emit logs which are captured by the docker containers they are hosted within.
+The adaptor services emit logs which are captured by the Docker containers they are hosted within.
 Whichever Docker container orchestration technology is used, the log streams can be captured and forwarded to an
 appropriate log indexing service for consumption, storage and subsequent queries. 
 
-The consumption of these logs form an essential part of issue investigation and resolution. 
+The consumption of these logs forms an essential part of issue investigation and resolution.
 
-The log messages relating to a specific transfer can be identified by the Conversation ID. Which is a correlating ID present throughout the patient record migration and carried in the GP2GP messages themselves.
+The log messages relating to a specific transfer can be identified by the `ConversationId`. 
+This is a correlating ID present throughout the patient record migration and carried in the GP2GP messages themselves.
 
-### Resources allocation
-Based on the use cases outlined in [Performance](README.md#Performance), allocating 2 vCPUs and 4 GB RAM to the facade and translator will
+### Resource allocation
+Based on the use cases outlined in [Performance](README.md#performance), allocating 2 vCPUs and 4 GB RAM to the facade and translator will
 handle most patient record transfers.
 During testing of receiving an electronic health record of size >100MB which we considered to be beyond the upper limit
 based on analysis of GP2GP transfers made in early 2024 we identified a need to increase the translator RAM up to 8 GB
@@ -63,7 +75,7 @@ throughput times to allow adjustment if required ....
 The *Persist Duration* of each message is unique to the sending organisation and is obtained from the [Spine Directory Service (SDS) FHIR API](https://digital.nhs.uk/developer/api-catalogue/spine-directory-service-fhir). Responses for an organisation's message type are cached by default, the frequency the cache is
 updated is configurable via the environment variable `TIMEOUT_SDS_POLL_FREQUENCY`. 
 
-The adaptor checks incomplete transfers periodically, at a default frequency of every six hours. However, this is configurable via the environment variable `TIMEOUT_CRON_TIME`.
+The adaptor checks incomplete transfers periodically, at a default frequency of every two hours. However, this is configurable via the environment variable `TIMEOUT_CRON_TIME`.
 
 Should you wish to specify a maximum timeout period (in seconds), thus bypassing the above logic, you may specify the 
 value in the `migrationTimeoutOverride` environment variable.
@@ -77,21 +89,21 @@ when they are unavailable.
 
 ## Database requirements
 
-* The adaptor requires a [PostgreSQL] database
-* The adaptor stores the identifiers, status, and metadata for each patient transfer
-* The adaptor uses the database as a source of SNOMED information
-* Deleting the database, or its records will cause any in-progress transfers to fail
-* In addition to the [/Patient/$gpc.migratestructuredrecord][migratestructuredrecord] endpoint, the database can be used to monitor for any failed or incomplete transfers
+- The adaptor requires a [PostgreSQL] database.
+- The adaptor stores the identifiers, status, and metadata for each patient transfer.
+- The adaptor uses the database as a source of SNOMED information.
+- Deleting the database, or its records, will cause any in-progress transfers to fail.
+- In addition to the [migratestructuredrecord endpoint][migratestructuredrecord], the database can be used to monitor for failed or incomplete transfers.
 
 [PostgreSQL]: https://www.postgresql.org/
-[migratestructuredrecord]: README.md#patientgpcmigratestructuredrecord
+[migratestructuredrecord]: README.md#endpoints
 
 ### Updating the application schema
 
 The adaptor uses Liquibase to perform DB migrations.
 New versions of the Adaptor may require DB changes, which will necessitate the execution of the migration script before the new version of the application can be executed.
 
-The DB migrations is build as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-db-migration](https://hub.docker.com/r/nhsdev/nia-ps-db-migration).
+The DB migration is built as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-db-migration](https://hub.docker.com/r/nhsdev/nia-ps-db-migration).
 
 Required environment variables:
 
@@ -101,11 +113,13 @@ Required environment variables:
 - GPC_FACADE_USER_DB_PASSWORD e.g. another5ecret, used when creating the user `gpc_user`
 - GP2GP_TRANSLATOR_USER_DB_PASSWORD e.g. yetanother5ecret, used when creating the user `gp2gp_user`
 
+For example, the DB migration can be run as an ECS task in AWS.
+
 *When passing passwords into this script it is the responsibility of the supplier to ensure that passwords are being kept secure by using appropriate controls within their infrastructure.*
 
 ### Populating the SNOMED database
 
-The adaptor requires an up to date copy of the SNOMED DB as part of translating FHIR `CodableConcepts`.
+The adaptor requires an up-to-date copy of the SNOMED DB as part of translating FHIR `CodableConcepts`.
 
 The SNOMED loader script is built as a Docker image, hosted on DockerHub under [nhsdev/nia-ps-snomed-schema](https://hub.docker.com/r/nhsdev/nia-ps-snomed-schema).
 
@@ -122,9 +136,9 @@ The docker container has a required argument which is the path to a zipped Snome
 The container does not come bundled with any SNOMED data itself.
 You will need to provide this file to the container.
 
-The SNOMED loader script is also responsible for populating the materialised view `immunization_codes` which is used to
-identify which `Observations` are to be treated as `Immunizations`. Details of how these are built are provided in the 
-documentation snomed database loader documentation [README.md](snomed-database-loader/README.md).
+The SNOMED loader script is also responsible for populating the materialised view `immunization_codes`, which is used to
+identify which `Observations` are to be treated as `Immunizations`. Details of how these are built are provided in the
+SNOMED database loader documentation: [README.md](snomed-database-loader/README.md).
 
 To test immunization codes are loaded correctly the script [test-load-immunization-codes.sh](snomed-database-loader/test-load-immunization-codes.sh)
 can be executed against the database using the required environment variables listed above.
@@ -134,8 +148,8 @@ can be executed against the database using the required environment variables li
 Example usage:
 ```sh
 $ docker run --rm -e PS_DB_OWNER_NAME=postgres -e POSTGRES_PASSWORD=super5ecret -e PS_DB_HOST=postgres -e PS_DB_PORT=5432 \
-    -v /path/to/uk_sct2mo_41.0.0_20250924000001Z.zip:/snomed/uk_sct2mo_41.0.0_20250924000001Z.zip \
-    nhsdev/nia-ps-snomed-schema /snomed/uk_sct2mo_41.0.0_20250924000001Z.zip
+    -v /path/to/uk_sct2mo_42.0.0_20260408000001Z.zip:/snomed/uk_sct2mo_42.0.0_20260408000001Z.zip \
+    nhsdev/nia-ps-snomed-schema /snomed/uk_sct2mo_42.0.0_20260408000001Z.zip
 ```
 
 #### First installation
@@ -168,7 +182,7 @@ To do this:-
 
 ### PS Queue
 
-The service uses a queue for communication between the HTTP facade, and GP2GP translator.
+The service uses a queue for communication between the GPC API Facade and GP2GP Translator.
 
 For this communication to be successful, each service [needs to be configured](#ps-queue-variables) to communicate to the same queue. 
 
@@ -192,7 +206,7 @@ graph LR
 
 The set-up shown above is described as the daisy-chaining configuration.
 In this mode, the Request Adaptor and [Send Adaptor] execute against a single instance of the MHS Adaptor.
-Messages received by the GP2GP FHIR Request Adaptor with a conversation ID it doesn't recognise are forwarded to the
+Messages received by the GP2GP FHIR Request Adaptor with a `ConversationId` it does not recognise are forwarded to the
 GP2GP FHIR Send Adaptor queue.
 
 When the daisy-chaining configuration is disabled, the adaptor will put messages it doesn't recognise into the dead letter queue.
@@ -203,18 +217,18 @@ An example daisy chaining environment is provided in [/test-suite/daisy-chaining
 and each environment variable described within [Inbound message queue variables](#inbound-message-queue-variables).
 
 ### Retrying and dead-letter queue
-The adaptor will put messages it doesn't recognise into the dead letter queue.
-Additionally, any messages which is recognised but can't be processed due to an error are sent to the dead letter queue once the number of attempted redeliveries exceeds the threshold.
+The adaptor will put messages it does not recognise into the dead-letter queue.
+Additionally, any messages which are recognised but cannot be processed due to an error are sent to the dead-letter queue once the number of attempted redeliveries exceeds the threshold.
 The number of redeliveries is configurable with the [`MHS_AMQP_MAX_REDELIVERIES` environment variable](#ps-queue-variables).
 
 [Send Adaptor]: https://github.com/NHSDigital/integration-adaptor-gp2gp-sending
 
 ### Broker Requirements
 
-* The broker must be configured with a limited number of retries and dead-letter queues
-* It is the responsibility of the GP supplier to configure adequate monitoring against the dead-letter queues that allows ALL undeliverable messages to be investigated fully.
-* The broker must use persistent queues to avoid loss of data
-* The Adaptor has been assured against ActiveMQ, the use of other MQ implementations is the responsibility of the GP supplier to test
+- The broker must be configured with a limited number of retries and dead-letter queues.
+- It is the responsibility of the GP supplier to configure adequate monitoring against the dead-letter queues so that all undeliverable messages can be investigated fully.
+- The broker must use persistent queues to avoid loss of data.
+- The Adaptor has been assured against ActiveMQ. The use of other MQ implementations is the responsibility of the GP supplier to test.
 
 **Using AmazonMQ**
 
@@ -230,10 +244,10 @@ The number of redeliveries is configurable with the [`MHS_AMQP_MAX_REDELIVERIES`
 ## Attachment storage
 
 GP2GP messaging splits the patient's Electronic Health Record (EHR) into an EHR Extract and associated attachments. 
-The adaptor uses AWS / Azure object storage to manage the attachments.
+The Adaptor uses AWS or Azure object storage to manage attachments.
 
 ### Data stored
-It is the responsibility of the GP System Supplier to manage the data stored in object storage post transfer. 
+It is the responsibility of the GP System Supplier to manage the data stored in object storage post-transfer.
 
 #### Incomplete transfers
 The sending GP2GP system can split attachments into multiple parts that the adaptor must reassemble. It could also send 
@@ -253,10 +267,10 @@ contains a compressed EHR Extract this is not removed from storage automatically
 
 ### Filename convention
 Attachment files are named as `conversationId_documentId` where `documentId` is the name of the file (including extension)
-and `conversationId` is an identifier unique to transfer. 
+and `conversationId` is an identifier unique to the transfer.
 
 ### Configuration
-In the event of an upload failure the adaptor will retry. By default, the retry limit 3 times. However, this is configurable 
+In the event of an upload failure the adaptor will retry. By default, the retry limit is 3 times. However, this is configurable
 via the `STORAGE_RETRY_LIMIT` environment variable.
 
 The adaptor requires permission to read, write and delete from the object storage bucket / container. For example, in AWS
@@ -267,9 +281,9 @@ testing. Attachments are not stored in a long term storage area when using `Loca
 
 For more configuration see the [Attachment storage variables](#attachment-storage-variables) section.
 
-## AWS daisy chaining example
+## AWS daisy-chaining example
 
-The Adaptors team have their own AWS environment they use for deploying both the GP2GP and Patient Swtiching adaptors and MHS adaptor.
+The Adaptor team has its own AWS environment that it uses for deploying both the GP2GP and Patient Switching adaptors and the MHS Adaptor.
 The infrastructure as code can be used as an example and is found inside the [integration-adaptors-deployment repository](https://github.com/NHSDigital/integration-adaptors-deployment/tree/main/aws/components).
 
 ## Environment variables

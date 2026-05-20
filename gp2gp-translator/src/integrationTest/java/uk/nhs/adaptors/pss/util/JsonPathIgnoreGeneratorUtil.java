@@ -94,7 +94,7 @@ public class JsonPathIgnoreGeneratorUtil {
     @Data
     @RequiredArgsConstructor
     @AllArgsConstructor
-    private static class IgnoreParameters {
+    private static final class IgnoreParameters {
         private final ResourceType resourceType;
         private final String fieldName;
         private Function<Resource, Boolean> checker;
