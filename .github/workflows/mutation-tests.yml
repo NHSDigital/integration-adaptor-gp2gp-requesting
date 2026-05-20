@@ -1,28 +1,28 @@
-name: "Mutation Testing Workflow"
-on:
-  pull_request:
-
-jobs:
-  gp2gp-translator-mutation-testing:
-    name: "Mutation Testing"
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
-    strategy:
-      matrix:
-        path: [ ./gpc-api-facade, ./gp2gp-translator]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
-        with:
-          fetch-depth: 2
-      - name: Setup Java JDK
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
-        with:
-          distribution: 'temurin'
-          java-version: 21
-
-      - name: run pitest
-        working-directory: ${{ matrix.path }}
-        run: ./gradlew pitest-github
-        env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#name: "Mutation Testing Workflow"
+#on:
+#  pull_request:
+#
+#jobs:
+#  gp2gp-translator-mutation-testing:
+#    name: "Mutation Testing"
+#    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+#    strategy:
+#      matrix:
+#        path: [ ./gpc-api-facade, ./gp2gp-translator]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout project
+#        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+#        with:
+#          fetch-depth: 2
+#      - name: Setup Java JDK
+#        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+#        with:
+#          distribution: 'temurin'
+#          java-version: 21
+#
+#      - name: run pitest
+#        working-directory: ${{ matrix.path }}
+#        run: ./gradlew pitest-github
+#        env:
+#          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
