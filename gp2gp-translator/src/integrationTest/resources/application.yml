@@ -50,15 +50,17 @@ storage:
   containerName: ${STORAGE_CONTAINER_NAME:}
   accountReference: ${STORAGE_REFERENCE:}
   accountSecret: ${STORAGE_SECRET:}
-  retryLimit: ${STORAGE_RETRY_Limit:3}
+  retryLimit: ${STORAGE_RETRY_LIMIT:3}
 
 sds:
   url: ${SDS_BASE_URL:https://api.service.nhs.uk/spine-directory/FHIR/R4}
-  apiKey: ${SDS_API_KEY}
+  apiKey: ${SDS_API_KEY:dummy-sds-api-key-for-tests}
 
 timeout:
   ehrExtractWeighting: ${TIMEOUT_EHR_EXTRACT_WEIGHTING:1}
   copcWeighting: ${TIMEOUT_COPC_WEIGHTING:1}
   cronTime: ${TIMEOUT_CRON_TIME:0 0 */2 * * *}
+  sdsPollFrequency: ${TIMEOUT_SDS_POLL_FREQUENCY:3}
+  migrationTimeoutOverride: ${MIGRATION_TIMEOUT_OVERRIDE:false}
 
 base64.skipDecode: ${SKIP_DECODE:false}
