@@ -15,6 +15,7 @@ and the platform-specific setup guides.
 
 - JDK 21 - the adaptor is developed in Java with Spring Boot
 - Docker
+- A bash-compatible shell for the project scripts. On Windows, use WSL as described in [getting-started-with-windows.md](./getting-started-with-windows.md)
 - A current SNOMED CT UK Edition monolith zip file.
   See [First installation](./OPERATING.md#first-installation) for instructions on how to download one.
 - Windows users should complete the [prerequisite setup steps](./getting-started-with-windows.md)
@@ -22,22 +23,24 @@ and the platform-specific setup guides.
 ## Project structure
 
     .
-    ├── db                          # Dockerfile and scripts for local database setup
-    ├── snomed-database-loader      # Scripts loading Snomed CT codes into database
-    ├── common                      # Common module used by gp2gp-translator, gpc-api-facade and db-connector
-    ├── db-connector                # Common module used by gp2gp-translator and gpc-api-facade, used for db-related classes
-    ├── gp2gp-translator            # GP2GP Translator
-    ├── gpc-api-facade              # GPC API Facade
-    └── mhs-adaptor-mock            # Dockerfile and required files for mock of MHS Adaptor
+    ├── common                      # Shared code used by gp2gp-translator, gpc-api-facade and db-connector
+    ├── db-connector                # Database migrations and shared DB-related classes
+    ├── docker                      # Local Docker environment, compose files and helper scripts
+    ├── gp2gp-translator            # GP2GP Translator service
+    ├── gpc-api-facade              # GPC API Facade service
+    ├── schema                      # Shared schema module
+    ├── smoke-tests                 # Smoke-test project
+    ├── snomed-database-loader      # Scripts for loading SNOMED CT data into PostgreSQL
+    └── test-suite                  # Postman, mock MHS service and local end-to-end test environment
 
 ## Local development
 
 ### Start the local environment
 
-1. Go to `docker` directory
-2. Create a copy of `example.vars.sh`, name it `vars.sh`
-3. Fill in the `SNOMED_CT_TERMINOLOGY_FILE` variable inside `vars.sh` file with the path to where your SNOMED ZIP file
-   is downloaded to. For the description and purpose of other environment variables, refer to the [operating guide](OPERATING.md#environment-variables).
+1. Go to the `docker` directory.
+2. Create a copy of `example.vars.sh` named `vars.sh`.
+3. Fill in the `SNOMED_CT_TERMINOLOGY_FILE` variable inside `docker/vars.sh` with the path to your SNOMED ZIP file.
+   For the description and purpose of other environment variables, refer to the [operating guide](OPERATING.md#environment-variables).
 4. Run the `start-local-environment.sh` script:
    ```shell script
     ./start-local-environment.sh
@@ -52,18 +55,19 @@ and the platform-specific setup guides.
     - build and start the GP2GP Translator application.
       All components run in Docker.
 
-5. To run the integration tests you will need to stop the translator and facade containers running in Docker from step 4
-   as otherwise they will steal the messages off of AMQP.
-   To stop the translator and facade, hit Ctrl-C in the terminal where you ran `./start-local-environment.sh`.
-   You will want ActiveMQ, PostgreSQL and the MHS Adaptor mock to continue running in the background.
+5. To run the integration tests, stop the translator and facade containers started by step 4, otherwise they will consume the AMQP messages first.
+   Hit Ctrl-C in the terminal where you ran `./start-local-environment.sh`.
+   That stops the foreground `gpc_facade` and `gp2gp_translator` containers while leaving ActiveMQ, PostgreSQL and the MHS adaptor mock running in the background.
 
-   - For the translator: `cd ../gp2gp-translator/ && ./gradlew check`
-   - For the facade: `cd ../gpc-api-facade/ && ./gradlew check`
-   - For common code: `cd ../ && ./gradlew common:check`
-   - For DB connector code: `cd ../ && ./gradlew db-connector:check`
+   From the repository root, run the checks you need:
+
+   - `./gradlew gp2gp-translator:check`
+   - `./gradlew gpc-api-facade:check`
+   - `./gradlew common:check`
+   - `./gradlew db-connector:check`
 
 6. To get the adaptor to translate a GP2GP XML file to a GP Connect JSON file, place the XML file you wish to be
-   translated inside the folder `/gp2gp-translator/src/transformXmlToJson/resources/input/` and then run the
+   translated inside `gp2gp-translator/src/transformXmlToJson/resources/input/` and then run the
    `transformXmlToJson` gradle task. The task will log out details of what it has transformed.
 
    - `cd gp2gp-translator && ./gradlew transformXmlToJson`
@@ -121,17 +125,17 @@ Raise a PR for your changes.
 
 ## Rebuilding services
 
-To rebuild the GPC API Facade, run:
+From the `docker` directory, rebuild the GPC API Facade with:
 ```shell script
  ./rebuild-and-restart-gpc-facade.sh
 ```
 
-To rebuild the GP2GP Translator, run:
+From the `docker` directory, rebuild the GP2GP Translator with:
 ```shell script
  ./rebuild-and-restart-gp2gp-translator.sh
 ```
 
-To clean all containers, run:
+From the `docker` directory, remove the local Docker containers, images and dangling volumes with:
 ```shell script
  ./clear-docker.sh
 ```
