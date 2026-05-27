@@ -6,7 +6,7 @@ on:
     paths:
       - 'docker/**'
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 4 * * 1'
 jobs:
   trivy-scan:
     name: Trivy Vulnerability Scan
