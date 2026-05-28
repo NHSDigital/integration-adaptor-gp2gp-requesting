@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   gpc_facade:
     container_name: gpc_facade_tests
