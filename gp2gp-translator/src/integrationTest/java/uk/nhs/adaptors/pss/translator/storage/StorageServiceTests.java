@@ -1,7 +1,6 @@
 package uk.nhs.adaptors.pss.translator.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -15,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = Gp2gpTranslatorApplication.class)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
 public class StorageServiceTests {

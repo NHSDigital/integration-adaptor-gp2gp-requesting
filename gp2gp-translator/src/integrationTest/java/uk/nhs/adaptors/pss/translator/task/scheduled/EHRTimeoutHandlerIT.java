@@ -3,7 +3,6 @@ package uk.nhs.adaptors.pss.translator.task.scheduled;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_ACKNOWLEDGED;
@@ -38,11 +37,12 @@ import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.connector.dao.PatientMigrationRequestDao;
 import uk.nhs.adaptors.connector.model.MigrationStatusLog;
 import uk.nhs.adaptors.connector.service.MigrationStatusLogService;
+import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.service.SDSService;
 import uk.nhs.adaptors.pss.translator.task.SendNACKMessageHandler;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
 @AutoConfigureMockMvc
