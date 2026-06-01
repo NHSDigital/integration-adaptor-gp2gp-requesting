@@ -58,7 +58,7 @@ import uk.nhs.adaptors.pss.translator.util.OutboundMessageUtil;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class EHRTimeoutHandler {
 
-    private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK06";
+    private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK07";
     private static final String COPC_MESSAGE_NAME = "COPC_IN000001UK01";
     private static final Integer MAX_TIMEOUT_OVERWRITE = 172800;
     private final PersistDurationService persistDurationService;

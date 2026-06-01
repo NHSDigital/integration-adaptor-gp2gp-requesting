@@ -21,13 +21,19 @@ dependencies {
     api 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:8.0.0'
     api 'org.springframework.boot:spring-boot-starter-jdbc'
     api 'org.springframework.boot:spring-boot-starter-actuator'
-    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework:spring-web'
     api 'org.springframework.boot:spring-boot-starter-webflux'
     api 'org.springframework:spring-jms'
     api 'org.apache.commons:commons-lang3:3.19.0'
     api 'org.apache.qpid:qpid-jms-client:2.9.0'
+
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter:6.0.0'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 }
 
 test {
