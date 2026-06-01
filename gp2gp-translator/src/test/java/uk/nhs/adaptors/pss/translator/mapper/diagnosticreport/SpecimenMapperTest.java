@@ -37,7 +37,7 @@ import uk.nhs.adaptors.pss.translator.mapper.DateTimeMapper;
 import uk.nhs.adaptors.pss.translator.service.ConfidentialityService;
 
 @ExtendWith(MockitoExtension.class)
-public class SpecimenMapperTest {
+class SpecimenMapperTest {
 
     private static final String XML_RESOURCES_BASE = "xml/Specimen/";
     private static final String SPECIMEN_PREFIX = "Specimen/";
