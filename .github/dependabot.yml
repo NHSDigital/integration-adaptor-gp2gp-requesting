@@ -14,3 +14,5 @@ updates:
       - "/smoke-tests"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: "Common Modules Tests"
         working-directory: ./docker
@@ -50,7 +50,7 @@ jobs:
       build-id: ${{ steps.generate.outputs.buildId }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - id: generate
         working-directory: ./scripts
@@ -108,7 +108,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     steps:
       - name: Check out code
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3

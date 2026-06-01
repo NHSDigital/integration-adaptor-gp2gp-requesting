@@ -33,14 +33,53 @@ public class ResourceReferenceUtilTest {
 
     private static final String XML_RESOURCES_COMPOSITION = "xml/ResourceReference/EhrComposition/";
     private static final String XML_RESOURCES_COMPOUND = "xml/ResourceReference/CompoundStatement/";
+    private static final int ONE = 1;
     private static final int TWO = 2;
-
+    private static final int THREE = 3;
+    private static final int FOUR = 4;
 
     @Mock
     private DatabaseImmunizationChecker immunizationChecker;
 
     @InjectMocks
     private ResourceReferenceUtil resourceReferenceUtil;
+
+    @Test
+    public void testNarrativeStatementReferencedAtCompoundStatementLevel() {
+        final RCMRMT030101UKCompoundStatement compoundStatement
+            = unmarshallCompoundStatementElement("compound_statement_with_narrative_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
+
+        assertThat(references).hasSize(ONE);
+        assertThat(references.getFirst().getReference()).isEqualTo("Observation/07F5EAC0-90B5-11EC-B1E5-0800200C9A66");
+    }
+
+    @Test
+    public void testPlanAndRequestStatementReferencedAtCompoundStatementLevel() {
+        final RCMRMT030101UKCompoundStatement compoundStatement
+            = unmarshallCompoundStatementElement("compound_statement_with_plan_and_request_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromCompoundStatement(compoundStatement, references);
+
+        assertThat(references).hasSize(FOUR);
+        assertThat(references.get(2).getReference()).isEqualTo("ProcedureRequest/3316531F-5705-424C-9E1A-EE694FB411B4");
+        assertThat(references.get(THREE).getReference()).isEqualTo("ReferralRequest/B4303C92-4D1C-11E3-A2DD-010000000161");
+    }
+
+    @Test
+    public void testPlanStatementReferencedAtEhrCompositionLevel() {
+        final RCMRMT030101UKEhrComposition ehrComposition
+            = unmarshallEhrCompositionElement("ehr_composition_with_plan_statement.xml");
+
+        List<Reference> references = new ArrayList<>();
+        resourceReferenceUtil.extractChildReferencesFromEhrComposition(ehrComposition, references);
+
+        assertThat(references).hasSize(THREE);
+        assertThat(references.get(2).getReference()).isEqualTo("ProcedureRequest/3316531F-5705-424C-9E1A-EE694FB411B4");
+    }
 
     @Test
     public void testMedicationResourcesReferencedAtEhrCompositionLevel() {
