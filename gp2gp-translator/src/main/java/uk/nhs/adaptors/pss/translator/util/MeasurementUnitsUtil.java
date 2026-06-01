@@ -1,13 +1,13 @@
 package uk.nhs.adaptors.pss.translator.util;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class MeasurementUnitsUtil {
 
     private static final Map<String, String> UNITS;
     static {
-        UNITS = new HashMap<>();
+        UNITS = new ConcurrentHashMap<>();
         UNITS.put("%", "percent");
         UNITS.put("%/100{WBC}", "percent / 100 WBC");
         UNITS.put("%{0to3Hours}", "percent 0to3Hours");

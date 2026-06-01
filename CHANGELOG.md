@@ -7,10 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 * Updated the Requesting Adaptor to map newly granular EHRSupplyType values from EMIS into the corresponding GPC JSON record fields.
+* Corrected the EHR Extract interaction identifier used by timeout handling from RCMR_IN030000UK06 to RCMR_IN030000UK07.
+* The length of varchar columns in 'patient_attachment_log' table have been extended to 1024 characters.
 
 ### Added
 * Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
-* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent
+* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent.
+* 
+### Fixed
+* Improved error handling in SkeletonProcessingService to throw a meaningful IllegalArgumentException
+  when a payload node cannot be matched to a skeleton document ID, replacing an uninformative NullPointerException.
 
 ## [3.1.3] - 2025-09-19
 

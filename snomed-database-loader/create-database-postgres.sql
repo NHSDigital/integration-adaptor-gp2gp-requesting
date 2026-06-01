@@ -1,5 +1,9 @@
 drop schema if exists snomedct cascade;
 create schema snomedct;
+
+grant usage on schema snomedct to application_user;
+alter default privileges in schema snomedct
+grant select on tables to application_user;
 set schema 'snomedct';
 
 create table description_s(

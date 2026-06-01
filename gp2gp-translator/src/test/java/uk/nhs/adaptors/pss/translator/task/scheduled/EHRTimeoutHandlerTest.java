@@ -83,7 +83,7 @@ import uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil;
 @ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
 class EHRTimeoutHandlerTest {
 
-    private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK06";
+    private static final String EHR_EXTRACT_MESSAGE_NAME = "RCMR_IN030000UK07";
     private static final String COPC_MESSAGE_NAME = "COPC_IN000001UK01";
 
     private static final int EHR_EXTRACT_PERSIST_DURATION = 7;
