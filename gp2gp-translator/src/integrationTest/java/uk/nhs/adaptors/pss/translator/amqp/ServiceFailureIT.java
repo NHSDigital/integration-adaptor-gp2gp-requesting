@@ -11,7 +11,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import static uk.nhs.adaptors.common.enums.MigrationStatus.CONTINUE_REQUEST_ACCEPTED;
@@ -52,6 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.common.model.TransferRequestMessage;
+import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.config.PssQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.MhsServerErrorException;
 import uk.nhs.adaptors.pss.translator.service.MhsClientService;
@@ -63,12 +63,13 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class ServiceFailureIT extends BaseEhrHandler {
 
+    public static final int TEN_SECONDS = 10000;
     private static final String LOSING_ASID = "LOSING_ASID";
     private static final String WINNING_ASID = "WINNING_ASID";
     private static final String STUB_BODY = "test Body";
@@ -79,6 +80,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
     public static final String JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON = "/json/LargeMessage/Scenario_3/copc.json";
     public static final String JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON = "/json/LargeMessage/expectedBundleScenario3.json";
     public static final int RECEIVE_TIMEOUT_LIMIT = 50;
+    public static final int TWENTY = 20;
     private String conversationId;
 
     @Autowired
@@ -144,17 +146,17 @@ public class ServiceFailureIT extends BaseEhrHandler {
     @Test
     public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
         doThrow(MhsServerErrorException.class)
-            .when(sendContinueRequestHandler).prepareAndSendRequest(any());
+            .doNothing()
+            .when(sendContinueRequestHandler)
+            .prepareAndSendRequest(any());
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
         await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
-        verify(sendContinueRequestHandler, times(1))
-            .prepareAndSendRequest(any());
+        verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
 
-        assertThat(getCurrentMigrationStatus(getConversationId()))
-            .isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
+        assertThat(getCurrentMigrationStatus(getConversationId())).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
 
     @Test

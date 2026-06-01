@@ -5,10 +5,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-### Added
-* If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a `confidentialityCode`, 
-  the `meta.security` field of the corresponding translated FHIR `DocumentReference` resource will now be [appropriately populated][nopat-docs].
+### Changed
+* Updated the Requesting Adaptor to map newly granular EHRSupplyType values from EMIS into the corresponding GPC JSON record fields.
+* Corrected the EHR Extract interaction identifier used by timeout handling from RCMR_IN030000UK06 to RCMR_IN030000UK07.
+* The length of varchar columns in 'patient_attachment_log' table have been extended to 1024 characters.
 
+### Added
+* Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
+* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent.
+* 
+### Fixed
+* Improved error handling in SkeletonProcessingService to throw a meaningful IllegalArgumentException
+  when a payload node cannot be matched to a skeleton document ID, replacing an uninformative NullPointerException.
+
+## [3.1.3] - 2025-09-19
+
+### Fixed
+* Blood pressure observations are retrieved only once to prevent duplicate entries.
+
+### Changed
+* Changed the default output to `'Defaulted to Minor'`  when the adaptor receives GP2GP xml and finds a problem that is 
+  either coded as ‘unspecified significance’ or no severity qualifier is present.
+
+
+## [3.1.2] - 2025-07-29
+
+### Added
+* If a `ehrComposition` (which includes a `NarrativeStatement` with a reference to a document ) record includes a
+  `confidentialityCode` then the `meta.security` field of the corresponding translated FHIR `DocumentReference` resource
+  will now be [appropriately populated][nopat-docs].
+
+
+## [3.1.1] - 2025-07-10
+
+### Fixed
+
+* Fixed a bug where redactions were being removed from some Observations after being added.
 
 ## [3.1.0] - 2025-06-19
 

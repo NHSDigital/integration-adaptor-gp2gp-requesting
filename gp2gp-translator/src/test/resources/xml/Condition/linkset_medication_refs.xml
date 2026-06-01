@@ -10,6 +10,12 @@
                             <id root="ASSERTER_ID"/>
                         </agentRef>
                     </Participant2>
+                    <author typeCode="AUT" contextControlCode="OP">
+                        <time value="20230130"/>
+                        <agentRef classCode="AGNT">
+                            <id root="5EFFD465-A0C1-11ED-808B-AC162D1F16F0"/>
+                        </agentRef>
+                    </author>
                     <component typeCode="COMP">
                         <LinkSet classCode="OBS" moodCode="EVN">
                             <id root="LINKSET_ID"/>

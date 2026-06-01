@@ -1215,7 +1215,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "Inactive Problem, Not Significant (Minor)"
       } ]
@@ -1280,7 +1280,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "This is a note for anitbiotic allergy NOS"
       }, {
@@ -1475,7 +1475,7 @@
         "reference": "Practitioner/1E473786-E7FA-785E-C911-A8D38FB56F20"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "Inactive Problem, Not Significant (Minor)"
       } ]
@@ -1658,7 +1658,7 @@
       "note": [ {
         "text": "Defaulted status to active : Unknown status at source"
       }, {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "What does this really mean?"
       }, {

@@ -6,7 +6,6 @@ import static org.springframework.util.ResourceUtils.getFile;
 
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -14,7 +13,6 @@ import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.hl7.v3.RCMRMT030101UKNarrativeStatement;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import lombok.SneakyThrows;
@@ -32,14 +30,14 @@ public class ObservationCommentMapperTest {
     private static final String IDENTIFIER_SYSTEM = "https://PSSAdaptor/TESTPRACTISECODE";
     private static final int EXPECTED_OBSERVATION_COUNT = 3;
 
-    private final ObservationCommentMapper observationCommentMapper = new ObservationCommentMapper();
-    private Patient patient;
+    private static final Patient PATIENT;
 
-    @BeforeEach
-    public void setUp() {
-        patient = new Patient();
-        patient.setId(PATIENT_ID);
+    static {
+        PATIENT = new Patient();
+        PATIENT.setId(PATIENT_ID);
     }
+
+    private final ObservationCommentMapper observationCommentMapper = new ObservationCommentMapper();
 
     @Test
     public void mapObservationsWithFullDataSingleObservation() {
@@ -51,14 +49,14 @@ public class ObservationCommentMapperTest {
         encounter.setId(ENCOUNTER_ID);
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.singletonList(encounter), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(encounter), PRACTISE_CODE);
 
         var observation = observations.getFirst();
 
         assertThat(observation.getId()).isEqualTo(narrativeStatementId);
         assertThat(observation.getMeta().getProfile().getFirst().getValue()).isEqualTo(META_URL);
         assertThat(observation.getStatus()).isEqualTo(Observation.ObservationStatus.FINAL);
-        assertThat(observation.getSubject().getResource()).isEqualTo(patient);
+        assertThat(observation.getSubject().getResource()).isEqualTo(PATIENT);
 
         var coding = observation.getCode().getCoding();
         assertThat(coding.getFirst().getCode()).isEqualTo(CODING_CODE);
@@ -87,8 +85,8 @@ public class ObservationCommentMapperTest {
 
         List<Observation> observations = observationCommentMapper.mapResources(
                 ehrExtract,
-                patient,
-                Collections.singletonList(encounter),
+                PATIENT,
+                List.of(encounter),
                 PRACTISE_CODE);
 
         assertThat(observations).isEmpty();
@@ -99,7 +97,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("multiple_narrative_statements.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         assertThat(observations).hasSize(EXPECTED_OBSERVATION_COUNT);
     }
@@ -109,7 +107,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("no_narrative_statement.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         assertThat(observations).isEmpty();
     }
@@ -119,7 +117,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("narrative_statement_has_referred_to_external_document.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         assertThat(observations).isEmpty();
     }
@@ -129,7 +127,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("nullflavour_availability_time.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         assertNull(observations.getFirst().getIssuedElement().asStringValue());
     }
@@ -139,7 +137,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("single_narrative_statement.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         // Calling `getContext` auto creates a Reference object so asserting the reference is null
         assertNull(observations.getFirst().getContext().getReference());
@@ -150,7 +148,7 @@ public class ObservationCommentMapperTest {
         var ehrExtract = unmarshallEhrExtract("whitespace_only_text_field.xml");
 
         List<Observation> observations =
-            observationCommentMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+            observationCommentMapper.mapResources(ehrExtract, PATIENT, List.of(), PRACTISE_CODE);
 
         assertNull(observations.getFirst().getComment());
     }

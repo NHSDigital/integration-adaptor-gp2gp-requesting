@@ -44,7 +44,6 @@ import org.hl7.v3.RCMRMT030101UKEhrExtract;
 import org.hl7.v3.RCMRMT030101UKEhrFolder;
 import org.hl7.v3.RCMRMT030101UKMedicationStatement;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +54,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
@@ -115,21 +113,26 @@ class MedicationRequestPlanMapperTest {
     @Captor
     private ArgumentCaptor<Optional<CV>> confidentialityCodeCaptor;
 
-    @BeforeEach
-    void setup() {
-        when(medicationMapper.extractMedicationReference(
-            any(RCMRMT030101UKMedicationStatement.class)
-        )).thenReturn(getReference());
-
-        Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-        )).thenReturn(META_WITHOUT_SECURITY_ADDED);
+    public void registerDefaultDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == medicationMapper) {
+                when(medicationMapper.extractMedicationReference(
+                        any(RCMRMT030101UKMedicationStatement.class)
+                )).thenReturn(getReference());
+            }
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        eq(META_PROFILE),
+                        confidentialityCodeCaptor.capture(),
+                        confidentialityCodeCaptor.capture()
+                )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
+            }
+        }
     }
 
     @Test
     void When_MappingAuthoriseResourceWithAllOptionals_Expect_AllFieldsToBeMappedCorrectly() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -225,6 +228,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResourceWithNoEffectiveTime_Expect_NoExpiryDateExtensionAdded() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -247,6 +251,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResourceEffectiveTimeWithNullHighValue_Expect_NoExpiryDateExtensionAdded() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -272,6 +277,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingDiscontinueWithPertinentInformation_Expect_StatusReasonAdded() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var ehrSupplyDiscontinue = """
             <ehrSupplyDiscontinue classCode="SPLY" moodCode="RQO">
                 <id root="D0BF39CA-E656-4322-879F-83EE6E688053"/>
@@ -298,6 +304,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingDiscontinueWithCodeDisplayAndMissingPertinentInformation_Expect_DefaultTextAddedAsReason() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var ehrSupplyDiscontinue = """
             <ehrSupplyDiscontinue classCode="SPLY" moodCode="RQO">
                 <id root="D0BF39CA-E656-4322-879F-83EE6E688053"/>
@@ -323,6 +330,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingDiscontinue_With_NoPertinentInformationAndHasCodeOriginalText_Expect_OriginalTextAndDefaultText() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var ehrSupplyDiscontinue = """
             <ehrSupplyDiscontinue classCode="SPLY" moodCode="RQO">
                 <id root="D0BF39CA-E656-4322-879F-83EE6E688053"/>
@@ -347,6 +355,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingDiscontinue_With_MissingPertinentInformation_Expect_DefaultTextAddedAsReason() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var ehrSupplyDiscontinue = """
             <ehrSupplyDiscontinue classCode="SPLY" moodCode="RQO">
                 <id root="D0BF39CA-E656-4322-879F-83EE6E688053"/>
@@ -369,6 +378,7 @@ class MedicationRequestPlanMapperTest {
     @ParameterizedTest @MethodSource void When_MappingDiscontinue_WithPertinentInformationAndOriginalText_Expect_StatusReasonIs(
         String pertinentInformationText, String originalText, String expectedReason
     ) {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var ehrSupplyDiscontinue = """
             <ehrSupplyDiscontinue classCode="SPLY" moodCode="RQO">
                 <id root="D0BF39CA-E656-4322-879F-83EE6E688053"/>
@@ -398,6 +408,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResource_WithActiveStatusAndNoDiscontinue_Expect_ActiveStatus() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -419,6 +430,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResource_WithCompleteStatusAndNoDiscontinue_Expect_CompletedStatus() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -440,6 +452,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResource_With_NoDiscontinue_Expect_NoStatusReasonExtension() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -461,6 +474,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingDiscontinue_With_UnknownDate_Expect_DiscontinueIgnored() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         var medicationStatementXml = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
                 <id root="B4D70A6D-2EE4-41B6-B1FB-F9F0AD84C503"/>
@@ -521,6 +535,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResource_Expect_MetaPopulatedFromConfidentialityServiceWithSecurity() {
+        registerDefaultDependencies(medicationMapper);
         final Meta meta = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final String medicationStatement = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">
@@ -557,6 +572,7 @@ class MedicationRequestPlanMapperTest {
 
     @Test
     void When_MappingAuthoriseResource_Expect_MetaPopulatedFromConfidentialityServiceWithNoSecurity() {
+        registerDefaultDependencies(medicationMapper, confidentialityService);
         final Meta meta = MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE);
         final String medicationStatement = """
             <MedicationStatement xmlns="urn:hl7-org:v3" classCode="SBADM" moodCode="INT">

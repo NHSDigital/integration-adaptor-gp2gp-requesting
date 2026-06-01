@@ -3523,7 +3523,7 @@
         "reference": "Practitioner/C5DEFBF3-0174-BC6F-182C-B777B9C6FF43"
       },
       "note": [ {
-        "text": "Unspecified Significance: Defaulted to Minor"
+        "text": "Defaulted to Minor"
       }, {
         "text": "Active Problem, Not Significant (Minor)"
       } ]

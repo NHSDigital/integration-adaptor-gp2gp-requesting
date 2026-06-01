@@ -11,11 +11,11 @@ import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildReferenceExt
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +76,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
     private static final String CLINICAL_STATUS_ACTIVE_CODE = "394774009";
     private static final String CLINICAL_STATUS_INACTIVE_CODE = "394775005";
     private static final String DEFAULT_CLINICAL_STATUS = "Defaulted status to active : Unknown status at source";
-    private static final String DEFAULT_ANNOTATION = "Unspecified Significance: Defaulted to Minor";
+    private static final String DEFAULT_ANNOTATION = "Defaulted to Minor";
     private static final String MAJOR_CODE_NAME = "major";
     private static final String MINOR_CODE_NAME = "minor";
     private static final String HIERARCHY_TYPE_PARENT = "parent";
@@ -146,12 +146,14 @@ public class ConditionMapper extends AbstractMapper<Condition> {
 
         buildAssertedDateTimeType(composition).ifPresent(condition::setAssertedDateElement);
 
-        composition.getParticipant2()
+        String asserterId = composition.getParticipant2()
             .stream()
             .findFirst()
-            .ifPresent(participant2 -> condition.setAsserter(
-                new Reference(new IdType(ResourceType.Practitioner.name(), participant2.getAgentRef().getId().getRoot())))
-            );
+            .map(practitioner2 -> practitioner2.getAgentRef().getId().getRoot())
+            .orElseGet(() -> composition.getAuthor().getAgentRef().getId().getRoot());
+
+        condition.setAsserter(
+            new Reference(new IdType(ResourceType.Practitioner.name(), asserterId)));
 
         return condition;
     }
@@ -406,7 +408,7 @@ public class ConditionMapper extends AbstractMapper<Condition> {
 
     private Map<String, String> getMedicationStatementIdMapping(List<RCMRMT030101UKMedicationStatement> medicationStatements) {
 
-        Map<String, String> statementToRequestMap = new HashMap<>();
+        Map<String, String> statementToRequestMap = new ConcurrentHashMap<>();
 
         medicationStatements.forEach(medicationStatement -> {
             var medicationStatementId = medicationStatement.getId().getRoot();

@@ -353,7 +353,7 @@ public class CodeableConceptMapperTest {
             .isEqualTo(DESCRIPTION_ID);
         assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().getFirst().getValue())
             .isEqualTo(new IdType(SNOMED_PREFERRED.getId()));
-        assertThat(codeableConcept.getText()).isNull();
+        assertNull(codeableConcept.getText());
     }
 
     @Test
@@ -436,11 +436,11 @@ public class CodeableConceptMapperTest {
             .isEqualTo(DESCRIPTION_DISPLAY);
         assertThat(codeableConcept.getCoding().getFirst().getExtension().getFirst().getExtension().get(1).getValue().toString())
             .isEqualTo(SNOMED_DESCRIPTION.getTerm());
-        assertThat(codeableConcept.getText()).isNull();
+        assertNull(codeableConcept.getText());
     }
 
     @Test
-    public void mapSnomedCodeWithDescriptionIdNotPreferredTermDisplayDoesNotMatchTermNoOriginalText() {
+    void mapSnomedCodeWithDescriptionIdNotPreferredTermDisplayDoesNotMatchTermNoOriginalText() {
         when(snomedCTDao.getSnomedDescriptionUsingDescriptionId(any())).thenReturn(SNOMED_DESCRIPTION);
         when(snomedCTDao.getSnomedDescriptionPreferredTermUsingConceptId(any())).thenReturn(SNOMED_PREFERRED);
         var inputXML = """
@@ -858,8 +858,7 @@ public class CodeableConceptMapperTest {
         var codedData = unmarshallCodeElementFromXMLString(XML_HEADER + inputXML);
         var codeableConcept = codeableConceptMapper.mapToCodeableConcept(codedData);
 
-        assertThat(codeableConcept.getText())
-            .isNull();
+        assertNull(codeableConcept.getText());
         assertThat(codeableConcept.getCodingFirstRep().getCode())
             .isEqualTo("24591000000103");
         assertThat(codeableConcept.getCodingFirstRep().getSystem())
