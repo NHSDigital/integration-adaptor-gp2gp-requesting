@@ -9,6 +9,7 @@ import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFi
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.v3.RCMRMT030101UKPatient;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,12 +35,20 @@ public class PatientMapperTest {
     private static final String EXPECTED_META_VERSION_ID = "1521806400000";
     private static final Organization ORGANIZATION = (Organization) new Organization().setId(TEST_ORGANIZATION_ID);
 
+    private static RCMRMT030101UKPatient patientXml;
+
     @Mock
     private IdGeneratorService idGenerator;
 
 
     @InjectMocks
     private PatientMapper patientMapper;
+
+    @BeforeAll
+    @SneakyThrows
+    static void setUpClass() {
+        patientXml = unmarshallFile(getFile("classpath:" + XML_RESOURCES_BASE + PATIENT_EXAMPLE_XML), RCMRMT030101UKPatient.class);
+    }
 
     @BeforeEach
     public void setup() {
@@ -48,15 +57,13 @@ public class PatientMapperTest {
 
     @Test
     public void testIdMetaAndNhsNumberIsAddedToPatient() {
-        RCMRMT030101UKPatient patientXml = unmarshallCodeElement(PATIENT_EXAMPLE_XML);
-
         Patient patient = patientMapper.mapToPatient(patientXml, null);
 
         assertThat(patient.getId()).isEqualTo(TEST_PATIENT_ID);
 
         assertThat(patient.hasMeta()).isTrue();
         assertThat(patient.getMeta().getVersionId()).isEqualTo(EXPECTED_META_VERSION_ID);
-        assertThat(patient.getMeta().getProfile().stream().findFirst().get().getValue()).isEqualTo(EXPECTED_META_PROFILE_URL);
+        assertThat(patient.getMeta().getProfile().getFirst().getValue()).isEqualTo(EXPECTED_META_PROFILE_URL);
 
         assertThat(patient.hasIdentifier()).isTrue();
         assertThat(patient.getIdentifierFirstRep().getSystem()).isEqualTo(EXPECTED_NHS_NUMBER_SYSTEM_URL);
@@ -67,17 +74,10 @@ public class PatientMapperTest {
 
     @Test
     public void testOrganizationReferenceIsAddedToPatient() {
-        RCMRMT030101UKPatient patientXml = unmarshallCodeElement(PATIENT_EXAMPLE_XML);
-
         Patient patient = patientMapper.mapToPatient(patientXml, ORGANIZATION);
 
         assertThat(patient.hasIdentifier()).isTrue();
         assertThat(patient.hasManagingOrganization()).isTrue();
         assertThat(patient.getManagingOrganization().getResource()).isEqualTo(ORGANIZATION);
-    }
-
-    @SneakyThrows
-    private RCMRMT030101UKPatient unmarshallCodeElement(String fileName) {
-        return unmarshallFile(getFile("classpath:" + XML_RESOURCES_BASE + fileName), RCMRMT030101UKPatient.class);
     }
 }
