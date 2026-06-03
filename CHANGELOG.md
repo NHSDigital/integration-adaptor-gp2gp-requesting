@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Updated the Requesting Adaptor to map newly granular EHRSupplyType values from EMIS into the corresponding GPC JSON record fields.
 * Corrected the EHR Extract interaction identifier used by timeout handling from RCMR_IN030000UK06 to RCMR_IN030000UK07.
 * The length of varchar columns in 'patient_attachment_log' table have been extended to 1024 characters.
+* Fixed `canMergeCompleteBundle` incorrectly returning `true` when attachment logs are empty, causing a blank patient record after large message GP2GP transfers.
 
 ### Added
 * Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
