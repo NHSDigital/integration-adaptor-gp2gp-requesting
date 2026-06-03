@@ -61,6 +61,11 @@ public class InboundMessageMergingService {
         }
 
         var undeletedLogs = getUndeletedLogsForConversation(conversationId);
+
+        if (undeletedLogs.isEmpty()) {
+            return false;
+        }
+
         return undeletedLogs.stream().allMatch(log -> log.getUploaded().equals(true));
     }
 
