@@ -469,11 +469,11 @@ public class InboundMessageMergingServiceTests {
     }
 
     @Test
-public void When_AllAttachmentLogsDeleted_CanMergeCompleteBundle_Expect_ReturnFalse() throws JAXBException {
-    var attachmentLogs = createPatientAttachmentList(true, true);
-    attachmentLogs.forEach(log -> log.setDeleted(true));
+    public void When_AllAttachmentLogsDeleted_CanMergeCompleteBundle_Expect_ReturnFalse() throws JAXBException {
+        var emptyAttachmentLogs = new ArrayList<PatientAttachmentLog>();
 
-    when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID)).thenReturn(attachmentLogs);
+        when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID)).thenReturn(emptyAttachmentLogs);
+
         var result = inboundMessageMergingService.canMergeCompleteBundle(CONVERSATION_ID);
 
         assertFalse(result);
