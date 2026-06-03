@@ -1,11 +1,11 @@
 # Schema module
 
-This module holds xsd schemas and java classes generated based on those schemas.
-Schema files can be found inside src/resources directory.
+This module holds XSD schemas and Java classes generated based on those schemas.
+Schema files can be found inside the `src/resources` directory.
 
-## Generating java classes
+## Generating Java classes
 
-#### NOTE: Please use the newest version of the plugin: [gradle-xjc-plugin](https://github.com/unbroken-dome/gradle-xjc-plugin)
+### NOTE: Please use the newest version of the plugin: [gradle-xjc-plugin](https://github.com/unbroken-dome/gradle-xjc-plugin)
 
 
 1. Add `org.unbroken-dome.xjc` plugin in build.gradle:
@@ -21,23 +21,23 @@ Schema files can be found inside src/resources directory.
         srcDirName = 'resources/schema'
    }
    ```
-3. After reloading gradle, `xjcGenerate` gradle task should be present under
-   'code generation' category. Execute this task, it will generate java classes
+3. After reloading Gradle, the `xjcGenerate` Gradle task should be present under
+   the `code generation` category. Execute this task, it will generate Java classes
    based on schemas pointed in srcDirName property in build.gradle.
    
-4. Generated classes should be under `build/generated/sourced/xjc/java/main` path.
-   Copy them to `src/main/java` directory. Modify generated classes as needed.
-   Execute gradle `clean` task and remove changes added to build.gradle file.
+4. Generated classes should be under `build/generated/sources/xjc/java/main` path.
+   Copy them to `src/main/java` directory. Modify the generated classes as needed.
+   Execute the Gradle `clean` task and remove the changes added to the `build.gradle` file.
 
 ## Generating individual JAXB elements for testing
 
-When writing unit tests, you may be required to unmarshall code elements that haven't been pre-generated. The error you will see if this is the case will follow the general pattern of: 
+When writing unit tests, you may be required to unmarshal XML elements that haven't been pre-generated. The error you will see if this is the case will follow the general pattern of: 
 
 ```
 unexpected element (uri:"", local:"YOUR_ELEMENT"). Expected elements are <{urn:hl7-org:v3}PARENT_ELEMENT>
 ```
 
-This will require you add these elements directly to the `ObjectFactory.java` class independently.
+This will require you to add these elements directly to the `ObjectFactory.java` class independently.
 
 1. In `ObjectFactory.java`, register your element's QNAME in the custom made QNAME area.
 ```
@@ -55,7 +55,7 @@ This will require you add these elements directly to the `ObjectFactory.java` cl
    
 ## Manually modified classes
 
-Please make sure you don't override the following classes with the generated ones. They had to be manually changed to allow correct unmarshalling xml files to java objects:
+Please make sure you don't overwrite the following classes with the generated ones. They had to be manually changed to allow correct unmarshalling of XML files to Java objects:
 - EN.java 
 - RCMRMT030101UK04Place.java
 - IVLTS.java
@@ -99,16 +99,13 @@ Please make sure you don't override the following classes with the generated one
 - RCMRMT030101UK04Prescribe.java
 - RCMRMT030101UK04SupplyAnnotation.java
 - RCMRMT030101UK04Predecessor.java
-- TS.java
-- RCMRMT030101UK04NarrativeStatement.java
 - RCMRMT030101UK04InterpretationRange.java
 - RCCTMT120101UK01Device.java
-- RCMRMT030101UK04InterpretationRange.java
 - RCMRMT030101UK04SpecimenMaterial.java
 
 Removed files:
 - ST.java
 
 New file:
-- ValueAdapter.java - this is custom adapter helping with unmarshalling value element,
-  which can be of few different types
+- ValueAdapter.java - this is a custom adapter helping with unmarshalling the value element,
+  which can be of a few different types

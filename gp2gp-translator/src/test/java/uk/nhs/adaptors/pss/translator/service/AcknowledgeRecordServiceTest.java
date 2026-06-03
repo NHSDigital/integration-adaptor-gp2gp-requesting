@@ -42,6 +42,7 @@ import static uk.nhs.adaptors.pss.translator.model.NACKReason.NON_ABA_EHR_EXTRAC
 public class AcknowledgeRecordServiceTest {
 
     private static final String STRUCTURED_RECORD_PAYLOAD_XML_PATH = "/xml/RCMRIN030000UK06_LARGE_MSG/payload.xml";
+    private static final String PAYLOAD = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
     private static final String INVALID_ORIGINAL_MESSAGE = "NotAValidMessage";
     private static final String ORIGINAL_MESSAGE_VALUE = "originalMessage";
     private static final String CONVERSATION_ID_VALUE = UUID.randomUUID().toString();
@@ -97,8 +98,7 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgeMessageWhenConversationIdIsNullOrEmptyShouldReturnFalse(
             String conversationId) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
 
         var acknowledgeRecordMessage = AcknowledgeRecordMessage.builder()
                 .messageType(ACKNOWLEDGE_RECORD)
@@ -118,9 +118,7 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgementMessageWhenAcceptedReturnsPreparationServiceResponse(
             boolean expectedResponse) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
-
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
         when(preparationService.sendAckMessage(any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID_VALUE)))
                 .thenReturn(expectedResponse);
 
@@ -143,9 +141,8 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgementMessageWhenSuppressedReturnsPreparationServiceResponse(
             boolean expectedResponse) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
         var expectedNackReason = REASONS.get(SUPPRESSED);
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
         when(preparationService.sendNackMessage(
                 eq(expectedNackReason), any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID_VALUE)))
                 .thenReturn(expectedResponse);
@@ -169,9 +166,8 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgementMessageWhenAbaIncorrectPatientReturnsPreparationServiceResponse(
             boolean expectedResponse) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
         var expectedNackReason = REASONS.get(ABA_INCORRECT_PATIENT);
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
         when(preparationService.sendNackMessage(
                 eq(expectedNackReason), any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID_VALUE)))
                 .thenReturn(expectedResponse);
@@ -195,9 +191,8 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgementMessageWhenNonAbaIncorrectPatientReturnsPreparationServiceResponse(
             boolean expectedResponse) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
         var expectedNackReason = REASONS.get(NON_ABA_INCORRECT_PATIENT);
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
         when(preparationService.sendNackMessage(
                 eq(expectedNackReason), any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID_VALUE)))
                 .thenReturn(expectedResponse);
@@ -221,9 +216,8 @@ public class AcknowledgeRecordServiceTest {
     public void prepareAndSendAcknowledgementMessageWhenFailedToIntegrateReturnsPreparationServiceResponse(
             boolean expectedResponse) {
 
-        var payload = FileUtil.readResourceAsString(STRUCTURED_RECORD_PAYLOAD_XML_PATH);
         var expectedNackReason = REASONS.get(FAILED_TO_INTEGRATE);
-        setupMocks(payload);
+        setupMocks(PAYLOAD);
         when(preparationService.sendNackMessage(
                 eq(expectedNackReason), any(RCMRIN030000UKMessage.class), eq(CONVERSATION_ID_VALUE)))
                 .thenReturn(expectedResponse);

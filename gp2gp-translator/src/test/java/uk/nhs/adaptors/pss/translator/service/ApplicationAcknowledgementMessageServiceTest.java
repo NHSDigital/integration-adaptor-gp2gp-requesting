@@ -73,31 +73,15 @@ public class ApplicationAcknowledgementMessageServiceTest {
     }
 
     @Test
-    public void When_BuildNackMessage_WithValidTestData_Expect_MessageIdIsSetCorrectly() {
+    public void When_BuildNackMessage_WithValidTestData_Expect_CommonFieldsAreSetCorrectly() {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        assertThat(nackMessage).contains(MESSAGE_ID);
-    }
-
-    @Test
-    public void When_BuildNackMessage_WithValidTestData_Expect_MessageRefIsSetCorrectly() {
-        String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
-
-        assertThat(nackMessage).contains(MESSAGE_REF);
-    }
-
-    @Test
-    public void When_BuildNackMessage_WithValidTestData_Expect_ToAsidIsSetCorrectly() {
-        String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
-
-        assertThat(nackMessage).contains(TEST_TO_ASID);
-    }
-
-    @Test
-    public void When_NackMessage_WithTestData_Expect_FromAsidIsSetCorrectly() {
-        String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
-
-        assertThat(nackMessage).contains(TEST_FROM_ASID);
+        assertAll(
+            () -> assertThat(nackMessage).contains(MESSAGE_ID),
+            () -> assertThat(nackMessage).contains(MESSAGE_REF),
+            () -> assertThat(nackMessage).contains(TEST_TO_ASID),
+            () -> assertThat(nackMessage).contains(TEST_FROM_ASID)
+        );
     }
 
     @Test
@@ -121,29 +105,21 @@ public class ApplicationAcknowledgementMessageServiceTest {
     }
 
     @Test
-    public void When_BuildNackMessage_WithNackCodePresent_Expect_ReasonElementIncluded() throws ParserConfigurationException, IOException,
-        SAXException {
+    public void When_BuildNackMessage_WithNackCodePresent_Expect_ReasonElementAndAttributeAreCorrect()
+            throws ParserConfigurationException, IOException, SAXException {
         String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
 
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document messageXml = db.parse(new InputSource(new StringReader(nackMessage)));
-        NodeList nodes = messageXml.getElementsByTagName("reason");
+        NodeList nodes = parseReasonNodes(nackMessage);
 
-        assertThat(nodes.getLength()).isEqualTo(1);
+        assertAll(
+            () -> assertThat(nodes.getLength()).isEqualTo(1),
+            () -> assertThat(nodes.item(0).getAttributes().item(0).toString()).isEqualTo("typeCode=\"RSON\"")
+        );
     }
 
-    @Test
-    public void When_BuildNackMessage_WithNackCodePresent_Expect_ReasonHasCorrectAttribute() throws ParserConfigurationException,
-        IOException, SAXException {
-        String nackMessage = messageService.buildNackMessage(messageData, MESSAGE_ID);
-
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document messageXml = db.parse(new InputSource(new StringReader(nackMessage)));
-        NodeList nodes = messageXml.getElementsByTagName("reason");
-        String reasonAttribute = nodes.item(0).getAttributes().item(0).toString();
-
-        assertThat(reasonAttribute).isEqualTo("typeCode=\"RSON\"");
+    private NodeList parseReasonNodes(String xml) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document messageXml = db.parse(new InputSource(new StringReader(xml)));
+        return messageXml.getElementsByTagName("reason");
     }
 }
