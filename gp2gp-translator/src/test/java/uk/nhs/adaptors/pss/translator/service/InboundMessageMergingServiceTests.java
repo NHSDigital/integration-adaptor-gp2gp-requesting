@@ -425,7 +425,7 @@ public class InboundMessageMergingServiceTests {
     }
 
     @Test
-    public void When_AllUploadsComplete_CanMergeCompleteBundle_Expect_ReturnTrue() throws JAXBException {
+    public void When_AllUploadsComplete_AndLogsNotEmpty_CanMergeCompleteBundle_Expect_ReturnTrue() throws JAXBException {
         var attachmentLogs = createPatientAttachmentList(true, true);
         when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID)).thenReturn(attachmentLogs);
 
@@ -466,6 +466,17 @@ public class InboundMessageMergingServiceTests {
 
         verify(attachmentReferenceUpdaterService).replaceOriginalFilenameWithStorageFilenameInEhrExtract(any(), any(), any());
         verify(nackAckPreparationService, never()).sendNackMessage(any(NACKReason.class), any(RCMRIN030000UKMessage.class), any());
+    }
+
+    @Test
+    public void When_AllAttachmentLogsDeleted_CanMergeCompleteBundle_Expect_ReturnFalse() throws JAXBException {
+        var emptyAttachmentLogs = new ArrayList<PatientAttachmentLog>();
+
+        when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID)).thenReturn(emptyAttachmentLogs);
+
+        var result = inboundMessageMergingService.canMergeCompleteBundle(CONVERSATION_ID);
+
+        assertFalse(result);
     }
 
 

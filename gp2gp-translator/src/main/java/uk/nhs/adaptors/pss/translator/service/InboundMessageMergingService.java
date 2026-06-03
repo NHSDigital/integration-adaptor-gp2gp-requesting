@@ -55,12 +55,16 @@ public class InboundMessageMergingService {
     private static final String CONVERSATION_ID_HAS_NOT_BEEN_GIVEN = "Conversation Id has not been given";
 
     public boolean canMergeCompleteBundle(String conversationId) throws ValidationException {
-
         if (!StringUtils.hasText(conversationId)) {
             throw new ValidationException(CONVERSATION_ID_HAS_NOT_BEEN_GIVEN);
         }
 
         var undeletedLogs = getUndeletedLogsForConversation(conversationId);
+
+        if (undeletedLogs.isEmpty()) {
+            return false;
+        }
+
         return undeletedLogs.stream().allMatch(log -> log.getUploaded().equals(true));
     }
 
