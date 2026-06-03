@@ -1,10 +1,9 @@
-version: '3.8'
 services:
   gpc_facade:
     container_name: gpc_facade_tests
     build:
       target: build
-    entrypoint: "gradle check"
+    entrypoint: ["gradle", "check"]
     environment:
       - GPC_FACADE_SERVER_PORT
       - PS_DB_URL
@@ -15,7 +14,7 @@ services:
     container_name: gp2gp_translator_tests
     build:
       target: build
-    entrypoint: "gradle check"
+    entrypoint: ["gradle", "check"]
     environment:
       - GP2GP_TRANSLATOR_SERVER_PORT
       - PS_DB_URL
