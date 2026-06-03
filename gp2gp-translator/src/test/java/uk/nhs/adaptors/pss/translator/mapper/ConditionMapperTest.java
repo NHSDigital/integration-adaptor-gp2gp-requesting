@@ -75,11 +75,11 @@ class ConditionMapperTest {
     private static final String NOPAT = "NOPAT";
 
     private static final String ACTUAL_PROBLEM_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect"
-        + "-ActualProblem-1";
+            + "-ActualProblem-1";
     private static final String PROBLEM_SIGNIFICANCE_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect"
-        + "-ProblemSignificance-1";
+            + "-ProblemSignificance-1";
     private static final String RELATED_CLINICAL_CONTENT_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect"
-        + "-RelatedClinicalContent-1";
+            + "-RelatedClinicalContent-1";
     private static final String MEDICATION_STATEMENT_PLAN_ID = "PLAN_REF_ID";
     private static final String AUTHORISE_ID = "AUTHORISE_ID";
     private static final String MEDICATION_STATEMENT_ORDER_ID = "ORDER_REF_ID";
@@ -105,14 +105,41 @@ class ConditionMapperTest {
 
     @BeforeEach
     void beforeEach() {
-        configureCommonStubs();
         patient = (Patient) new Patient().setId(PATIENT_ID);
+    }
+
+    private void registerDependencies(Object... dependencies) {
+        for (Object dependency : dependencies) {
+            if (dependency == dateTimeMapper) {
+                Mockito.when(dateTimeMapper.mapDateTime(
+                        any(String.class)
+                )).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
+            }
+            if (dependency == confidentialityService) {
+                when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                        eq(META_PROFILE),
+                        confidentialityCodeCaptor.capture(),
+                        confidentialityCodeCaptor.capture(),
+                        confidentialityCodeCaptor.capture()
+                )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
+            }
+            if (dependency == codeableConceptMapper) {
+                var codeableConcept = new CodeableConcept().addCoding(new Coding().setDisplay(CODING_DISPLAY));
+                when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
+            }
+        }
     }
 
     @Test
     void testConditionAsserterIsMappedCorrectly() {
+        registerDependencies(dateTimeMapper);
 
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
+        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
+                eq(META_PROFILE),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture(),
+                confidentialityCodeCaptor.capture()
+        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
 
         final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
 
@@ -124,28 +151,234 @@ class ConditionMapperTest {
     }
 
     @Test
+    void When_Condition_With_NopatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
+        registerDependencies(dateTimeMapper, confidentialityService);
+        final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_nopat_confidentiality_code.xml");
+
+        final List<Condition> conditions = conditionMapper
+                .mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+
+        final CV linksetConfidentialityCode = confidentialityCodeCaptor
+                .getAllValues()
+                .get(1) // linkSet.getConfidentialityCode()
+                .orElseThrow();
+
+        assertAllConditionsHaveMeta(conditions, metaWithSecurity);
+        assertAll(
+                () -> assertThat(linksetConfidentialityCode.getCode()).isEqualTo(NOPAT),
+                () -> assertThat(confidentialityCodeCaptor.getAllValues().get(2)).isNotPresent()
+        );
+    }
+
+    @Test
+    void testConditionIsMappedCorrectlyWithRelatedClinicalContentReference() {
+        registerDependencies(dateTimeMapper);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        conditionMapper.addReferences(buildBundleWithStatementRefObservations(), conditions, ehrExtract);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getExtensionsByUrl(RELATED_CLINICAL_CONTENT_URL)).isNotEmpty();
+        assertRelatedClinicalContentExtension(conditions.getFirst());
+    }
+
+    @Test
     void testConditionIsMappedCorrectlyWithNamedStatementRefPointingtoObservationStatementNopat() {
+        registerDependencies(dateTimeMapper, confidentialityService);
+
         final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference_to_nopat_observation.xml");
-
-        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-            )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
 
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
 
         assertAllConditionsHaveMeta(conditions, metaWithSecurity);
         assertAll(
-            () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst()).isPresent(),
-            () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst().get().getCode()).isEqualTo(NOPAT));
+                () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst()).isPresent(),
+                () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst().get().getCode()).isEqualTo(NOPAT));
+    }
+
+    @Test
+    void testConditionIsMappedCorrectlyWithNamedStatementRef() {
+        registerDependencies(dateTimeMapper, codeableConceptMapper);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
+
+        assertThat(conditions.getFirst().getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(conditions.getFirst().getCode().getCoding().get(1).getDisplay()).isEqualTo(CODING_DISPLAY);
+    }
+
+    @Test
+    void testConditionIsMappedCorrectlyWithActualProblemReference() {
+        registerDependencies(dateTimeMapper);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getExtensionsByUrl(ACTUAL_PROBLEM_URL)).isNotEmpty();
+        assertActualProblemExtension(conditions.getFirst());
+    }
+
+    @Test
+    void testConditionIsMappedCorrectlyWithContext() {
+        registerDependencies(dateTimeMapper);
+
+        final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, encounters, PRACTISE_CODE);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getContext().getResource().getIdElement().getValue()).isEqualTo(ENCOUNTER_ID);
+    }
+
+    @Test
+    void testLinkSetWithNoDatesIsMappedWithNullOnsetDateTime() {
+        registerDependencies(confidentialityService);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_no_dates.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertGeneratedComponentsAreCorrect(conditions.getFirst());
+        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
+
+        assertThat(conditions.getFirst().getClinicalStatus().getDisplay()).isEqualTo("Inactive");
+
+        assertNull(conditions.getFirst().getAbatementDateTimeType());
+        assertNull(conditions.getFirst().getAssertedDateElement().getValue());
+    }
+
+    @Test
+    void testLinkSetWithEffectiveTimeCenterNullFlavorUnkIsMappedCorrectly() {
+        registerDependencies(confidentialityService);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_with_center_null_flavor_unk.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertGeneratedComponentsAreCorrect(conditions.getFirst());
+        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
+
+        assertNull(conditions.getFirst().getOnsetDateTimeType());
+    }
+
+    @Test
+    void testConditionWithMedicationRequestsIsMappedCorrectly() {
+        registerDependencies(dateTimeMapper);
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_medication_refs.xml");
+
+        MockedStatic<MedicationMapperUtils> mockedMedicationMapperUtils = Mockito.mockStatic(MedicationMapperUtils.class);
+
+        // spotbugs doesn't allow try with resources due to de-referenced null check
+        try {
+            mockedMedicationMapperUtils.when(() -> MedicationMapperUtils.getMedicationStatements(ehrExtract))
+                    .thenReturn(getMedicationStatements());
+
+            final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+            assertThat(conditions.size()).isOne();
+
+            var bundle = new Bundle();
+            bundle.addEntry(new BundleEntryComponent().setResource(conditions.getFirst()));
+            addMedicationRequestsToBundle(bundle);
+
+            conditionMapper.addReferences(bundle, conditions, ehrExtract);
+
+            var extensions = conditions.getFirst().getExtension();
+
+            assertThat(extensions).hasSize(EXPECTED_NUMBER_OF_EXTENSIONS);
+            var relatedClinicalContentExtensions = extensions.stream()
+                    .filter(extension -> extension.getUrl().equals(RELATED_CLINICAL_CONTENT_URL))
+                    .toList();
+
+            assertThat(relatedClinicalContentExtensions).hasSize(2);
+
+            List<String> clinicalContextReferences = relatedClinicalContentExtensions.stream()
+                    .map(Extension::getValue)
+                    .map(Reference.class::cast)
+                    .map(reference -> reference.getReferenceElement().getValue())
+                    .toList();
+
+            assertThat(clinicalContextReferences).contains(AUTHORISE_ID);
+            assertThat(clinicalContextReferences).contains(PRESCRIBE_ID);
+        } finally {
+            mockedMedicationMapperUtils.close();
+        }
+
+    }
+
+    @Test
+    void mapConditionWithoutSnomedCodeInCoding() {
+        registerDependencies(dateTimeMapper, codeableConceptMapper);
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
+
+        assertThat(conditions).isNotEmpty();
+        assertThat(conditions.getFirst().getCode().getCodingFirstRep())
+                .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
+        assertThat(conditions.getFirst().getCode().getCoding().get(1).getDisplay())
+                .isEqualTo(CODING_DISPLAY);
+    }
+
+    @Test
+    void mapConditionWithSnomedCodeInCoding() {
+        var codeableConcept = createCodeableConcept("123456", "http://snomed.info/sct", "Display");
+        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
+        when(dateTimeMapper.mapDateTime(any(String.class))).thenCallRealMethod();
+
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
+
+        assertThat(conditions).isNotEmpty();
+        assertEquals(codeableConcept, conditions.getFirst().getCode());
+    }
+
+    @Test
+    void When_Condition_With_NopatConfidentialityCodeInEhrComposition_Expect_MetaFromConfidentialityServiceWithSecurity() {
+        registerDependencies(dateTimeMapper, confidentialityService);
+        final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
+        final RCMRMT030101UKEhrExtract ehrExtract =
+                unmarshallEhrExtract("linkset_valid_ehr_composition_nopat_confidentiality_code.xml");
+
+        final List<Condition> conditions = conditionMapper
+                .mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+
+        final CV ehrCompositionConfidentialityCode = confidentialityCodeCaptor
+                .getAllValues()
+                .get(2) // ehrComposition.getConfidentialityCode()
+                .orElseThrow();
+
+        assertAllConditionsHaveMeta(conditions, metaWithSecurity);
+        assertAll(
+                () -> assertThat(ehrCompositionConfidentialityCode.getCode()).isEqualTo(NOPAT),
+                () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst()).isNotPresent()
+        );
+    }
+
+    @Test
+    void When_MappingLinksetWhichIsAReferralRequestToExternalDocumentLinkSet_Expect_ConditionNotToBeMapped() {
+        final var ehrExtract = unmarshallEhrExtract(
+                "ResourceFilter",
+                "ehr_extract_with_referral_request_to_external_document_linkset.xml"
+        );
+
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
+
+        assertThat(conditions).isEmpty();
     }
 
     @Test
     void testConditionIsMappedCorrectlyNoReferences() {
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
+        registerDependencies(dateTimeMapper, confidentialityService);
 
         final List<Encounter> emptyEncounterList = List.of();
         final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
@@ -176,244 +409,10 @@ class ConditionMapperTest {
         assertThat(condition.getNote()).isEmpty();
     }
 
-    @Test
-    void testConditionIsMappedCorrectlyWithNamedStatementRef() {
-        when(dateTimeMapper.mapDateTime(any(String.class))).thenCallRealMethod();
-        var codeableConcept = new CodeableConcept().addCoding(new Coding().setDisplay(CODING_DISPLAY));
-        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
-
-        assertThat(conditions.getFirst().getCode().getCodingFirstRep()).isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
-        assertThat(conditions.getFirst().getCode().getCoding().get(1).getDisplay()).isEqualTo(CODING_DISPLAY);
-    }
-
-    @Test
-    void testConditionIsMappedCorrectlyWithActualProblemReference() {
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
-
-        assertThat(conditions).isNotEmpty();
-        assertThat(conditions.getFirst().getExtensionsByUrl(ACTUAL_PROBLEM_URL)).isNotEmpty();
-        assertActualProblemExtension(conditions.getFirst());
-    }
-
-    @Test
-    void testConditionIsMappedCorrectlyWithRelatedClinicalContentReference() {
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-        conditionMapper.addReferences(buildBundleWithStatementRefObservations(), conditions, ehrExtract);
-
-        assertThat(conditions).isNotEmpty();
-        assertThat(conditions.getFirst().getExtensionsByUrl(RELATED_CLINICAL_CONTENT_URL)).isNotEmpty();
-        assertRelatedClinicalContentExtension(conditions.getFirst());
-    }
-
-    @Test
-    void testConditionIsMappedCorrectlyWithContext() {
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
-
-        final List<Encounter> encounters = List.of((Encounter) new Encounter().setId(ENCOUNTER_ID));
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, encounters, PRACTISE_CODE);
-
-        assertThat(conditions).isNotEmpty();
-        assertThat(conditions.getFirst().getContext().getResource().getIdElement().getValue()).isEqualTo(ENCOUNTER_ID);
-    }
-
-    @Test
-    void testLinkSetWithNoDatesIsMappedWithNullOnsetDateTime() {
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_no_dates.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-        assertGeneratedComponentsAreCorrect(conditions.getFirst());
-        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
-
-        assertThat(conditions.getFirst().getClinicalStatus().getDisplay()).isEqualTo("Inactive");
-
-        assertNull(conditions.getFirst().getAbatementDateTimeType());
-        assertNull(conditions.getFirst().getAssertedDateElement().getValue());
-    }
-
-    @Test
-    void testLinkSetWithEffectiveTimeLowNullFlavorUnkIsMappedWithNullOnsetDateTime() {
-        when(dateTimeMapper.mapDateTime(any())).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_with_null_flavor_unk.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-        assertGeneratedComponentsAreCorrect(conditions.getFirst());
-        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
-
-        assertNull(conditions.getFirst().getOnsetDateTimeType());
-    }
-
-    @Test
-    void testLinkSetWithEffectiveTimeCenterNullFlavorUnkIsMappedCorrectly() {
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_with_center_null_flavor_unk.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-        assertGeneratedComponentsAreCorrect(conditions.getFirst());
-        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
-
-        assertNull(conditions.getFirst().getOnsetDateTimeType());
-    }
-
-    @Test
-    void testConditionWithMedicationRequestsIsMappedCorrectly() {
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_medication_refs.xml");
-
-        MockedStatic<MedicationMapperUtils> mockedMedicationMapperUtils = Mockito.mockStatic(MedicationMapperUtils.class);
-
-        // spotbugs doesn't allow try with resources due to de-referenced null check
-        try {
-            mockedMedicationMapperUtils.when(() -> MedicationMapperUtils.getMedicationStatements(ehrExtract))
-                .thenReturn(getMedicationStatements());
-
-            final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-
-            assertThat(conditions.size()).isOne();
-
-            var bundle = new Bundle();
-            bundle.addEntry(new BundleEntryComponent().setResource(conditions.getFirst()));
-            addMedicationRequestsToBundle(bundle);
-
-            conditionMapper.addReferences(bundle, conditions, ehrExtract);
-
-            var extensions = conditions.getFirst().getExtension();
-
-            assertThat(extensions).hasSize(EXPECTED_NUMBER_OF_EXTENSIONS);
-            var relatedClinicalContentExtensions = extensions.stream()
-                .filter(extension -> extension.getUrl().equals(RELATED_CLINICAL_CONTENT_URL))
-                .toList();
-
-            assertThat(relatedClinicalContentExtensions).hasSize(2);
-
-            List<String> clinicalContextReferences = relatedClinicalContentExtensions.stream()
-                .map(Extension::getValue)
-                .map(Reference.class::cast)
-                .map(reference -> reference.getReferenceElement().getValue())
-                .toList();
-
-            assertThat(clinicalContextReferences).contains(AUTHORISE_ID);
-            assertThat(clinicalContextReferences).contains(PRESCRIBE_ID);
-        } finally {
-            mockedMedicationMapperUtils.close();
-        }
-
-    }
-
-    @Test
-    void mapConditionWithoutSnomedCodeInCoding() {
-        var codeableConcept = new CodeableConcept().addCoding(new Coding().setDisplay(CODING_DISPLAY));
-        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
-        when(dateTimeMapper.mapDateTime(any(String.class))).thenCallRealMethod();
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
-
-        assertThat(conditions).isNotEmpty();
-        assertThat(conditions.getFirst().getCode().getCodingFirstRep())
-            .isEqualTo(DegradedCodeableConcepts.DEGRADED_OTHER);
-        assertThat(conditions.getFirst().getCode().getCoding().get(1).getDisplay())
-            .isEqualTo(CODING_DISPLAY);
-    }
-
-    @Test
-    void mapConditionWithSnomedCodeInCoding() {
-
-        var codeableConcept = createCodeableConcept("123456", "http://snomed.info/sct", "Display");
-        when(codeableConceptMapper.mapToCodeableConcept(any())).thenReturn(codeableConcept);
-        when(dateTimeMapper.mapDateTime(any(String.class))).thenCallRealMethod();
-
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_with_reference.xml");
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
-        conditionMapper.addReferences(buildBundleWithNamedStatementObservation(), conditions, ehrExtract);
-
-        assertThat(conditions).isNotEmpty();
-        assertEquals(codeableConcept, conditions.getFirst().getCode());
-    }
-
-    @Test
-    void When_Condition_With_NopatConfidentialityCode_Expect_MetaFromConfidentialityServiceWithSecurity() {
-        final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_valid_nopat_confidentiality_code.xml");
-
-        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
-
-        final List<Condition> conditions = conditionMapper
-            .mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
-
-        final CV linksetConfidentialityCode = confidentialityCodeCaptor
-            .getAllValues()
-            .get(1) // linkSet.getConfidentialityCode()
-            .orElseThrow();
-
-        assertAllConditionsHaveMeta(conditions, metaWithSecurity);
-        assertAll(
-            () -> assertThat(linksetConfidentialityCode.getCode()).isEqualTo(NOPAT),
-            () -> assertThat(confidentialityCodeCaptor.getAllValues().get(2)).isNotPresent()
-        );
-    }
-
-    @Test
-    void When_Condition_With_NopatConfidentialityCodeInEhrComposition_Expect_MetaFromConfidentialityServiceWithSecurity() {
-        final Meta metaWithSecurity = MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE);
-        final RCMRMT030101UKEhrExtract ehrExtract =
-            unmarshallEhrExtract("linkset_valid_ehr_composition_nopat_confidentiality_code.xml");
-
-        when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITH_SECURITY, META_PROFILE));
-
-        final List<Condition> conditions = conditionMapper
-            .mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
-
-        final CV ehrCompositionConfidentialityCode = confidentialityCodeCaptor
-            .getAllValues()
-            .get(2) // ehrComposition.getConfidentialityCode()
-            .orElseThrow();
-
-        assertAllConditionsHaveMeta(conditions, metaWithSecurity);
-        assertAll(
-            () -> assertThat(ehrCompositionConfidentialityCode.getCode()).isEqualTo(NOPAT),
-            () -> assertThat(confidentialityCodeCaptor.getAllValues().getFirst()).isNotPresent()
-        );
-    }
-
-    @Test
-    void When_MappingLinksetWhichIsAReferralRequestToExternalDocumentLinkSet_Expect_ConditionNotToBeMapped() {
-        final var ehrExtract = unmarshallEhrExtract(
-            "ResourceFilter",
-            "ehr_extract_with_referral_request_to_external_document_linkset.xml"
-        );
-
-        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, Collections.emptyList(), PRACTISE_CODE);
-
-        assertThat(conditions).isEmpty();
-    }
 
     @Test
     void When_MappingLinksetWithNotMajorCode_Expect_DefaultedToMinor() {
+        registerDependencies(dateTimeMapper, confidentialityService);
         final var ehrExtract = unmarshallEhrExtract(
                 "Condition",
                 "linkset_with_minor_severity_code.xml"
@@ -428,6 +427,7 @@ class ConditionMapperTest {
 
     @Test
     void When_MappingLinksetWithUnknownSeverityCode_Expect_DefaultedToMinor() {
+        registerDependencies(dateTimeMapper, confidentialityService);
         final var ehrExtract = unmarshallEhrExtract("Condition", "linkset_with_unknown_severity_code.xml");
 
         final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
@@ -435,6 +435,76 @@ class ConditionMapperTest {
         assertThat(conditions).isNotEmpty();
         assertThat(conditions.getFirst().getNote()).hasSize(1);
         assertEquals(DEFAULTED_TO_MINOR, conditions.getFirst().getNote().getFirst().getText());
+    }
+
+    @Test
+    void testLinkSetWithEffectiveTimeLowNullFlavorUnkIsMappedWithNullOnsetDateTime() {
+        registerDependencies(dateTimeMapper, confidentialityService);
+        final RCMRMT030101UKEhrExtract ehrExtract = unmarshallEhrExtract("linkset_with_null_flavor_unk.xml");
+        final List<Condition> conditions = conditionMapper.mapResources(ehrExtract, patient, List.of(), PRACTISE_CODE);
+
+        assertGeneratedComponentsAreCorrect(conditions.getFirst());
+        assertThat(conditions.getFirst().getId()).isEqualTo(LINKSET_ID);
+
+        assertNull(conditions.getFirst().getOnsetDateTimeType());
+    }
+
+    private II createIdWithRoot(String rootValue) {
+        var id = new II();
+        id.setRoot(rootValue);
+
+        return id;
+    }
+
+    private void assertAllConditionsHaveMeta(List<Condition> conditions, Meta expectedMeta) {
+        assertAll(conditions.stream().map(condition ->
+                () -> assertThat(condition.getMeta()).usingRecursiveComparison().isEqualTo(expectedMeta)
+        ));
+    }
+
+    @SneakyThrows
+    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String testFilesDirectory, String filename) {
+        final File file = FileFactory.getXmlFileFor(testFilesDirectory, filename);
+        return unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
+    }
+
+    @SneakyThrows
+    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String filename) {
+        return unmarshallEhrExtract(TEST_FILES_DIRECTORY, filename);
+    }
+
+    private void assertRelatedClinicalContentExtension(Condition condition) {
+        var extensions = condition.getExtensionsByUrl(RELATED_CLINICAL_CONTENT_URL);
+        assertThat(extensions).hasSize(2);
+        assertThat(((Reference) extensions.getFirst().getValue()).getResource().getIdElement().getValue()).isEqualTo(STATEMENT_REF_ID);
+        assertThat(((Reference) extensions.get(1).getValue()).getResource().getIdElement().getValue()).isEqualTo(STATEMENT_REF_ID_1);
+    }
+
+    private Bundle buildBundleWithStatementRefObservations() {
+        return new Bundle()
+                .addEntry(new BundleEntryComponent()
+                        .setResource(new Observation().setId(STATEMENT_REF_ID)))
+                .addEntry(new BundleEntryComponent()
+                        .setResource(new Observation().setId(STATEMENT_REF_ID_1)));
+    }
+
+    private void assertActualProblemExtension(Condition condition) {
+        var extension = condition.getExtensionsByUrl(ACTUAL_PROBLEM_URL).getFirst();
+        assertThat(extension.getValue()).isInstanceOf(Reference.class);
+        assertThat(((Reference) extension.getValue()).getResource()).isInstanceOf(Observation.class);
+        assertThat(((Observation) ((Reference) extension.getValue()).getResource()).getId()).isEqualTo(NAMED_STATEMENT_REF_ID);
+    }
+
+    private void assertGeneratedComponentsAreCorrect(Condition condition) {
+        assertNotNull(condition.getMeta().getProfile().getFirst());
+        assertThat(condition.getIdentifierFirstRep().getValue()).isEqualTo(LINKSET_ID);
+        assertThat(condition.getCategoryFirstRep().getCodingFirstRep().getDisplay()).isEqualTo("Problem List Item");
+    }
+
+    private Bundle buildBundleWithNamedStatementObservation() {
+        return new Bundle()
+                .addEntry(new BundleEntryComponent()
+                        .setResource(new Observation().setId(NAMED_STATEMENT_REF_ID)));
     }
 
     private void addMedicationRequestsToBundle(Bundle bundle) {
@@ -472,76 +542,5 @@ class ConditionMapperTest {
         orderMedicationStatement.getComponent().add(orderComponent);
 
         return List.of(planMedicationStatement, orderMedicationStatement);
-    }
-
-    private II createIdWithRoot(String rootValue) {
-        var id = new II();
-        id.setRoot(rootValue);
-
-        return id;
-    }
-
-    private void assertActualProblemExtension(Condition condition) {
-        var extension = condition.getExtensionsByUrl(ACTUAL_PROBLEM_URL).getFirst();
-        assertThat(extension.getValue()).isInstanceOf(Reference.class);
-        assertThat(((Reference) extension.getValue()).getResource()).isInstanceOf(Observation.class);
-        assertThat(((Observation) ((Reference) extension.getValue()).getResource()).getId()).isEqualTo(NAMED_STATEMENT_REF_ID);
-    }
-
-    private void assertRelatedClinicalContentExtension(Condition condition) {
-        var extensions = condition.getExtensionsByUrl(RELATED_CLINICAL_CONTENT_URL);
-        assertThat(extensions).hasSize(2);
-        assertThat(((Reference) extensions.getFirst().getValue()).getResource().getIdElement().getValue()).isEqualTo(STATEMENT_REF_ID);
-        assertThat(((Reference) extensions.get(1).getValue()).getResource().getIdElement().getValue()).isEqualTo(STATEMENT_REF_ID_1);
-    }
-
-    private void assertGeneratedComponentsAreCorrect(Condition condition) {
-        assertNotNull(condition.getMeta().getProfile().getFirst());
-        assertThat(condition.getIdentifierFirstRep().getValue()).isEqualTo(LINKSET_ID);
-        assertThat(condition.getCategoryFirstRep().getCodingFirstRep().getDisplay()).isEqualTo("Problem List Item");
-    }
-
-    private Bundle buildBundleWithNamedStatementObservation() {
-        return new Bundle()
-            .addEntry(new BundleEntryComponent()
-                .setResource(new Observation().setId(NAMED_STATEMENT_REF_ID)));
-    }
-
-    private Bundle buildBundleWithStatementRefObservations() {
-        return new Bundle()
-            .addEntry(new BundleEntryComponent()
-                .setResource(new Observation().setId(STATEMENT_REF_ID)))
-            .addEntry(new BundleEntryComponent()
-                .setResource(new Observation().setId(STATEMENT_REF_ID_1)));
-    }
-
-    private void assertAllConditionsHaveMeta(List<Condition> conditions, Meta expectedMeta) {
-        assertAll(conditions.stream().map(condition ->
-            () -> assertThat(condition.getMeta()).usingRecursiveComparison().isEqualTo(expectedMeta)
-        ));
-    }
-
-    @SneakyThrows
-    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String testFilesDirectory, String filename) {
-        final File file = FileFactory.getXmlFileFor(testFilesDirectory, filename);
-        return unmarshallFile(file, RCMRMT030101UKEhrExtract.class);
-    }
-
-    @SneakyThrows
-    private RCMRMT030101UKEhrExtract unmarshallEhrExtract(String filename) {
-        return unmarshallEhrExtract(TEST_FILES_DIRECTORY, filename);
-    }
-
-    private void configureCommonStubs() {
-        Mockito.lenient().when(dateTimeMapper.mapDateTime(
-            any(String.class)
-        )).thenReturn(EHR_EXTRACT_AVAILABILITY_DATETIME);
-
-        Mockito.lenient().when(confidentialityService.createMetaAndAddSecurityIfConfidentialityCodesPresent(
-            eq(META_PROFILE),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture(),
-            confidentialityCodeCaptor.capture()
-        )).thenReturn(MetaUtil.getMetaFor(META_WITHOUT_SECURITY, META_PROFILE));
     }
 }

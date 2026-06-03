@@ -36,7 +36,7 @@ import uk.nhs.adaptors.pss.translator.sds.SdsRequestBuilder;
 @ExtendWith(MockitoExtension.class)
 public class SDSServiceTest {
 
-    private static final String EHR_EXTRACT_MESSAGE_TYPE = "RCMR_IN030000UK06";
+    private static final String EHR_EXTRACT_MESSAGE_TYPE = "RCMR_IN030000UK07";
     private static final String COPC_MESSAGE_TYPE = "COPC_IN000001UK01";
     private static final String TEST_ODS_CODE = "P83007";
     private static final String TEST_CONVERSATION_ID = "test-conversation-id";

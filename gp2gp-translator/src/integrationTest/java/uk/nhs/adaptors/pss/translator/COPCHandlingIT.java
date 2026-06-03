@@ -17,13 +17,12 @@ import uk.nhs.adaptors.pss.util.BaseEhrHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import static uk.nhs.adaptors.common.enums.MigrationStatus.COPC_MESSAGE_PROCESSING;
 
 import java.util.List;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @ExtendWith({SpringExtension.class})
 @DirtiesContext
 @AutoConfigureMockMvc
