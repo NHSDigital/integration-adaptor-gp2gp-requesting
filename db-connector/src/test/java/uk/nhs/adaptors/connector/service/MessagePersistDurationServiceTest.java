@@ -21,6 +21,12 @@ import uk.nhs.adaptors.connector.model.MessagePersistDuration;
 @ExtendWith(MockitoExtension.class)
 public class MessagePersistDurationServiceTest {
 
+    public static final int THREE_H_SECONDS = 300;
+    public static final int MIGRATION_REQUEST_ID = 10;
+    public static final int TWO = 2;
+    public static final int NINETY_NINE = 99;
+    public static final int SEVEN = 7;
+    public static final long PERSIST_DURATION = 300L;
     @Mock
     private MessagePersistDurationDao messagePersistDurationDao;
 
@@ -32,16 +38,16 @@ public class MessagePersistDurationServiceTest {
         var expected = MessagePersistDuration.builder()
             .id(1)
             .messageType("ehrExtract")
-            .persistDuration(Duration.ofSeconds(300))
-            .callsSinceUpdate(2)
-            .migrationRequestId(10)
+            .persistDuration(Duration.ofSeconds(THREE_H_SECONDS))
+            .callsSinceUpdate(TWO)
+            .migrationRequestId(MIGRATION_REQUEST_ID)
             .build();
 
-        when(messagePersistDurationDao.getMessagePersistDuration(10, "ehrExtract")).thenReturn(expected);
+        when(messagePersistDurationDao.getMessagePersistDuration(MIGRATION_REQUEST_ID, "ehrExtract")).thenReturn(expected);
 
         var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(5), 2, 10);
 
-        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", 300L, 2, 10);
+        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, 2, 10);
         assertEquals(expected, actual);
     }
 
@@ -49,13 +55,13 @@ public class MessagePersistDurationServiceTest {
     public void shouldReturnPersistDurationWhenMessageTypeExists() {
         var expected = MessagePersistDuration.builder()
             .messageType("COPC")
-            .migrationRequestId(99)
+            .migrationRequestId(NINETY_NINE)
             .build();
 
-        when(messagePersistDurationDao.messageTypeExists(99, "COPC")).thenReturn(true);
-        when(messagePersistDurationDao.getMessagePersistDuration(99, "COPC")).thenReturn(expected);
+        when(messagePersistDurationDao.messageTypeExists(NINETY_NINE, "COPC")).thenReturn(true);
+        when(messagePersistDurationDao.getMessagePersistDuration(NINETY_NINE, "COPC")).thenReturn(expected);
 
-        var actual = messagePersistDurationService.getMessagePersistDuration(99, "COPC");
+        var actual = messagePersistDurationService.getMessagePersistDuration(NINETY_NINE, "COPC");
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -63,12 +69,12 @@ public class MessagePersistDurationServiceTest {
 
     @Test
     public void shouldReturnEmptyWhenMessageTypeDoesNotExist() {
-        when(messagePersistDurationDao.messageTypeExists(7, "missing")).thenReturn(false);
+        when(messagePersistDurationDao.messageTypeExists(SEVEN, "missing")).thenReturn(false);
 
-        var actual = messagePersistDurationService.getMessagePersistDuration(7, "missing");
+        var actual = messagePersistDurationService.getMessagePersistDuration(SEVEN, "missing");
 
         assertFalse(actual.isPresent());
-        verify(messagePersistDurationDao, never()).getMessagePersistDuration(7, "missing");
+        verify(messagePersistDurationDao, never()).getMessagePersistDuration(SEVEN, "missing");
     }
 }
 
