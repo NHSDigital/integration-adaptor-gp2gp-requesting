@@ -47,7 +47,10 @@ public class MessagePersistDurationServiceTest {
 
         when(messagePersistDurationDao.getMessagePersistDuration(MIGRATION_REQUEST_ID, "ehrExtract")).thenReturn(expected);
 
-        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(FIVE), TWO_CALLS, MIGRATION_REQUEST_ID);
+        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract",
+                                                                                Duration.ofMinutes(FIVE),
+                                                                                TWO_CALLS,
+                                                                                MIGRATION_REQUEST_ID);
 
         verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, TWO_CALLS, MIGRATION_REQUEST_ID);
         assertEquals(expected, actual);
