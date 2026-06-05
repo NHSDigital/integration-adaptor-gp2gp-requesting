@@ -48,14 +48,14 @@ public class MessagePersistDurationServiceTest {
     @Test
     public void shouldReturnPersistDurationWhenMessageTypeExists() {
         var expected = MessagePersistDuration.builder()
-            .messageType("copc")
+            .messageType("COPC")
             .migrationRequestId(99)
             .build();
 
-        when(messagePersistDurationDao.messageTypeExists(99, "copc")).thenReturn(true);
-        when(messagePersistDurationDao.getMessagePersistDuration(99, "copc")).thenReturn(expected);
+        when(messagePersistDurationDao.messageTypeExists(99, "COPC")).thenReturn(true);
+        when(messagePersistDurationDao.getMessagePersistDuration(99, "COPC")).thenReturn(expected);
 
-        var actual = messagePersistDurationService.getMessagePersistDuration(99, "copc");
+        var actual = messagePersistDurationService.getMessagePersistDuration(99, "COPC");
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
