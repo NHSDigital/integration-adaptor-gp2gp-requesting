@@ -22,11 +22,12 @@ import uk.nhs.adaptors.connector.model.MessagePersistDuration;
 public class MessagePersistDurationServiceTest {
 
     public static final int THREE_H_SECONDS = 300;
-    public static final int MIGRATION_REQUEST_ID = 10;
+    public static final int TEN = 10;
     public static final int TWO = 2;
     public static final int NINETY_NINE = 99;
     public static final int SEVEN = 7;
     public static final long PERSIST_DURATION = 300L;
+    public static final int FIVE = 5;
     @Mock
     private MessagePersistDurationDao messagePersistDurationDao;
 
@@ -40,14 +41,14 @@ public class MessagePersistDurationServiceTest {
             .messageType("ehrExtract")
             .persistDuration(Duration.ofSeconds(THREE_H_SECONDS))
             .callsSinceUpdate(TWO)
-            .migrationRequestId(MIGRATION_REQUEST_ID)
+            .migrationRequestId(TEN)
             .build();
 
-        when(messagePersistDurationDao.getMessagePersistDuration(MIGRATION_REQUEST_ID, "ehrExtract")).thenReturn(expected);
+        when(messagePersistDurationDao.getMessagePersistDuration(TEN, "ehrExtract")).thenReturn(expected);
 
-        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(5), 2, 10);
+        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(FIVE), TWO, TEN);
 
-        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, 2, 10);
+        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, TWO, TEN);
         assertEquals(expected, actual);
     }
 
