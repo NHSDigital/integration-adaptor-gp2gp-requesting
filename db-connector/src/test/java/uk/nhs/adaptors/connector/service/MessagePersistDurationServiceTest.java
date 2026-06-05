@@ -22,12 +22,13 @@ import uk.nhs.adaptors.connector.model.MessagePersistDuration;
 public class MessagePersistDurationServiceTest {
 
     public static final int THREE_H_SECONDS = 300;
-    public static final int TEN = 10;
-    public static final int TWO = 2;
+    public static final int MIGRATION_REQUEST_ID = 101010;
+    public static final int TWO_CALLS = 2;
     public static final int NINETY_NINE = 99;
     public static final int SEVEN = 7;
     public static final long PERSIST_DURATION = 300L;
     public static final int FIVE = 5;
+    public static final String COPC = "COPC";
     @Mock
     private MessagePersistDurationDao messagePersistDurationDao;
 
@@ -40,29 +41,29 @@ public class MessagePersistDurationServiceTest {
             .id(1)
             .messageType("ehrExtract")
             .persistDuration(Duration.ofSeconds(THREE_H_SECONDS))
-            .callsSinceUpdate(TWO)
-            .migrationRequestId(TEN)
+            .callsSinceUpdate(TWO_CALLS)
+            .migrationRequestId(MIGRATION_REQUEST_ID)
             .build();
 
-        when(messagePersistDurationDao.getMessagePersistDuration(TEN, "ehrExtract")).thenReturn(expected);
+        when(messagePersistDurationDao.getMessagePersistDuration(MIGRATION_REQUEST_ID, "ehrExtract")).thenReturn(expected);
 
-        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(FIVE), TWO, TEN);
+        var actual = messagePersistDurationService.addMessagePersistDuration("ehrExtract", Duration.ofMinutes(FIVE), TWO_CALLS, MIGRATION_REQUEST_ID);
 
-        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, TWO, TEN);
+        verify(messagePersistDurationDao).saveMessagePersistDuration("ehrExtract", PERSIST_DURATION, TWO_CALLS, MIGRATION_REQUEST_ID);
         assertEquals(expected, actual);
     }
 
     @Test
     public void shouldReturnPersistDurationWhenMessageTypeExists() {
         var expected = MessagePersistDuration.builder()
-            .messageType("COPC")
+            .messageType(COPC)
             .migrationRequestId(NINETY_NINE)
             .build();
 
-        when(messagePersistDurationDao.messageTypeExists(NINETY_NINE, "COPC")).thenReturn(true);
-        when(messagePersistDurationDao.getMessagePersistDuration(NINETY_NINE, "COPC")).thenReturn(expected);
+        when(messagePersistDurationDao.messageTypeExists(NINETY_NINE, COPC)).thenReturn(true);
+        when(messagePersistDurationDao.getMessagePersistDuration(NINETY_NINE, COPC)).thenReturn(expected);
 
-        var actual = messagePersistDurationService.getMessagePersistDuration(NINETY_NINE, "COPC");
+        var actual = messagePersistDurationService.getMessagePersistDuration(NINETY_NINE, COPC);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
