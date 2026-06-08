@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class FileUtilTest {
 
     @Test
-    public void shouldReadTextFromClasspathResource() {
+    public void shouldReadTextResource() {
         var content = FileUtil.readResourceAsString("/file-util/sample.txt");
 
         assertEquals("sample-content", content.trim());
