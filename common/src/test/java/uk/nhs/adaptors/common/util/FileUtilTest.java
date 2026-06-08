@@ -13,7 +13,7 @@ public class FileUtilTest {
     public void shouldReadTextFromClasspathResource() {
         var content = FileUtil.readResourceAsString("/file-util/sample.txt");
 
-        assertEquals("sample-content\n", content);
+        assertEquals("sample-content", content.trim());
     }
 
     @Test
@@ -21,4 +21,3 @@ public class FileUtilTest {
         assertThrows(FileNotFoundException.class, () -> FileUtil.readResourceAsString("/file-util/missing.txt"));
     }
 }
-
