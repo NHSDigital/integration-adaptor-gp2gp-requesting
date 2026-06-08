@@ -20,7 +20,7 @@ import uk.nhs.adaptors.connector.model.PatientMigrationRequest;
 @ExtendWith(MockitoExtension.class)
 public class PatientMigrationRequestServiceTest {
 
-    public static final int PATIENT_MIGRATION_REQUEST = 11111111;
+    private static final int MIGRATION_REQUEST_ID = 11111111;
     @Mock
     private PatientMigrationRequestDao patientMigrationRequestDao;
 
@@ -31,7 +31,7 @@ public class PatientMigrationRequestServiceTest {
     public void shouldReturnRequestsByMigrationStatus() {
         var statuses = List.of(MigrationStatus.REQUEST_RECEIVED);
         var request = PatientMigrationRequest.builder()
-            .id(PATIENT_MIGRATION_REQUEST)
+            .id(MIGRATION_REQUEST_ID)
             .conversationId("conversation-id-123")
             .build();
 

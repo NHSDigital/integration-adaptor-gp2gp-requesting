@@ -21,7 +21,7 @@ import uk.nhs.adaptors.connector.model.MessagePersistDuration;
 @ExtendWith(MockitoExtension.class)
 public class MessagePersistDurationServiceTest {
 
-    public static final int THREE_H_SECONDS = 300;
+    public static final int PERSIST_DURATION_SECONDS = 300;
     public static final int MIGRATION_REQUEST_ID = 101010;
     public static final int TWO_CALLS = 2;
     public static final int NINETY_NINE = 99;
@@ -40,7 +40,7 @@ public class MessagePersistDurationServiceTest {
         var expected = MessagePersistDuration.builder()
             .id(1)
             .messageType("ehrExtract")
-            .persistDuration(Duration.ofSeconds(THREE_H_SECONDS))
+            .persistDuration(Duration.ofSeconds(PERSIST_DURATION_SECONDS))
             .callsSinceUpdate(TWO_CALLS)
             .migrationRequestId(MIGRATION_REQUEST_ID)
             .build();
