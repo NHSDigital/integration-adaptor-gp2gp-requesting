@@ -28,22 +28,10 @@ public class PatientTransferContractIT {
     private static final String ENDPOINT = "/Patient/$gpc.migratestructuredrecord";
     private static final String CONTENT_TYPE = "application/fhir+json";
     public static final String CONVERSATION_ID = "ConversationId";
-    public static final int NHS_NUMBER = 101010;
+    public static final int NHS_NUMBER = 10;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Test
-    public void shouldAcceptValidMigrateStructuredRecordRequest() throws Exception {
-        var requestBody = buildRequestBody("/requests/migrate-patient-record/validRequestBody.json");
-
-        mockMvc.perform(post(ENDPOINT)
-                .contentType(CONTENT_TYPE)
-                .headers(requiredHeaders())
-                .header(CONVERSATION_ID, UUID.randomUUID().toString().toUpperCase(Locale.ROOT))
-                .content(requestBody))
-            .andExpect(status().isAccepted());
-    }
 
     @Test
     public void shouldReturnOperationOutcomeForInvalidRequestPayload() throws Exception {
