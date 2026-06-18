@@ -28,6 +28,7 @@ public class PatientTransferContractIT {
     private static final String ENDPOINT = "/Patient/$gpc.migratestructuredrecord";
     private static final String CONTENT_TYPE = "application/fhir+json";
     public static final String CONVERSATION_ID = "ConversationId";
+    public static final int NHS_NUMBER = 101010;
 
     @Autowired
     private MockMvc mockMvc;
@@ -61,7 +62,7 @@ public class PatientTransferContractIT {
     }
 
     private String buildRequestBody(String templatePath) {
-        return readResourceAsString(templatePath).replace("{{nhsNumber}}", randomNumeric(10));
+        return readResourceAsString(templatePath).replace("{{nhsNumber}}", randomNumeric(NHS_NUMBER));
     }
 
     private static HttpHeaders requiredHeaders() {
