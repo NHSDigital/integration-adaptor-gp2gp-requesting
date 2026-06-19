@@ -38,9 +38,11 @@ public class FhirParserTest {
         parameters.addParameter().setName("test-name").setValue(new org.hl7.fhir.dstu3.model.StringType("value"));
 
         var encoded = fhirParser.encodeToJson(parameters);
+        var compact = encoded.replaceAll("\\s+", "");
 
-        assertTrue(encoded.contains("\"resourceType\": \"Parameters\""));
-        assertTrue(encoded.contains("\"name\": \"test-name\""));
+        assertTrue(compact.contains("\"resourceType\":\"Parameters\""));
+        assertTrue(compact.contains("\"name\":\"test-name\""));
+        assertTrue(compact.contains("\"valueString\":\"value\""));
     }
 }
 
