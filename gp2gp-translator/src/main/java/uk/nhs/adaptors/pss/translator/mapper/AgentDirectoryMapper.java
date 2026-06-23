@@ -156,11 +156,15 @@ public class AgentDirectoryMapper {
     }
 
     private static String getGivenNamesAsString(PN name) {
-        var givenList = name.getGiven();
-        if (givenList != null && !givenList.isEmpty()) {
-            return StringUtils.join(givenList, " ");
+        if (name == null) {
+            return null;
         }
-        return null;
+
+        var givenList = name.getGiven().stream()
+            .filter(StringUtils::isNotBlank)
+            .toList();
+
+        return givenList.isEmpty() ? null : StringUtils.join(givenList, " ");
     }
 
     private static boolean hasNoName(PN name) {
