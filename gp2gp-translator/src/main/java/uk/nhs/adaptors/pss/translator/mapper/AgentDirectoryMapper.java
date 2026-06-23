@@ -130,17 +130,23 @@ public class AgentDirectoryMapper {
     }
 
     private static void setTextFromAvailableNameFields(PN name, HumanName humanName) {
-        var requiresSeparator = StringUtils.isNotBlank(name.getPrefix()) && StringUtils.isNotBlank(name.getGiven());
-        var text = StringUtils.join(name.getPrefix(), (requiresSeparator ? " " : ""), name.getGiven());
+        var givenNames = getGivenNamesAsString(name);
+        var requiresSeparator = StringUtils.isNotBlank(name.getPrefix()) && StringUtils.isNotBlank(givenNames);
+        var text = StringUtils.join(name.getPrefix(), (requiresSeparator ? " " : ""), givenNames);
         humanName.setText(text);
     }
 
     private void setHumanNameValuesFromName(PN name, HumanName humanName) {
         humanName.setFamily(name.getFamily());
 
-        var given = getPractitionerGiven(name.getGiven());
-        if (given != null) {
-            humanName.getGiven().add(given);
+        var givenList = name.getGiven();
+        if (givenList != null && !givenList.isEmpty()) {
+            for (String givenName : givenList) {
+                var given = getPractitionerGiven(givenName);
+                if (given != null) {
+                    humanName.getGiven().add(given);
+                }
+            }
         }
 
         var prefix = getPractitionerPrefix(name.getPrefix());
@@ -149,10 +155,19 @@ public class AgentDirectoryMapper {
         }
     }
 
+    private static String getGivenNamesAsString(PN name) {
+        var givenList = name.getGiven();
+        if (givenList != null && !givenList.isEmpty()) {
+            return StringUtils.join(givenList, " ");
+        }
+        return null;
+    }
+
     private static boolean hasNoName(PN name) {
+        var hasGiven = name != null && name.getGiven() != null && !name.getGiven().isEmpty();
         return name == null
             || (StringUtils.isBlank(name.getFamily())
-                && StringUtils.isBlank(name.getGiven())
+                && !hasGiven
                 && StringUtils.isBlank(name.getPrefix()));
     }
 

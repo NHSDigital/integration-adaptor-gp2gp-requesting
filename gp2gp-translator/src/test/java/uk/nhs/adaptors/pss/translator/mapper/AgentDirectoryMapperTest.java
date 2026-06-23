@@ -248,7 +248,44 @@ public class AgentDirectoryMapperTest {
             () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
             () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
             () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
-            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("NHS")
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("John Paul")
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithMultipleGivenAndFamilyName_Expect_AllGivenNamesInArray() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="CD8E40B3-6A3C-11F1-AE7C-00155D75C807"/>
+                        <code code="704951000000106" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Other person"/>
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name use="L">
+                                <given>Minire</given>
+                                <given>E</given>
+                                <family>Clarkson</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getId()).isEqualTo("CD8E40B3-6A3C-11F1-AE7C-00155D75C807"),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Clarkson"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).hasSize(2),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("Minire"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(1).getValue()).isEqualTo("E"),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isNull(),
+            () -> assertThat(practitioner.getMeta().getProfile().getFirst().getValue()).isEqualTo(PRACT_META_PROFILE)
         );
     }
 
