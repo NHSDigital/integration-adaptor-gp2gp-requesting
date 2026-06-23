@@ -248,7 +248,7 @@ public class AgentDirectoryMapperTest {
             () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
             () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
             () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty(),
-            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("John Paul")
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("NHS")
         );
     }
 
