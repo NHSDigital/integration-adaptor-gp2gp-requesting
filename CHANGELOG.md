@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 * Improved error handling in SkeletonProcessingService to throw a meaningful IllegalArgumentException
   when a payload node cannot be matched to a skeleton document ID, replacing an uninformative NullPointerException.
+* Fixed `canMergeCompleteBundle` incorrectly returning `true` when attachment logs are empty, causing a blank patient record after large message GP2GP transfers.
 
 ## [3.1.3] - 2025-09-19
 

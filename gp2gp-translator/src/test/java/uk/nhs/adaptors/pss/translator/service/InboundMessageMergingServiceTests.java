@@ -468,6 +468,16 @@ public class InboundMessageMergingServiceTests {
         verify(nackAckPreparationService, never()).sendNackMessage(any(NACKReason.class), any(RCMRIN030000UKMessage.class), any());
     }
 
+    @Test
+    public void When_AllAttachmentLogsDeleted_CanMergeCompleteBundle_Expect_ReturnFalse() throws JAXBException {
+        var emptyAttachmentLogs = new ArrayList<PatientAttachmentLog>();
+
+        when(patientAttachmentLogService.findAttachmentLogs(CONVERSATION_ID)).thenReturn(emptyAttachmentLogs);
+        var result = inboundMessageMergingService.canMergeCompleteBundle(CONVERSATION_ID);
+
+        assertFalse(result);
+    }
+
 
     private ArrayList<PatientAttachmentLog> createPatientAttachmentList(Boolean isParentUploaded, Boolean isSkeleton) {
         var patientAttachmentLogs = new ArrayList<PatientAttachmentLog>();
