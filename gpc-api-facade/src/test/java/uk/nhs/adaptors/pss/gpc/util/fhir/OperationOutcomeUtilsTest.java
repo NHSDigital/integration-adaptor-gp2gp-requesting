@@ -4,7 +4,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity.ERROR;
 import static org.hl7.fhir.dstu3.model.OperationOutcome.IssueType.NOTSUPPORTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.OperationOutcome;
 import org.junit.jupiter.api.Test;
 
 import uk.nhs.adaptors.common.util.CodeableConceptUtils;
