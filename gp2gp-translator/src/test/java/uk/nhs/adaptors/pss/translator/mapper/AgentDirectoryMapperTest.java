@@ -253,6 +253,245 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
+    public void When_MapAgentWithMultipleGivenAndFamilyName_Expect_AllGivenNamesInArray() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="CD8E40B3-6A3C-11F1-AE7C-00155D75C807"/>
+                        <code code="704951000000106" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Other person"/>
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name use="L">
+                                <given>Minire</given>
+                                <given>E</given>
+                                <family>Clarkson</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getId()).isEqualTo("CD8E40B3-6A3C-11F1-AE7C-00155D75C807"),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Clarkson"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).hasSize(2),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("Minire"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(1).getValue()).isEqualTo("E"),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isNull(),
+            () -> assertThat(practitioner.getMeta().getProfile().getFirst().getValue()).isEqualTo(PRACT_META_PROFILE)
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithThreeGivenNames_Expect_AllThreeGivenNamesInArray() {
+        final var expectedGivenCount = 3;
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <given>John</given>
+                               <given>Paul</given>
+                               <given>George</given>
+                               <family>Smith</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Smith"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).hasSize(expectedGivenCount),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("John"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(1).getValue()).isEqualTo("Paul"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(2).getValue()).isEqualTo("George"),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isNull()
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithEmptyGivenNameInList_Expect_OnlyNonEmptyGivenNamesAdded() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <given>John</given>
+                               <given></given>
+                               <given>Paul</given>
+                               <family>Smith</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        // Should only have 2 given names since one is empty
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Smith"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).hasSize(2),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("John"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(1).getValue()).isEqualTo("Paul")
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithMultipleGivenNamesAndPrefix_Expect_AllNamesAndPrefix() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <prefix>Dr</prefix>
+                               <given>John</given>
+                               <given>Robert</given>
+                               <family>Smith</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).hasSize(1),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix().getFirst().getValue()).isEqualTo("Dr"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).hasSize(2),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().getFirst().getValue()).isEqualTo("John"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven().get(1).getValue()).isEqualTo("Robert"),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Smith")
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithPrefixButNullGivenNames_Expect_TextSetToPrefix() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <prefix>Prof</prefix>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isEqualTo("Prof"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isNull(),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).isEmpty()
+        );
+    }
+
+    @Test
+    public void When_MapAgentWithAllGivenNamesEmpty_Expect_TextSetToEmpty() {
+        // This test ensures that if getGiven() returns an empty list (all items filtered out),
+        // hasNoName() correctly identifies it as having NO name
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <given></given>
+                               <given></given>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty();
+    }
+
+    @Test
+    public void When_MapAgentWithPrefixAndEmptyGivenNames_Expect_TextSetOnlyToPrefix() {
+        var agentDirectoryXml = """
+            <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">
+                <part typeCode="PART">
+                    <Agent classCode="AGNT">
+                        <id root="95D00D99-0601-4A8E-AD1D-1B564307B0A6" />
+                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                            <name>
+                               <prefix>Dr</prefix>
+                               <given></given>
+                               <family>Smith</family>
+                            </name>
+                        </agentPerson>
+                    </Agent>
+                </part>
+            </agentDirectory>""";
+        var agentDirectory = unmarshallAgentDirectoryFromXmlString(agentDirectoryXml);
+
+        var mappedAgents = agentDirectoryMapper.mapAgentDirectory(agentDirectory);
+
+        assertThat(mappedAgents).hasSize(1);
+
+        var practitioner = (Practitioner) mappedAgents.getFirst();
+
+        assertAll(
+            () -> assertThat(practitioner.getNameFirstRep().getFamily()).isEqualTo("Smith"),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix()).hasSize(1),
+            () -> assertThat(practitioner.getNameFirstRep().getPrefix().getFirst().getValue()).isEqualTo("Dr"),
+            () -> assertThat(practitioner.getNameFirstRep().getGiven()).isEmpty(),
+            () -> assertThat(practitioner.getNameFirstRep().getText()).isNull()
+        );
+    }
+
+    @Test
     public void When_MapAgentDirectoryOnlyAgentPersonWithNameElementWithOnlyPrefix_Expect_TextSetToPrefix() {
         var agentDirectoryXml = """
             <agentDirectory xmlns="urn:hl7-org:v3" classCode="AGNT">

@@ -12,9 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 * Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
-* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent.
-* 
+* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent.
+
 ### Fixed
+* Fixed handling of multiple `<given>` name fields in practitioner XML to JSON mapping - now correctly captures all given names as an array in FHIR HumanName.
 * Improved error handling in SkeletonProcessingService to throw a meaningful IllegalArgumentException
   when a payload node cannot be matched to a skeleton document ID, replacing an uninformative NullPointerException.
 
