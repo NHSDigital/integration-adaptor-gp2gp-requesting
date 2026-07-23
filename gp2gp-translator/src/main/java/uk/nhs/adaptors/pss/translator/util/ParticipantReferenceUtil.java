@@ -71,19 +71,16 @@ public class ParticipantReferenceUtil {
 
     public static Reference getParticipant2Reference(RCMRMT030101UKEhrComposition ehrComposition, String typeCode) {
 
-        var participant2Reference = ehrComposition.getParticipant2().stream()
+        return ehrComposition.getParticipant2().stream()
             .filter(participant2 -> participant2.getNullFlavor() == null)
             .filter(participant2 -> typeCode.equals(participant2.getTypeCode().getFirst()))
             .map(RCMRMT030101UKParticipant2::getAgentRef)
             .map(RCMRMT030101UKAgentRef::getId)
             .filter(II::hasRoot)
             .map(II::getRoot)
-            .findFirst();
-
-        if (participant2Reference.isPresent()) {
-            return new Reference(PRACTITIONER_REFERENCE_PREFIX.formatted(participant2Reference.get()));
-        }
-        return null;
+            .findFirst()
+            .map(ref -> new Reference(PRACTITIONER_REFERENCE_PREFIX.formatted(ref)))
+            .orElse(null);
     }
 
     private static Optional<String> getParticipant2Reference(RCMRMT030101UKEhrComposition ehrComposition) {

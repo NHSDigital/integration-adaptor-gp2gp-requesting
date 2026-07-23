@@ -40,7 +40,8 @@ class JaxbTest {
 
         // then
         assertThat(person.getName().getFamily()).isEqualTo("Whitcombe");
-        assertThat(person.getName().getGiven()).isEqualTo("Peter");
+        assertThat(person.getName().getGiven()).hasSize(1);
+        assertThat(person.getName().getGiven().getFirst()).isEqualTo("Peter");
         assertThat(person.getName().getPrefix()).isEqualTo("Dr");
         assertThat(person.getName().getValidTime().getCenter().getValue()).isEqualTo("20100114");
         assertThat(place.getName()).isEqualTo("EMIS Test Practice Location");
