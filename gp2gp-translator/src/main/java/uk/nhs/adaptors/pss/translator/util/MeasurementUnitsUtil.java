@@ -627,7 +627,7 @@ public final class MeasurementUnitsUtil {
         UNITS.put("ng/mg/h", "nanogram per milligram per hour");
         UNITS.put("ng/mg{Protein}", "nanogram / milligram Protein");
         UNITS.put("ng/min", "nanogram per minute");
-        UNITS.put("ng/mL", "nanogram per millliiter");
+        UNITS.put("ng/mL", "nanogram per milliliter");
         UNITS.put("ng/mL/h", "nanogram per milliliter per hour");
         UNITS.put("ng/mL{rbc}", "nanogram / milliliter rbc");
         UNITS.put("ng/s", "nanogram per second");
