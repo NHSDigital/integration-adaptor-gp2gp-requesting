@@ -31,7 +31,7 @@ public class CodeableConceptUtilsTest {
         assertEquals("urn:oid:1.2.3", codeableConcept.getCoding().get(0).getSystem());
         assertEquals(CodeableConceptUtils.EHR_REQUEST_ACK_CODE_URN, codeableConcept.getCoding().get(1).getSystem());
         assertEquals("25", codeableConcept.getCoding().get(1).getCode());
-    }b
+    }
 
     @Test
     public void shouldCreateCodeableConceptWithExtension() {
