@@ -11,6 +11,8 @@ import jakarta.jms.Session;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,6 +44,10 @@ public class MhsQueueConsumerTest {
     private MDCService mdcService;
     @InjectMocks
     private MhsQueueConsumer mhsQueueConsumer;
+
+    @Captor
+    private ArgumentCaptor<Message> messageCaptor;
+
 
     @Test
     @SneakyThrows
@@ -105,5 +111,12 @@ public class MhsQueueConsumerTest {
         mhsQueueConsumer.receive(message, session);
 
         verify(session, times(1)).rollback();
+    }
+
+    @Test
+    @SneakyThrows
+    public void When_MessageNotReceived_Retry()
+    {
+
     }
 }
