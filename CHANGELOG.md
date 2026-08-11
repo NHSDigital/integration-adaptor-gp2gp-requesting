@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 * Fixed spelling error in measurement unit "milliliter".
+* Add thread-safe synchronisation when merging and uncompressing a large EHR Extract bundle to avoid a race condition
+  occurring where multiple threads may attempt to merge and uncompress the same EHR Extract bundle at the same time.
+  This could result in a corrupted EHR Extract bundle.
 
 ## [3.3.1] - 2026-06-01
 
