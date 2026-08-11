@@ -8,10 +8,10 @@ import uk.nhs.adaptors.pss.translator.amqp.MhsQueueConsumer;
 @Configuration
 @EnableRetry
 public class ConsumerConfiguration {
-
-    @Bean
-    public MhsQueueConsumer mhsQueueConsumer()
-    {
-        return new MhsQueueConsumer();
-    }
+//
+//    @Bean
+//    public MhsQueueConsumer mhsQueueConsumer()
+//    {
+//        return new MhsQueueConsumer();
+//    }
 }

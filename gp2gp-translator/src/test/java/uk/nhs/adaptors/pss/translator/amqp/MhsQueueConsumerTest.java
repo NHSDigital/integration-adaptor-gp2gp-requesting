@@ -1,9 +1,5 @@
 package uk.nhs.adaptors.pss.translator.amqp;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.UUID;
 
 import jakarta.jms.Message;
@@ -20,8 +16,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.service.MDCService;
 import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
+import uk.nhs.adaptors.pss.translator.exception.AttachmentNotFoundException;
 import uk.nhs.adaptors.pss.translator.exception.ConversationIdNotFoundException;
 import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
+
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MhsQueueConsumerTest {
@@ -115,8 +114,19 @@ public class MhsQueueConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageNotReceived_Retry()
-    {
+    public void When_MessageNotReceived_Retry() {
+        MhsQueueMessageHandler messageHandlerMock = mock(MhsQueueMessageHandler.class);
+        doThrow(RuntimeException.class).when(messageHandlerMock).handleMessage(message);
+        when(message.getJMSMessageID()).thenReturn(UUID.randomUUID().toString());
+        doNothing().when(mdcService).resetAllMdcKeys();
+        MhsQueueConsumer consumer = mock(MhsQueueConsumer.class);
 
+        MhsQueueConsumer mhsQueueConsumerSpy = spy(mhsQueueConsumer);
+
+//        doCallRealMethod().when(consumer).receive(any(Message.class), any(Session.class));
+
+        mhsQueueConsumerSpy.receive(message, session);
+
+        verify(mhsQueueConsumerSpy, times(3)).receive(message, session);
     }
 }
