@@ -1,7 +1,8 @@
 package uk.nhs.adaptors.pss.gpc.util.fhir;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.hl7.fhir.dstu3.model.Extension;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,10 @@ public class CodeableConceptUtilsTest {
         final var result = CodeableConceptUtils.createCodeableConcept(CODE, ISSUE_SYSTEM, DISPLAY, TEXT);
 
         assertAll(
-                () -> assertThat(result.getCodingFirstRep().getCode()).isEqualTo(CODE),
-                () -> assertThat(result.getCodingFirstRep().getSystem()).isEqualTo(ISSUE_SYSTEM),
-                () -> assertThat(result.getCodingFirstRep().getDisplay()).isEqualTo(DISPLAY),
-                () -> assertThat(result.getText()).isEqualTo(TEXT)
+                () -> assertEquals(CODE, result.getCodingFirstRep().getCode()),
+                () -> assertEquals(ISSUE_SYSTEM, result.getCodingFirstRep().getSystem()),
+                () -> assertEquals(DISPLAY, result.getCodingFirstRep().getDisplay()),
+                () -> assertEquals(TEXT, result.getText())
         );
     }
 
@@ -32,16 +33,17 @@ public class CodeableConceptUtilsTest {
     public void When_CreateCodeableConceptWithOidAsSystem_Expect_CreatedCodeableConceptContainsOidAsUrn() {
         final var system = "1.2.3.4.5";
         final var expectedSystem = "urn:oid:1.2.3.4.5";
+
         final var result = CodeableConceptUtils.createCodeableConcept(CODE, system, DISPLAY, TEXT);
 
-        assertThat(result.getCodingFirstRep().getSystem()).isEqualTo(expectedSystem);
+        assertEquals(expectedSystem, result.getCodingFirstRep().getSystem());
     }
 
     @Test
     public void When_CreateCodeableConceptWithNullText_Expect_CreatedCodeableConceptDoesNotContainText() {
         final var result = CodeableConceptUtils.createCodeableConcept(CODE, ISSUE_SYSTEM, DISPLAY, null);
 
-        assertThat(result.getText()).isNull();
+        assertNull(result.getText());
     }
 
     @Test
@@ -56,7 +58,7 @@ public class CodeableConceptUtilsTest {
                 null,
                 extension);
 
-        assertThat(result.getCoding().getFirst().getExtension().getFirst().getUrlElement().getValue()).isEqualTo(EXTENSION_URL);
+        assertEquals(EXTENSION_URL, result.getCoding().getFirst().getExtension().getFirst().getUrlElement().getValue());
     }
 
     @Test
@@ -71,12 +73,12 @@ public class CodeableConceptUtilsTest {
         final var actualEhrRequestAckCoding = result.getCoding().get(1);
 
         assertAll(
-                () -> assertThat(actualBaseCoding.getSystem()).isEqualTo(ISSUE_SYSTEM),
-                () -> assertThat(actualBaseCoding.getCode()).isEqualTo(CODE),
-                () -> assertThat(actualBaseCoding.getDisplay()).isEqualTo(DISPLAY),
-                () -> assertThat(actualEhrRequestAckCoding.getSystem()).isEqualTo(EHR_REQUEST_ACK_OID_URN),
-                () -> assertThat(actualEhrRequestAckCoding.getCode()).isEqualTo(GP2GP_SPECIFIC_CODE),
-                () -> assertThat(actualEhrRequestAckCoding.getDisplay()).isEqualTo(DISPLAY)
+                () -> assertEquals(ISSUE_SYSTEM, actualBaseCoding.getSystem()),
+                () -> assertEquals(CODE, actualBaseCoding.getCode()),
+                () -> assertEquals(DISPLAY, actualBaseCoding.getDisplay()),
+                () -> assertEquals(EHR_REQUEST_ACK_OID_URN, actualEhrRequestAckCoding.getSystem()),
+                () -> assertEquals(GP2GP_SPECIFIC_CODE, actualEhrRequestAckCoding.getCode()),
+                () -> assertEquals(DISPLAY, actualEhrRequestAckCoding.getDisplay())
         );
     }
 
@@ -92,6 +94,6 @@ public class CodeableConceptUtilsTest {
                 null,
                 GP2GP_SPECIFIC_CODE);
 
-        assertThat(result.getCoding().getFirst().getSystem()).isEqualTo(expectedSystem);
+        assertEquals(expectedSystem, result.getCoding().getFirst().getSystem());
     }
 }
