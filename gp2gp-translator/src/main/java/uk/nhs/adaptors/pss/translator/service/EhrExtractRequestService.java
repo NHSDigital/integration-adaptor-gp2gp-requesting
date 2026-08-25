@@ -26,7 +26,7 @@ public class EhrExtractRequestService {
     private final IdGeneratorService idGeneratorService;
 
     public String buildEhrExtractRequest(TransferRequestMessage transferRequestMessage, String messageId) {
-        LOGGER.debug("Building EHRExtractRequest with nhsNumber=[{}]", transferRequestMessage.getPatientNhsNumber());
+        LOGGER.debug("Building EHRExtractRequest");
 
         SendEhrExtractRequestParams params = SendEhrExtractRequestParams.builder()
             .messageId(messageId)
