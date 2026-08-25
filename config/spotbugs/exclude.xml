@@ -44,4 +44,14 @@
         <Bug pattern="MS_EXPOSE_REP"/>
     </Match>
 
+    <Match>
+        <Class name="uk.nhs.adaptors.pss.translator.storage.AzureStorageService"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
+    <Match>
+        <Class name="uk.nhs.adaptors.pss.translator.storage.AWSStorageService"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
 </FindBugsFilter>

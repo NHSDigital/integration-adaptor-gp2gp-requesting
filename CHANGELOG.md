@@ -3,11 +3,54 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## Unreleased
+
+## [3.3.2] - 2026-08-19
+
+### Fixed
+
+* Fixed spelling error in measurement unit "milliliter".
+* Add thread-safe synchronisation when merging and uncompressing a large EHR Extract bundle to avoid a race condition
+  occurring where multiple threads may attempt to merge and uncompress the same EHR Extract bundle at the same time.
+  This could result in a corrupted EHR Extract bundle.
+
+## [3.3.1] - 2026-06-01
 
 ### Added
-* Added support for mapping different EhrSupplyType (e.g. NHS prescription, OTC sale) into the Medication Statement Prescribing Agency extension
-* Added fallback for Condition.asserter to use the EHRComposition / author / agent field when EHRComposition / participant2 is absent
+
+* Added fallback to use the `EhrComposition` author when `Condition.asserter` when the `EhrCompoosition` does not have 
+  a `participant2` set.
+
+### Fixed
+
+* Fixed handling of multiple `<given>` name fields in practitioner XML to JSON mapping to now correctly map multiple 
+  `<given>` names.
+
+## [3.3.0] - 2026-04-08
+
+### Updated
+
+* Updated error handling when when processing skeleton payloads to throw a meaningful IllegalArgumentException when a 
+  payload node cannot be matched to a skeleton document ID, replacing an uninformative NullPointerException.
+* Updated Skeleton processing service now removes any leading `_` before matching the skeleton document ID to the 
+  payload node.
+
+## [3.2.0] - 2026-03-18
+
+### Added
+
+* Add new accepted values for Medication Statement Prescribing Agency extension to handle differing types of prescribing 
+  agency (e.g. NHS prescription, OTC sale).
+* Add feature to handle differing EMIS Prescription Types.
+* Add startup validation for required environment variables.
+
+### Updated
+
+* Updated the length of varchar columns in `patient_attachment_log` table to 1024 characters.
+
+### Fixed
+
+* Fixed the `EHRExtract` interaction identifier used by timeout handling from `RCMR_IN030000UK06` to `RCMR_IN030000UK07`.
+
 
 ## [3.1.3] - 2025-09-19
 

@@ -45,7 +45,7 @@ mhs:
 
 storage:
   type: ${STORAGE_TYPE:LocalMock}
-  region: ${STORAGE_REGION:}
+  region: ${STORAGE_REGION:eu-west-2}
   containerName: ${STORAGE_CONTAINER_NAME:}
   accountReference: ${STORAGE_REFERENCE:}
   accountSecret: ${STORAGE_SECRET:}

@@ -5,11 +5,15 @@ import org.springframework.stereotype.Component;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
+import uk.nhs.adaptors.pss.translator.validation.ValidMhsQueueProperties;
 
 @Component
 @ConfigurationProperties(prefix = "amqp.mhs")
 @Getter
 @Setter
+@Validated
+@ValidMhsQueueProperties
 public class MhsQueueProperties {
     private String queueName;
     private String broker;

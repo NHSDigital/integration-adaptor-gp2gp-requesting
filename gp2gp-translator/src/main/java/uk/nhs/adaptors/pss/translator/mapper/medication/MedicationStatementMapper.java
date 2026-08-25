@@ -56,8 +56,6 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBING_AGENCY_SYSTEM
             = "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-PrescribingAgency-1";
 
-    private static final String PRESCRIPTION = "NHS prescription";
-
     private static final String MS_SUFFIX = "-MS";
     private static final String PRESCRIBED_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBED_DISPLAY = "Prescribed at GP practice";
@@ -67,6 +65,12 @@ public class MedicationStatementMapper {
     private static final String PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY = "Prescribed by previous practice";
     private static final String OTC_SALE = "OTC Sale";
     private static final String COMPLETE = "COMPLETE";
+    private static final String PRESCRIPTION_BY_ANOTHER_ORGANISATION = "Prescription by another organisation";
+    private static final String PERSONAL_ADMINISTRATION = "Personal Administration";
+    private static final String ACBS_PRESCRIPTION = "ACBS Prescription";
+    private static final String NHS_PRESCRIPTION = "NHS Prescription";
+    private static final String PRIVATE_PRESCRIPTION = "Private Prescription";
+    private static final String PAST_MEDICATION = "Past medication";
 
     private final MedicationMapper medicationMapper;
     private final ConfidentialityService confidentialityService;
@@ -210,21 +214,16 @@ public class MedicationStatementMapper {
     private Extension generatePrescribingAgencyExtension(RCMRMT030101UKAuthorise supplyAuthorise) {
         String displayName = supplyAuthorise.getCode().getDisplayName();
 
-        String code;
-        String display;
-
-        if (PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY.equals(displayName) || OTC_SALE.equals(displayName)) {
-            code = PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE;
-            display = PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY;
-        } else if (PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY.equals(displayName)) {
-            code = PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE;
-            display = PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY;
-        } else {
-            code = PRESCRIBED_CODE;
-            display = PRESCRIBED_DISPLAY;
-        }
-
-        return buildExtension(code, display);
+        return switch (displayName) {
+            case String display when isPrescribedByAnotherOrganisation(display)
+                -> buildExtension(PRESCRIBED_BY_ANOTHER_ORGANISATION_CODE, PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY);
+            case String display when isPrescribedByPreviousPractice(display)
+                -> buildExtension(PRESCRIBED_BY_PREVIOUS_PRACTICE_CODE, PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY);
+            case String s when isPrescribedAtThisPractice(s)
+                -> buildExtension(PRESCRIBED_CODE, PRESCRIBED_DISPLAY);
+            default
+                -> throw new IllegalArgumentException("Unsupported prescribing agency: " + displayName);
+        };
     }
 
     private Extension buildExtension(String code, String display) {
@@ -238,5 +237,23 @@ public class MedicationStatementMapper {
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().hasId()
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().getId().hasRoot()
             && prescribe.getInFulfillmentOf().getPriorMedicationRef().getId().getRoot().equals(id);
+    }
+
+    private static Boolean isPrescribedByAnotherOrganisation(String display) {
+        return display.equalsIgnoreCase(PRESCRIBED_BY_ANOTHER_ORGANISATION_DISPLAY)
+                || display.equalsIgnoreCase(OTC_SALE)
+                || display.equalsIgnoreCase(PERSONAL_ADMINISTRATION)
+                || display.equalsIgnoreCase(PRESCRIPTION_BY_ANOTHER_ORGANISATION);
+    }
+
+    private static boolean isPrescribedByPreviousPractice(String display) {
+        return display.equalsIgnoreCase(PRESCRIBED_BY_PREVIOUS_PRACTICE_DISPLAY);
+    }
+
+    private static boolean isPrescribedAtThisPractice(String display) {
+        return display.equalsIgnoreCase(NHS_PRESCRIPTION)
+                || display.equalsIgnoreCase(PRIVATE_PRESCRIPTION)
+                || display.equalsIgnoreCase(ACBS_PRESCRIPTION)
+                || display.equalsIgnoreCase(PAST_MEDICATION);
     }
 }

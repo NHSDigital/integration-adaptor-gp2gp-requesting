@@ -1,13 +1,13 @@
 package uk.nhs.adaptors.pss.translator.util;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class MeasurementUnitsUtil {
 
     private static final Map<String, String> UNITS;
     static {
-        UNITS = new HashMap<>();
+        UNITS = new ConcurrentHashMap<>();
         UNITS.put("%", "percent");
         UNITS.put("%/100{WBC}", "percent / 100 WBC");
         UNITS.put("%{0to3Hours}", "percent 0to3Hours");
@@ -627,7 +627,7 @@ public final class MeasurementUnitsUtil {
         UNITS.put("ng/mg/h", "nanogram per milligram per hour");
         UNITS.put("ng/mg{Protein}", "nanogram / milligram Protein");
         UNITS.put("ng/min", "nanogram per minute");
-        UNITS.put("ng/mL", "nanogram per millliiter");
+        UNITS.put("ng/mL", "nanogram per milliliter");
         UNITS.put("ng/mL/h", "nanogram per milliliter per hour");
         UNITS.put("ng/mL{rbc}", "nanogram / milliliter rbc");
         UNITS.put("ng/s", "nanogram per second");

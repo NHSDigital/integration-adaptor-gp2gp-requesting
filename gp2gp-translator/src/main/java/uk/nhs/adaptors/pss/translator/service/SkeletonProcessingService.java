@@ -75,10 +75,16 @@ public class SkeletonProcessingService {
             throw new IllegalArgumentException("inboundMessage does not contain a skeleton attachment reference");
         }
 
-        var skeletonDocumentId = ebxmlSkeletonReference.get().getDocumentId();
+        var skeletonDocumentId = ebxmlSkeletonReference.get().getDocumentId().replaceFirst("^_", "");
         var payloadXml = xPathService.parseDocumentFromXml(inboundMessage.getPayload());
         var valueNodes = xPathService.getNodes(payloadXml, "//*/@*[.='" + skeletonDocumentId + "']/parent::*/parent::*");
         var payloadNodeToReplace = valueNodes.item(0);
+
+        if (payloadNodeToReplace == null) {
+            throw new IllegalArgumentException(
+                    "Could not find payload node matching skeleton document ID: " + skeletonDocumentId
+            );
+        }
         var payloadNodeToReplaceParent = payloadNodeToReplace.getParentNode();
 
         var skeletonExtractNodes = skeletonExtractDocument.getElementsByTagName("*");

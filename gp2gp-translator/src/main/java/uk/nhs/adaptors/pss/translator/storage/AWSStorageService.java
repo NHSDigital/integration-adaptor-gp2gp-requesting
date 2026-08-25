@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Duration;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -23,7 +22,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Slf4j
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "S3Client is immutable and thread-safe.")
 public class AWSStorageService implements StorageService {
 
     private static final long SIXTY_MINUTES = 60;
@@ -78,13 +76,16 @@ public class AWSStorageService implements StorageService {
     }
 
     public void deleteFile(String filename) {
-
-        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                                                               .bucket(bucketName)
-                                                               .key(filename)
-                                                               .build();
-        s3Client.deleteObject(deleteRequest);
-        LOGGER.info("{} was successfully deleted", filename);
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(filename)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+            LOGGER.info("{} was successfully deleted", filename);
+        } catch (Exception e) {
+            throw new StorageException("Error occurred deleting from S3 Bucket", e);
+        }
     }
 
     public String getFileLocation(String filename) {

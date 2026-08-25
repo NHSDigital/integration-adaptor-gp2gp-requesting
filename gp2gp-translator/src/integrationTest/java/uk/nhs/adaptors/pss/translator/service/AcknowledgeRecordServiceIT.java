@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.common.enums.ConfirmationResponse;
 import uk.nhs.adaptors.common.model.AcknowledgeRecordMessage;
+import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.mhs.model.InboundMessage;
 import uk.nhs.adaptors.pss.translator.model.NACKReason;
 
@@ -23,11 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static uk.nhs.adaptors.common.enums.QueueMessageType.ACKNOWLEDGE_RECORD;
 import static uk.nhs.adaptors.common.util.FileUtil.readResourceAsString;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class AcknowledgeRecordServiceIT {
 

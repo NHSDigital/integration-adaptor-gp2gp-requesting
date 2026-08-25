@@ -1,7 +1,6 @@
 package uk.nhs.adaptors.pss.translator.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.util.ResourceUtils.getFile;
 
 import static uk.nhs.adaptors.pss.translator.util.XmlUnmarshallUtil.unmarshallFile;
@@ -28,9 +27,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.util.fhir.FhirParser;
+import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.exception.BundleMappingException;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 @AutoConfigureMockMvc
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @DirtiesContext

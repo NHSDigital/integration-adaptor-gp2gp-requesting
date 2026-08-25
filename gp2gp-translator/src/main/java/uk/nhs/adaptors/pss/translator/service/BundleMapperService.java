@@ -160,7 +160,7 @@ public class BundleMapperService {
 
             return bundle;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Bundle mapping failed", e);
             throw new BundleMappingException(e.getMessage());
         }
     }

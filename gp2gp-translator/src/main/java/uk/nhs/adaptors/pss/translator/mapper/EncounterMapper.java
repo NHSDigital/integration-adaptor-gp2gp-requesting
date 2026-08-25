@@ -3,12 +3,12 @@ package uk.nhs.adaptors.pss.translator.mapper;
 import static uk.nhs.adaptors.pss.translator.util.ResourceUtil.buildIdentifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -94,7 +94,7 @@ public class EncounterMapper {
         List<ListResource> topics = new ArrayList<>();
         List<ListResource> categories = new ArrayList<>();
 
-        Map<String, List<? extends DomainResource>> map = new HashMap<>();
+        Map<String, List<? extends DomainResource>> map = new ConcurrentHashMap<>();
 
         List<RCMRMT030101UKEhrComposition> ehrCompositionList = getEncounterEhrCompositions(ehrExtract);
 

@@ -9,7 +9,7 @@ isMonolith=false
 
 if [ -z ${releasePath} ]
 then
-  echo "Please set the path to zipped SnomedCT RF2 release as the first argument, e.g. ./load_release-postgresql.sh uk_sct2mo_41.0.0_20250924000001Z.zip"
+  echo "Please set the path to zipped SnomedCT RF2 release as the first argument, e.g. ./load_release-postgresql.sh uk_sct2mo_42.0.0_20260408000001Z.zip"
 	exit -1
 fi
 

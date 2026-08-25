@@ -69,7 +69,7 @@ public class EN {
     protected List<CsEntityNameUse> use;
     protected String delimiter;
     protected String family;
-    protected String given;
+    protected List<String> given;
     protected String prefix;
     protected String suffix;
     protected IVLTS validTime;
@@ -120,12 +120,40 @@ public class EN {
         this.family = family;
     }
 
-    public String getGiven() {
-        return given;
+    /**
+     * Gets the value of the given property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the given property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getGiven().add(newItem);
+     * </pre>
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link String }
+     */
+    public List<String> getGiven() {
+        if (given == null) {
+            given = new ArrayList<>();
+        }
+        return this.given;
     }
 
-    public void setGiven(String given) {
-        this.given = given;
+    /**
+     * Convenience method for backward compatibility - returns the first given name as a string.
+     */
+    public String getFirstGiven() {
+        if (given != null && !given.isEmpty()) {
+            return given.get(0);
+        }
+        return null;
     }
 
     public String getPrefix() {
