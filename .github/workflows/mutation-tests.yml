@@ -20,6 +20,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
+          cache: 'gradle'
 
       - name: run pitest
         working-directory: ${{ matrix.path }}
