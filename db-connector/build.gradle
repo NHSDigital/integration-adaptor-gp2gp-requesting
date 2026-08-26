@@ -14,7 +14,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'io.freefair.lombok' version '9.0.0'
-    id 'com.github.spotbugs' version '6.1.11'
+    id 'com.github.spotbugs' version '6.4.2'
 }
 
 apply plugin: 'java'
@@ -43,6 +43,10 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
+
+    spotbugs 'com.github.spotbugs:spotbugs:4.9.7'
+    spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.7'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.7'
 }
 
 test {
@@ -64,6 +68,14 @@ bootJar {
     enabled = false
 }
 
+spotbugs {
+    toolVersion = '4.9.7'
+}
+
+configurations.configureEach {
+    exclude group: 'com.google.code.findbugs', module: 'annotations'
+    exclude group: 'edu.umd.cs.findbugs', module: 'annotations'
+}
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
     excludeFilter = rootProject.file('config/spotbugs/exclude.xml')
