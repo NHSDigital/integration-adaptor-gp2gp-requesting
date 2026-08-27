@@ -22,6 +22,7 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Execute Checkstyle
         run: ./gradlew checkStyleMain checkstyleTest checkstyleIntegrationTest
@@ -56,6 +57,7 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Execute Spotbugs
         run: ./gradlew spotbugsMain spotbugsTest spotbugsIntegrationTest
@@ -91,6 +93,7 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Execute Unit Tests
         run: ./gradlew test --parallel --build-cache
@@ -138,6 +141,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
