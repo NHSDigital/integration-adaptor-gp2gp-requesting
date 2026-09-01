@@ -13,12 +13,13 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import uk.nhs.adaptors.common.service.MDCService;
 import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.ConversationIdNotFoundException;
 import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
 
-@Component
+@Service
 @ConditionalOnProperty(value = "amqp.daisyChaining", havingValue = "false")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -30,7 +31,7 @@ public class MhsQueueConsumer {
 
     @JmsListener(destination = "${amqp.mhs.queueName}", containerFactory = "mhsQueueJmsListenerFactory")
     @SneakyThrows
-    @Retryable
+    @Retryable(maxAttempts = 3)
     public void receive(Message message, Session session) {
         String messageId = message.getJMSMessageID();
         int deliveryCount = message.getIntProperty("JMSXDeliveryCount");

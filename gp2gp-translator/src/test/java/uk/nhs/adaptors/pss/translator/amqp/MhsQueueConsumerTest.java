@@ -7,22 +7,23 @@ import jakarta.jms.Session;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.common.service.MDCService;
+import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
-import uk.nhs.adaptors.pss.translator.exception.AttachmentNotFoundException;
 import uk.nhs.adaptors.pss.translator.exception.ConversationIdNotFoundException;
 import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
 public class MhsQueueConsumerTest {
 
     private static final int MAX_REDELIVERIES = 3;
@@ -43,10 +44,6 @@ public class MhsQueueConsumerTest {
     private MDCService mdcService;
     @InjectMocks
     private MhsQueueConsumer mhsQueueConsumer;
-
-    @Captor
-    private ArgumentCaptor<Message> messageCaptor;
-
 
     @Test
     @SneakyThrows
@@ -115,17 +112,12 @@ public class MhsQueueConsumerTest {
     @Test
     @SneakyThrows
     public void When_MessageNotReceived_Retry() {
-        MhsQueueMessageHandler messageHandlerMock = mock(MhsQueueMessageHandler.class);
-        doThrow(RuntimeException.class).when(messageHandlerMock).handleMessage(message);
+        doThrow(RuntimeException.class).when(mhsQueueMessageHandler).handleMessage(message);
         when(message.getJMSMessageID()).thenReturn(UUID.randomUUID().toString());
         doNothing().when(mdcService).resetAllMdcKeys();
-        MhsQueueConsumer consumer = mock(MhsQueueConsumer.class);
 
         MhsQueueConsumer mhsQueueConsumerSpy = spy(mhsQueueConsumer);
-
-//        doCallRealMethod().when(consumer).receive(any(Message.class), any(Session.class));
-
-        mhsQueueConsumerSpy.receive(message, session);
+        assertThrows(RuntimeException.class, () -> mhsQueueConsumerSpy.receive(message, session));
 
         verify(mhsQueueConsumerSpy, times(3)).receive(message, session);
     }
