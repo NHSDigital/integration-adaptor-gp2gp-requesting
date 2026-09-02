@@ -42,6 +42,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -69,6 +70,10 @@ import jakarta.jms.Message;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+    "amqp.pss.queueName=pssQueueServiceFailureIT",
+    "amqp.mhs.queueName=mhsQueueServiceFailureIT"
+})
 public class ServiceFailureIT extends BaseEhrHandler {
 
     private static final String LOSING_ASID = "LOSING_ASID";
@@ -148,7 +153,6 @@ public class ServiceFailureIT extends BaseEhrHandler {
     @Test
     public void When_ReceivingEhrExtract_WithMhsOutboundServerError_Expect_MigrationHasProcessingError() {
         doThrow(MhsServerErrorException.class)
-            .doNothing()
             .when(sendContinueRequestHandler)
             .prepareAndSendRequest(any());
 
@@ -157,7 +161,8 @@ public class ServiceFailureIT extends BaseEhrHandler {
         await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
             .until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
-        verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
+        verify(sendContinueRequestHandler, timeout(THIRTY_SECONDS).atLeast(MhsQueueConsumer.RETRY_ATTEMPTS))
+            .prepareAndSendRequest(any());
 
         assertThat(getCurrentMigrationStatus(getConversationId())).isEqualTo(EHR_GENERAL_PROCESSING_ERROR);
     }
