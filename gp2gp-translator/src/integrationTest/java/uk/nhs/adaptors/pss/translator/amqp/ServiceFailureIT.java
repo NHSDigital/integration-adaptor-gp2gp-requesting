@@ -135,7 +135,8 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendRequestToPssQueue(conversationId, patientNhsNumber);
 
-        await().until(() -> hasMigrationStatus(EHR_EXTRACT_REQUEST_ERROR, conversationId));
+        await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
+            .until(() -> hasMigrationStatus(EHR_EXTRACT_REQUEST_ERROR, conversationId));
 
         verify(mhsClientService, timeout(THIRTY_SECONDS).times(pssQueueProperties.getMaxRedeliveries() + 1)
         ).send(any());
@@ -153,7 +154,8 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
-        await().until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
+        await().atMost(Duration.ofMinutes(TWO_MINUTES_LONG))
+            .until(() -> hasMigrationStatus(EHR_GENERAL_PROCESSING_ERROR, getConversationId()));
 
         verify(sendContinueRequestHandler, times(1)).prepareAndSendRequest(any());
 
