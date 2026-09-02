@@ -40,6 +40,8 @@ dependencies {
     implementation 'org.jdbi:jdbi3-core:3.49.5'
     implementation 'org.jetbrains:annotations:26.0.2'
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
+    implementation 'org.springframework.retry:spring-retry:2.0.3'
+//    implementation 'org.springframework.boot:spring-boot-starter-aspect
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'

@@ -1,9 +1,5 @@
 package uk.nhs.adaptors.pss.translator.amqp;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.UUID;
 
 import jakarta.jms.Message;
@@ -20,6 +16,10 @@ import uk.nhs.adaptors.common.service.MDCService;
 import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.ConversationIdNotFoundException;
 import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MhsQueueConsumerTest {
@@ -106,4 +106,5 @@ public class MhsQueueConsumerTest {
 
         verify(session, times(1)).rollback();
     }
+
 }
