@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,6 +53,7 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.common.enums.MigrationStatus;
 import uk.nhs.adaptors.common.model.TransferRequestMessage;
 import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
+import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
 import uk.nhs.adaptors.pss.translator.config.PssQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.MhsServerErrorException;
 import uk.nhs.adaptors.pss.translator.service.MhsClientService;
@@ -69,24 +71,23 @@ import jakarta.jms.Message;
 @AutoConfigureMockMvc
 public class ServiceFailureIT extends BaseEhrHandler {
 
-    public static final int TEN_SECONDS = 10000;
     private static final String LOSING_ASID = "LOSING_ASID";
     private static final String WINNING_ASID = "WINNING_ASID";
     private static final String STUB_BODY = "test Body";
     private static final int THIRTY_SECONDS = 30000;
     private static final long TWO_MINUTES_LONG = 2L;
-    private static final int FIVE_WANTED_NUMBER_OF_INVOCATIONS = 5;
     public static final String JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON = "/json/LargeMessage/Scenario_3/uk06.json";
     public static final String JSON_LARGE_MESSAGE_SCENARIO_3_COPC_JSON = "/json/LargeMessage/Scenario_3/copc.json";
     public static final String JSON_LARGE_MESSAGE_EXPECTED_BUNDLE_SCENARIO_3_JSON = "/json/LargeMessage/expectedBundleScenario3.json";
     public static final int RECEIVE_TIMEOUT_LIMIT = 50;
-    public static final int TWENTY = 20;
     private String conversationId;
 
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private PssQueueProperties pssQueueProperties;
+    @Autowired
+    private MhsQueueProperties mhsQueueProperties;
 
     @Autowired
     @Qualifier("jmsTemplateMhsDLQ")
@@ -189,6 +190,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
         sendInboundMessageToQueue(JSON_LARGE_MESSAGE_SCENARIO_3_UK_06_JSON);
 
         await().until(this::hasContinueMessageBeenReceived);
+        clearInvocations(mhsClientService);
 
         doThrow(MhsServerErrorException.class).when(mhsClientService).send(any());
 
@@ -200,7 +202,7 @@ public class ServiceFailureIT extends BaseEhrHandler {
 
         assertNotNull(messageSentToDlq);
         assertEquals(copcMessageInJsonFormat, ((JmsTextMessage) messageSentToDlq).getText());
-        verify(mhsClientService, times(FIVE_WANTED_NUMBER_OF_INVOCATIONS)).send(any());
+        verify(mhsClientService, times((mhsQueueProperties.getMaxRedeliveries() + 1) * MhsQueueConsumer.RETRY_ATTEMPTS)).send(any());
     }
 
     @Test
