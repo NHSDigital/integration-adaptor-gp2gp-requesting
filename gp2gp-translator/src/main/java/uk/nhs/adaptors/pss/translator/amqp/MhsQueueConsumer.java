@@ -6,6 +6,7 @@ import jakarta.jms.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,11 @@ public class MhsQueueConsumer {
     private final MhsDlqPublisher mhsDlqPublisher;
     private final MhsQueueProperties mhsQueueProperties;
     private final MDCService mdcService;
+    public static final int RETRY_ATTEMPTS = 3;
 
     @JmsListener(destination = "${amqp.mhs.queueName}", containerFactory = "mhsQueueJmsListenerFactory")
     @SneakyThrows
+    @Retryable(maxAttempts = RETRY_ATTEMPTS)
     public void receive(Message message, Session session) {
         String messageId = message.getJMSMessageID();
         int deliveryCount = message.getIntProperty("JMSXDeliveryCount");
