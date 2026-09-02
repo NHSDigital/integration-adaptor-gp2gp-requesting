@@ -29,6 +29,7 @@ import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
 public class MhsQueueConsumerIT {
 
     private static final String DELIVERY_COUNT_PROPERTY = "JMSXDeliveryCount";
+    public static final int RETRY_ATTEMPTS = 3;
 
     @Autowired
     private MhsQueueConsumer mhsQueueConsumer;
@@ -54,8 +55,8 @@ public class MhsQueueConsumerIT {
 
         assertThrows(RuntimeException.class, () -> mhsQueueConsumer.receive(message, session));
 
-        verify(mhsQueueMessageHandler, times(3)).handleMessage(message);
+        verify(mhsQueueMessageHandler, times(RETRY_ATTEMPTS)).handleMessage(message);
         verifyNoInteractions(mhsDlqPublisher);
-        verify(mdcService, times(3)).resetAllMdcKeys();
+        verify(mdcService, times(RETRY_ATTEMPTS)).resetAllMdcKeys();
     }
 }

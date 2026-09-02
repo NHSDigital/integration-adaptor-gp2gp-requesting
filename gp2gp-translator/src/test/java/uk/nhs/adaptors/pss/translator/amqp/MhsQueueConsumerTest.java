@@ -7,23 +7,21 @@ import jakarta.jms.Session;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.common.service.MDCService;
-import uk.nhs.adaptors.pss.translator.Gp2gpTranslatorApplication;
 import uk.nhs.adaptors.pss.translator.config.MhsQueueProperties;
 import uk.nhs.adaptors.pss.translator.exception.ConversationIdNotFoundException;
 import uk.nhs.adaptors.pss.translator.task.MhsQueueMessageHandler;
 
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-@SpringBootTest(classes = Gp2gpTranslatorApplication.class)
+@ExtendWith(MockitoExtension.class)
 public class MhsQueueConsumerTest {
 
     private static final int MAX_REDELIVERIES = 3;
@@ -109,16 +107,4 @@ public class MhsQueueConsumerTest {
         verify(session, times(1)).rollback();
     }
 
-    @Test
-    @SneakyThrows
-    public void When_MessageNotReceived_Retry() {
-        doThrow(RuntimeException.class).when(mhsQueueMessageHandler).handleMessage(message);
-        when(message.getJMSMessageID()).thenReturn(UUID.randomUUID().toString());
-        doNothing().when(mdcService).resetAllMdcKeys();
-
-        MhsQueueConsumer mhsQueueConsumerSpy = spy(mhsQueueConsumer);
-        assertThrows(RuntimeException.class, () -> mhsQueueConsumerSpy.receive(message, session));
-
-        verify(mhsQueueConsumerSpy, times(3)).receive(message, session);
-    }
 }
