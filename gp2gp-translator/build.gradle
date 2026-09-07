@@ -4,7 +4,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'com.github.spotbugs' version '6.4.2'
-    id 'io.freefair.lombok' version '9.0.0'
+    id 'io.freefair.lombok' version '9.5.0'
 
     // Mutation testing
     id 'info.solidsoft.pitest' version '1.15.0'
