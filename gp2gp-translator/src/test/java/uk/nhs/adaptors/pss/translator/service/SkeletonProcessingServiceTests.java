@@ -147,6 +147,16 @@ class SkeletonProcessingServiceTests {
     }
 
     @Test
+    void When_IsEntireRcmrSkeletonCalledWithNonRcmrPayload_Expect_ReturnsFalse() throws Exception {
+        var method = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
+        method.setAccessible(true);
+
+        assertFalse((Boolean) method.invoke(skeletonProcessingService, (Object) null));
+        assertFalse((Boolean) method.invoke(skeletonProcessingService, "<MCCI_IN010000UK13>"));
+        assertFalse((Boolean) method.invoke(skeletonProcessingService, "<SomeOtherRoot/>"));
+    }
+
+    @Test
     void When_SkeletonAsWholeRCMRMessageHasLeadingWhitespace_Expect_InboundMessagePayloadIsNewRCMRMessage()
         throws TransformerException, SAXException {
         var inboundMessage = new InboundMessage();
