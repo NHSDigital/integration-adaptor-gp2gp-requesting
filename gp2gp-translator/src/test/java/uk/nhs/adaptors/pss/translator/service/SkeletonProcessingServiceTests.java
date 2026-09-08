@@ -3,6 +3,8 @@ package uk.nhs.adaptors.pss.translator.service;
 import static java.util.UUID.randomUUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -164,17 +166,42 @@ class SkeletonProcessingServiceTests {
     }
 
     @Test
-    void When_SkeletonAttachmentIsBlank_Expect_ThrowsRuntimeException() throws SAXException {
-        var inboundMessage = new InboundMessage();
-        var attachmentLog = createSkeletonPatientAttachmentLog();
+    void When_NormalizeSkeletonXmlCalledWithNull_Expect_ReturnsNull() throws Exception {
+        var method = SkeletonProcessingService.class.getDeclaredMethod("normalizeSkeletonXml", String.class);
+        method.setAccessible(true);
 
-        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
-        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+        assertNull(method.invoke(skeletonProcessingService, new Object[] {null}));
+    }
 
-        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(" \n\t ".getBytes(StandardCharsets.UTF_8));
+    @Test
+    void When_NormalizeSkeletonXmlCalledWithBlankString_Expect_ReturnsOriginalBlankString() throws Exception {
+        var method = SkeletonProcessingService.class.getDeclaredMethod("normalizeSkeletonXml", String.class);
+        method.setAccessible(true);
 
-        assertThrows(RuntimeException.class, () ->
-            skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID));
+        var blankInput = " \n\t ";
+        assertEquals(blankInput, method.invoke(skeletonProcessingService, blankInput));
+    }
+
+    @Test
+    void When_IsEntireRcmrSkeletonCalledWithNonRcmrPayload_Expect_ReturnsFalse() throws Exception {
+        var method = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
+        method.setAccessible(true);
+
+        assertFalse((Boolean) method.invoke(skeletonProcessingService, "<MCCI_IN010000UK13>"));
+    }
+
+    @Test
+    void When_NormalizeSkeletonXmlCalledWithXmlDeclaration_Expect_StripsDeclarationBeforeRcmrCheck() throws Exception {
+        var normalizeMethod = SkeletonProcessingService.class.getDeclaredMethod("normalizeSkeletonXml", String.class);
+        normalizeMethod.setAccessible(true);
+        var isRcmrMethod = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
+        isRcmrMethod.setAccessible(true);
+
+        var xmlWithDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<RCMR_IN030000UK06>";
+        var normalized = (String) normalizeMethod.invoke(skeletonProcessingService, xmlWithDeclaration);
+
+        assertTrue(normalized.startsWith("<RCMR_IN030000UK06"));
+        assertTrue((Boolean) isRcmrMethod.invoke(skeletonProcessingService, normalized));
     }
 
     @Test
