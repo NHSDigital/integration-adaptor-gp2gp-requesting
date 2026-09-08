@@ -28,6 +28,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -158,6 +159,11 @@ class SkeletonProcessingServiceTests {
 
         when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
         when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+        var document = org.mockito.Mockito.mock(Document.class);
+        var rootElement = org.mockito.Mockito.mock(Element.class);
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(document);
+        when(document.getDocumentElement()).thenReturn(rootElement);
+        when(rootElement.getLocalName()).thenReturn("RCMR_IN030000UK06");
 
         var newInboundMessage =
             skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
@@ -187,6 +193,12 @@ class SkeletonProcessingServiceTests {
         var method = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
         method.setAccessible(true);
 
+        var document = org.mockito.Mockito.mock(Document.class);
+        var rootElement = org.mockito.Mockito.mock(Element.class);
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(document);
+        when(document.getDocumentElement()).thenReturn(rootElement);
+        when(rootElement.getLocalName()).thenReturn("MCCI_IN010000UK13");
+
         assertFalse((Boolean) method.invoke(skeletonProcessingService, "<MCCI_IN010000UK13>"));
     }
 
@@ -197,7 +209,14 @@ class SkeletonProcessingServiceTests {
         var isRcmrMethod = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
         isRcmrMethod.setAccessible(true);
 
+        var document = org.mockito.Mockito.mock(Document.class);
+        var rootElement = org.mockito.Mockito.mock(Element.class);
         var xmlWithDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<RCMR_IN030000UK06>";
+
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(document);
+        when(document.getDocumentElement()).thenReturn(rootElement);
+        when(rootElement.getLocalName()).thenReturn("RCMR_IN030000UK06");
+
         var normalized = (String) normalizeMethod.invoke(skeletonProcessingService, xmlWithDeclaration);
 
         assertTrue(normalized.startsWith("<RCMR_IN030000UK06"));
@@ -216,6 +235,11 @@ class SkeletonProcessingServiceTests {
 
         when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
         when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+        var document = org.mockito.Mockito.mock(Document.class);
+        var rootElement = org.mockito.Mockito.mock(Element.class);
+        when(xPathService.parseDocumentFromXml(any())).thenReturn(document);
+        when(document.getDocumentElement()).thenReturn(rootElement);
+        when(rootElement.getLocalName()).thenReturn("RCMR_IN030000UK06");
 
         var newInboundMessage =
             skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);

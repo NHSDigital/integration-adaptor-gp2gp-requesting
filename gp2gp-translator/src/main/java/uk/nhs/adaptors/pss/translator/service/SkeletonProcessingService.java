@@ -72,7 +72,20 @@ public class SkeletonProcessingService {
     }
 
     private boolean isEntireRcmrSkeleton(String normalizedSkeleton) {
-        return normalizedSkeleton != null && normalizedSkeleton.startsWith("<RCMR_IN030000UK06");
+        if (normalizedSkeleton == null || normalizedSkeleton.isBlank()) {
+            return false;
+        }
+
+        try {
+            var skeletonDocument = xPathService.parseDocumentFromXml(normalizedSkeleton);
+            if (skeletonDocument == null) {
+                return false;
+            }
+            var root = skeletonDocument.getDocumentElement();
+            return root != null && "RCMR_IN030000UK06".equals(root.getLocalName());
+        } catch (SAXException e) {
+            return false;
+        }
     }
 
     private InboundMessage insertSkeletonIntoInboundMessagePayload(PatientAttachmentLog skeletonLog,
