@@ -42,6 +42,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
     implementation 'org.springframework.retry:spring-retry:2.0.3'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
