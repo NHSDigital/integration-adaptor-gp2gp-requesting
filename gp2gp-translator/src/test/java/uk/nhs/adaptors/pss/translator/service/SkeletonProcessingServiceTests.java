@@ -145,12 +145,44 @@ class SkeletonProcessingServiceTests {
     }
 
     @Test
-    void When_SkeletonAsWholeRCMRMessageHasXmlDeclarationAndWhitespace_Expect_InboundMessagePayloadIsNewRCMRMessage()
+    void When_SkeletonAsWholeRCMRMessageHasLeadingWhitespace_Expect_InboundMessagePayloadIsNewRCMRMessage()
         throws TransformerException, SAXException {
         var inboundMessage = new InboundMessage();
         var attachmentLog = createSkeletonPatientAttachmentLog();
-        var skeletonMessage = "\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + readInboundMessagePayloadFromFile();
+        var skeletonMessage = "\n  " + readInboundMessagePayloadFromFile();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
+        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+
+        var newInboundMessage =
+            skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
+
+        assertTrue(newInboundMessage.getPayload().contains("<RCMR_IN030000UK06"));
+    }
+
+    @Test
+    void When_SkeletonAttachmentIsBlank_Expect_ThrowsRuntimeException() throws SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(" \n\t ".getBytes(StandardCharsets.UTF_8));
+
+        assertThrows(RuntimeException.class, () ->
+            skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID));
+    }
+
+    @Test
+    void When_SkeletonAsWholeRCMRMessageHasBomPrefix_Expect_InboundMessagePayloadIsNewRCMRMessage()
+        throws TransformerException, SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+        var skeletonMessage = "\uFEFF" + readInboundMessagePayloadFromFile();
 
         inboundMessage.setPayload(readInboundMessagePayloadFromFile());
         inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
