@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -141,6 +142,26 @@ class SkeletonProcessingServiceTests {
         prepareRCMRMocks(inboundMessage);
 
         skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
+    }
+
+    @Test
+    void When_SkeletonAsWholeRCMRMessageHasXmlDeclarationAndWhitespace_Expect_InboundMessagePayloadIsNewRCMRMessage()
+        throws TransformerException, SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+        var skeletonMessage = "\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + readInboundMessagePayloadFromFile();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
+        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+
+        var newInboundMessage =
+            skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
+
+        assertTrue(newInboundMessage.getPayload().contains("<RCMR_IN030000UK06"));
     }
 
     @Test

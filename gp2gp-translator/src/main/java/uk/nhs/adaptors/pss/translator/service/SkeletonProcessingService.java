@@ -21,7 +21,6 @@ import uk.nhs.adaptors.pss.translator.util.XmlParseUtilService;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SkeletonProcessingService {
 
-    private static final int XML_CONCAT_CONSTANT_LENGTH = 100;
 
     private final AttachmentHandlerService attachmentHandlerService;
     private final XmlParseUtilService xmlParseUtilService;
@@ -38,11 +37,11 @@ public class SkeletonProcessingService {
         var skeletonFileAsString = new String(skeletonAttachment, StandardCharsets.UTF_8);
 
         try {
+            var normalizedSkeleton = normalizeSkeletonXml(skeletonFileAsString);
             // if the skeleton starts with the RCMR tag, then we are replacing the whole message.
             // this behaviour is not a part of the specification but we have found this format in some messages
-            var replaceEntirePayload = skeletonFileAsString
-                .substring(0, XML_CONCAT_CONSTANT_LENGTH).contains("<RCMR_IN030000UK06");
-            var skeletonExtractDocument = xPathService.parseDocumentFromXml(skeletonFileAsString);
+            var replaceEntirePayload = isEntireRcmrSkeleton(normalizedSkeleton);
+            var skeletonExtractDocument = xPathService.parseDocumentFromXml(normalizedSkeleton);
 
             if (replaceEntirePayload) {
                 // replace the entire inbound message payload
@@ -59,6 +58,21 @@ public class SkeletonProcessingService {
         } catch (Exception ex) {
             throw new TransformerException("Skeleton message could not be processed into the original inbound message");
         }
+    }
+
+    private String normalizeSkeletonXml(String skeletonFileAsString) {
+        if (skeletonFileAsString == null || skeletonFileAsString.isBlank()) {
+            return skeletonFileAsString;
+        }
+
+        return skeletonFileAsString
+            .replace("\uFEFF", "")
+            .replaceFirst("^(?s)\\s*<\\?xml[^>]*>\\s*", "")
+            .stripLeading();
+    }
+
+    private boolean isEntireRcmrSkeleton(String normalizedSkeleton) {
+        return normalizedSkeleton != null && normalizedSkeleton.startsWith("<RCMR_IN030000UK06");
     }
 
     private InboundMessage insertSkeletonIntoInboundMessagePayload(PatientAttachmentLog skeletonLog,
