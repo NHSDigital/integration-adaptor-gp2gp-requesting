@@ -133,6 +133,22 @@ class SkeletonProcessingServiceTests {
     }
 
     @Test
+    void When_UpdateInboundMessageWithSkeleton_Expect_AttachmentIsFetchedByFilenameAndConversationId()
+        throws TransformerException, SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        prepareRCMRMocks(inboundMessage);
+
+        skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
+
+        verify(attachmentHandlerService).getAttachment(FILENAME, CONVERSATION_ID);
+    }
+
+    @Test
     void When_HappyPathWithSkeletonAsRCMRMessage_Expect_ThrowNoErrors() throws TransformerException,
         SAXException {
         var inboundMessage = new InboundMessage();
