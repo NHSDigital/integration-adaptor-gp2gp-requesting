@@ -28,12 +28,12 @@ public class SkeletonProcessingService {
 
 
     public InboundMessage updateInboundMessageWithSkeleton(PatientAttachmentLog skeletonLog,
-        InboundMessage inboundMessage, String conversationId)
-        throws SAXException, TransformerException {
+                                                           InboundMessage inboundMessage,
+                                                           String conversationId)
+                                                           throws SAXException, TransformerException {
 
         // merge skeleton message into original payload
-        var skeletonAttachment = attachmentHandlerService.getAttachment(
-            skeletonLog.getFilename(), conversationId);
+        var skeletonAttachment = attachmentHandlerService.getAttachment(skeletonLog.getFilename(), conversationId);
         var skeletonFileAsString = new String(skeletonAttachment, StandardCharsets.UTF_8);
 
         try {
@@ -72,7 +72,9 @@ public class SkeletonProcessingService {
     }
 
     private boolean isEntireRcmrSkeleton(String normalizedSkeleton) {
-        return normalizedSkeleton != null && normalizedSkeleton.startsWith("<RCMR_IN030000UK06");
+        return normalizedSkeleton != null
+            && (normalizedSkeleton.startsWith("<RCMR_IN030000UK06")
+                || normalizedSkeleton.startsWith("<RCMR_IN030000UK07"));
     }
 
     private InboundMessage insertSkeletonIntoInboundMessagePayload(PatientAttachmentLog skeletonLog,

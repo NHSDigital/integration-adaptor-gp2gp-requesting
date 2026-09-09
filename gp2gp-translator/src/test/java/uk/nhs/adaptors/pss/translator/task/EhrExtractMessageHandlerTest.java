@@ -71,6 +71,7 @@ import uk.nhs.adaptors.pss.translator.service.NackAckPrepInterface;
 import uk.nhs.adaptors.pss.translator.service.SkeletonProcessingService;
 import uk.nhs.adaptors.pss.translator.service.XPathService;
 import uk.nhs.adaptors.pss.translator.storage.StorageException;
+import uk.nhs.adaptors.pss.translator.util.XmlParseUtilService;
 
 @ExtendWith(MockitoExtension.class)
 public class EhrExtractMessageHandlerTest {
@@ -132,6 +133,22 @@ public class EhrExtractMessageHandlerTest {
 
     @Captor
     private ArgumentCaptor<PatientAttachmentLog> patientAttachmentLogCaptor;
+
+    @Test
+    public void When_SkeletonStartsWithEhrExtractVersion07_Expect_RecogniseAsWholeMessageSkeleton() throws Exception {
+        var service = new SkeletonProcessingService(
+            Mockito.mock(AttachmentHandlerService.class),
+            Mockito.mock(XmlParseUtilService.class),
+            Mockito.mock(XPathService.class)
+        );
+
+        var method = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
+        method.setAccessible(true);
+
+        var result = (boolean) method.invoke(service, "<RCMR_IN030000UK07");
+
+        assertTrue(result);
+    }
 
     @Test
     public void  When_HandleMessageWithValidDataIsCalled_Expect_CallsMigrationStatusLogServiceAddMigrationStatusLog()
