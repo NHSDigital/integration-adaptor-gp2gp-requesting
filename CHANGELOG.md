@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+* Updated skeleton processing to recognise `RCMR_IN030000UK07` as a valid full-message skeleton type in addition to
+  `RCMR_IN030000UK06`, ensuring the service correctly replaces the inbound payload when a UK07 skeleton is received.
+
 * Add Spring retry to MHS queue consumer to facilitate a more reasonable retry delay.
 
 ## [3.3.2] - 2026-08-19
