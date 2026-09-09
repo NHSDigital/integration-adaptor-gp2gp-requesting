@@ -207,6 +207,33 @@ class SkeletonProcessingServiceTests {
     }
 
     @Test
+    void When_IsEntireRcmrSkeletonCalledWithUk07Payload_Expect_ReturnsTrue() throws Exception {
+        var method = SkeletonProcessingService.class.getDeclaredMethod("isEntireRcmrSkeleton", String.class);
+        method.setAccessible(true);
+
+        assertTrue((Boolean) method.invoke(skeletonProcessingService, "<RCMR_IN030000UK07>"));
+    }
+
+    @Test
+    void When_SkeletonAsWholeUk07Message_Expect_InboundMessagePayloadIsNewRCMRMessage()
+        throws TransformerException, SAXException {
+        var inboundMessage = new InboundMessage();
+        var attachmentLog = createSkeletonPatientAttachmentLog();
+        var skeletonMessage = "<RCMR_IN030000UK07>" + readInboundMessagePayloadFromFile();
+
+        inboundMessage.setPayload(readInboundMessagePayloadFromFile());
+        inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
+
+        when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
+        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+
+        var newInboundMessage =
+            skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
+
+        assertTrue(newInboundMessage.getPayload().contains("<RCMR_IN030000UK07"));
+    }
+
+    @Test
     void When_NormalizeSkeletonXmlCalledWithXmlDeclaration_Expect_StripsDeclarationBeforeRcmrCheck() throws Exception {
         var normalizeMethod = SkeletonProcessingService.class.getDeclaredMethod("normalizeSkeletonXml", String.class);
         normalizeMethod.setAccessible(true);
