@@ -225,7 +225,7 @@ class SkeletonProcessingServiceTests {
         inboundMessage.setEbXML(readInboundMessageEbXmlFromFile());
 
         when(attachmentHandlerService.getAttachment(any(), any())).thenReturn(skeletonMessage.getBytes(StandardCharsets.UTF_8));
-        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(readInboundMessagePayloadFromFile());
+        when(xmlParseUtilService.getStringFromDocument(any())).thenReturn(skeletonMessage);
 
         var newInboundMessage =
             skeletonProcessingService.updateInboundMessageWithSkeleton(attachmentLog, inboundMessage, CONVERSATION_ID);
