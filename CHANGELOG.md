@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+
+## [3.3.3] - 2026-09-10
+
 ### Fixed
 
 * Updated skeleton processing to recognise `RCMR_IN030000UK07` as a valid full-message skeleton type in addition to
