@@ -41,7 +41,7 @@ public class SkeletonProcessingService {
             // if the skeleton starts with the RCMR tag, then we are replacing the whole message.
             // this behaviour is not a part of the specification but we have found this format in some messages
             var replaceEntirePayload = isEntireRcmrSkeleton(normalizedSkeleton);
-            var skeletonExtractDocument = xPathService.parseDocumentFromXml(normalizedSkeleton);
+            var skeletonExtractDocument = xPathService.parseDocumentFromXml(skeletonFileAsString);
 
             if (replaceEntirePayload) {
                 // replace the entire inbound message payload
